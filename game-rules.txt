@@ -1,0 +1,214 @@
+TurnTable — Game Rules Reference
+Rules + a short "how to play" video for each of the 26 games in game-list.txt.
+Written for 2 players (hot-seat, same device).
+
+=========================================
+CLASSIC ABSTRACT STRATEGY
+=========================================
+
+--- Tic-Tac-Toe ---
+Objective: Be the first to get 3 of your marks in a row (horizontal, vertical, or diagonal) on a 3x3 grid.
+Setup: Draw a 3x3 grid; one player is X, the other O.
+How to play: Players alternate turns (X goes first), placing their mark in any empty cell.
+How to win: First to line up 3 marks wins; if all 9 cells fill with no line, it's a draw.
+Video: How to play Tic Tac Toe (Triple S Games) — https://www.youtube.com/watch?v=USEjXNCTvcc
+
+--- Connect 4 ---
+Objective: Be the first to connect 4 of your colored discs in a row — horizontally, vertically, or diagonally.
+Setup: Stand the 7-column x 6-row grid upright; each player takes one disc color.
+How to play: Players alternate turns dropping one disc into the top of any column; it falls to the lowest open slot in that column.
+How to win: First to get 4 in a row wins; if the grid fills with no 4-in-a-row, it's a draw.
+Video: How to play Connect 4 (Triple S Games) — https://www.youtube.com/watch?v=ylZBRUJi3UQ
+
+--- Chess ---
+Objective: Checkmate the opponent's king — trap it under attack with no legal escape.
+Setup: 8x8 board; each side has 16 pieces (king, queen, 2 rooks, 2 bishops, 2 knights, 8 pawns) on their two nearest ranks; each queen starts on a matching-color square.
+How to play: Players alternate turns (White first), moving one piece per turn per its own movement rules; landing on an opponent's piece captures it.
+How to win: Checkmate wins instantly; stalemate (no legal move, not in check) and a few other conditions (repetition, insufficient material) are draws.
+Video: How to Play Chess: Chess Rules for Beginners (ChessKid) — https://www.youtube.com/watch?v=YdnvlntAQH8
+
+--- Checkers / Draughts ---
+Objective: Capture all of the opponent's pieces, or block them so they have no legal move.
+Setup: 8x8 board (dark squares only used); each player has 12 pieces on the dark squares of their three closest rows.
+How to play: Players alternate turns moving a piece diagonally forward one square; if a capture is available (jumping an adjacent enemy piece into an empty square beyond it) it must be taken, including multi-jumps in one turn; a piece reaching the far row becomes a "king," able to move/capture diagonally in any direction.
+How to win: Win by capturing all opposing pieces or leaving the opponent with no legal move.
+Video: How to play Checkers (Triple S Games) — https://www.youtube.com/watch?v=GnHQJ-PSBB0
+
+--- Reversi / Othello ---
+Objective: Have the majority of discs showing your color when the board is full or no moves remain.
+Setup: 8x8 board; start with 4 discs in the center in a diagonal pattern (2 black, 2 white).
+How to play: Players alternate turns (dark first), placing a disc so it "outflanks" one or more opponent discs in a straight line between the new disc and another of your own; all outflanked discs flip to your color; if you have no legal flipping move, you pass.
+How to win: When neither player can move, whoever has the most discs on the board wins.
+Video: How To Play Reversi (Othello) (Gather Together Games) — https://www.youtube.com/watch?v=QioKbksiJnA
+
+--- Gomoku (Five in a Row) ---
+Objective: Be the first to form an unbroken line of 5 stones — horizontal, vertical, or diagonal.
+Setup: A 15x15 (or 19x19) grid of intersections; one player takes black stones, the other white.
+How to play: Players alternate turns (black first), placing one stone on any empty intersection; stones never move once placed.
+How to win: First to complete a line of 5 stones wins; a full board with no line is a draw.
+Video: How to play Gomoku (5 in a row) (Triple S Games) — https://www.youtube.com/watch?v=-KD743yNDHc
+
+--- Go (Baduk) ---
+Objective: Control more territory (empty points surrounded by your stones) than your opponent.
+Setup: Played on a grid of intersections — 19x19 standard, or 9x9/13x13 for beginners; board starts empty; one player uses black stones, the other white.
+How to play: Players alternate turns (black first) placing one stone on an empty intersection; stones don't move once placed; a stone or connected group with no empty adjacent points ("liberties") left is captured and removed; a player may pass instead of playing.
+How to win: The game ends when both players pass in a row; whoever's territory plus captures score higher wins.
+Video: How to Play Go: Rules Explained | Beginner Tutorial on Go Game, Baduk, Weiqi (Go Magic) — https://www.youtube.com/watch?v=oZTdT8MQexk
+
+--- Dots and Boxes ---
+Objective: Claim more boxes than your opponent by drawing the fourth (final) side of a box.
+Setup: Draw a grid of dots (e.g. 5x5 dots for a 4x4 grid of boxes); decide who goes first.
+How to play: Players alternate turns drawing one line (horizontal or vertical) between two adjacent dots. Completing the fourth side of a box earns you that box (mark it with your initial) and an immediate extra turn — this can chain into multiple boxes in one turn.
+How to win: When every line is drawn, whoever owns the most boxes wins.
+Video: How To Play Dots and Boxes - Fun and Easy Strategy Game! — https://www.youtube.com/watch?v=202lIZjFv5I
+
+--- Nim ---
+Objective: Force your opponent into the losing position by controlling who takes the last object.
+Setup: Arrange tokens (coins, matchsticks) into several heaps — a common casual setup is 3 heaps of 3, 5, and 7.
+How to play: Players alternate turns; each turn, remove any number of objects (at least one) from a single heap only.
+How to win: In standard ("normal") play, whoever takes the last remaining object wins; in the "misere" variant (equally common casually), whoever is forced to take the last object loses.
+Video: How to Play Nim — https://www.youtube.com/watch?v=xsq_UEQDTWA
+
+--- Nine Men's Morris ---
+Objective: Reduce your opponent to fewer than three pieces, or trap them so they can't move.
+Setup: Board of three nested squares joined by lines at the midpoints (24 points); each player has 9 pieces off the board.
+How to play: Phase 1 — take turns placing one piece on an empty point, trying to line up 3 in a row along a board line (a "mill"); completing a mill lets you remove one opponent piece (not one in a mill, unless no others remain). Phase 2 — once all pieces are placed, take turns sliding a piece one step to an adjacent empty point, still forming/reforming mills to capture. A player reduced to exactly 3 pieces may "fly" a piece to any empty point.
+How to win: Reduce the opponent to 2 pieces, or block all of their legal moves.
+Video: How To Play Nine Men's Morris (Gather Together Games) — https://www.youtube.com/watch?v=lmFDibk7_qc
+
+--- Quarto ---
+Objective: Be the player who places the piece that completes a line of four sharing a common trait.
+Setup: 4x4 board and 16 unique pieces, each a combination of 4 binary traits (tall/short, light/dark, round/square, solid/hollow).
+How to play: Turns work in reverse of usual — you place the piece your opponent handed you onto any empty square, then you choose one of the remaining pieces and hand it to your opponent for their next placement.
+How to win: If the piece just placed completes a row, column, or diagonal of 4 pieces that all share at least one trait (e.g. all tall, or all round), the player who placed it wins; if the board fills with no such line, it's a draw.
+Video: How to Play Quarto in 2 minutes (2 player board games tutorial) — https://www.youtube.com/watch?v=hx18r9yWgiE
+
+--- Hex ---
+Objective: Build an unbroken chain of your pieces connecting your two assigned sides of the board.
+Setup: Rhombus-shaped board of hexagons (commonly 11x11); each player is assigned one pair of opposite sides and a color.
+How to play: Players alternate placing one stone of their color on any empty hexagon (no captures, no movement).
+How to win: First player to complete a connected path of their stones linking their two sides wins; Hex can never end in a draw.
+Video: How to play Hex — https://www.youtube.com/watch?v=kUBZ0GWZvIY
+
+--- Mancala / Kalah ---
+Objective: Capture more seeds into your store than your opponent.
+Setup: Board with two rows of 6 small pits plus a larger store at each end; each small pit starts with 4 seeds; each player owns the row and store on their right.
+How to play: On your turn, scoop up all seeds from one of your own pits and sow them one-by-one counterclockwise into each following pit, including your own store but skipping your opponent's store. Landing your last seed in your own store earns you another turn; landing it in an empty pit on your own side captures that seed plus all seeds in the opposite pit.
+How to win: Once one player's row is completely empty, the other player keeps all remaining seeds on their side; whoever has more seeds in their store wins.
+Video: How to play Mancala (2024 rules) — https://www.youtube.com/watch?v=URzmg_HuuXc
+
+=========================================
+DICE & MOVEMENT
+=========================================
+
+--- Backgammon ---
+Objective: Move all 15 of your checkers around the board and bear them off before your opponent does.
+Setup: Board of 24 triangular points grouped into 4 quadrants; each player starts with 15 checkers in the standard opening formation, moving in opposite directions toward their own home board.
+How to play: Players alternate rolling two dice and moving checkers that many pips along the points in their direction (each die is a separate move); you can land on an open point, a point with your own checkers, or a point with a single opposing checker (hitting it, sending it to the bar to re-enter first); rolling doubles lets you play that number four times.
+How to win: First player to bear all 15 checkers off the board from their home board wins.
+Video: How to play Backgammon (2024 Rules) — https://www.youtube.com/watch?v=UMHCuZkLsQU
+
+--- Ludo ---
+Objective: Race all four of your tokens around the board and into your home triangle before your opponent does.
+Setup: Each player picks a color, places all 4 tokens in their starting yard; board is a cross-shaped track played clockwise.
+How to play: Roll a die each turn; you need a 6 to bring a token out of the yard onto the board; move a token forward the number rolled; rolling a 6 gives an extra roll; landing exactly on an opponent's token sends it back to their yard.
+How to win: First player to get all 4 tokens completely around the board and into their home triangle wins.
+Video: How to Play Ludo — https://www.youtube.com/watch?v=xYXj9DwKHr4
+
+--- Snakes and Ladders ---
+Objective: Be the first to move your token from square 1 to the final numbered square (usually 100).
+Setup: Each player takes a token and starts off the board (or on square 1); the board has ladders (climb up) and snakes (slide down) scattered across it.
+How to play: Take turns rolling one die and moving your token forward that many squares; land on a ladder's bottom and climb to its top; land on a snake's head and slide down to its tail; an exact roll is usually needed to land precisely on the final square.
+How to win: First player whose token reaches the final square wins.
+Video: How to play Snakes and Ladders — https://www.youtube.com/watch?v=dJ-dMNzSBNI
+
+--- Yahtzee ---
+Objective: Score the most total points by rolling dice into scoring combinations over 13 rounds.
+Setup: Each player has 5 dice and a scorecard listing upper-section categories (Ones-Sixes) and lower-section categories (3/4-of-a-Kind, Full House, Straights, Yahtzee, Chance).
+How to play: Each turn, roll all 5 dice up to 3 times, setting aside any dice you want to keep between rolls; after your last roll, choose one unused category to score your dice into (every category is used exactly once per game).
+How to win: After all 13 categories are filled (plus a bonus if the upper section totals 63+), whoever has the highest total score wins.
+Video: This is How You Can Play Yahtzee in 3 Minutes (Tabletop Duo) — https://www.youtube.com/watch?v=eYqR2i9gGe4
+
+=========================================
+HIDDEN-INFO / PASS-AND-LOOK-AWAY
+=========================================
+
+--- Battleship ---
+Objective: Sink your opponent's entire fleet before they sink yours.
+Setup: Each player secretly places a fleet of ships (e.g., carrier, battleship, cruiser, submarine, destroyer) on their own grid, hidden from the other player, and keeps a second tracking grid for recording guesses.
+How to play: Players alternate calling out grid coordinates to "fire" at; the opponent reports "hit" or "miss," and each player marks the result on their tracking grid to hunt down remaining ships.
+How to win: The first player to hit every square of all the opponent's ships (sinking the whole fleet) wins.
+Video: How to Play Battleship (Triple S Games) — https://www.youtube.com/watch?v=q0qpQ8doUp8
+
+--- Hangman ---
+Objective: Guess the secret word or phrase letter by letter before the drawing is completed.
+Setup: One player secretly picks a word/phrase and draws a blank dash for each letter, plus the empty gallows.
+How to play: The other player guesses one letter at a time; correct letters get filled into their blanks; each wrong guess adds a part to the hangman drawing (typically allowing 6-10 wrong guesses).
+How to win: The guesser wins by completing the word before the drawing is finished; the setter wins if the drawing is completed first.
+Video: How to Play Hangman (Triple S Games) — https://www.youtube.com/watch?v=cGOeiQfjYPk
+
+=========================================
+CARD-STYLE
+=========================================
+
+--- War ---
+Objective: Win the entire deck by beating your opponent's cards.
+Setup: Split a standard 52-card deck evenly (26 cards each), dealt face-down as each player's draw pile.
+How to play: Both players flip their top card at the same time; the higher card wins and takes both cards (added to the bottom of the winner's pile); on a tie, it's "War" — each player places cards face-down then one face-up, and the higher face-up card takes everything played in that War (ties can repeat the War).
+How to win: The first player to collect all 52 cards (their opponent runs out) wins.
+Video: How to Play War in 2 Minutes | Simple Card Game Guide (Animation Builders) — https://www.youtube.com/watch?v=Cco8KCjVKZs
+
+--- Go Fish ---
+Objective: Collect the most four-of-a-kind sets ("books") by asking your opponent for cards.
+Setup: Standard 52-card deck; deal 5 cards to each player (2-player game), remaining cards form the face-down draw pile ("the ocean").
+How to play: On your turn, ask your opponent for a specific rank you already hold at least one of; if they have it, they hand over all their cards of that rank and you go again; if not, they say "Go Fish" and you draw a card from the ocean; whenever you complete a four-of-a-kind, lay it down as a book.
+How to win: When all books are made (deck exhausted), the player with the most books wins.
+Video: How to play Go Fish (Card Game) (Triple S Games) — https://www.youtube.com/watch?v=hRpXLSMdve0
+
+--- Uno-style matching ---
+Objective: Be the first player to get rid of all your cards.
+Setup: Shuffle a deck of color/number cards (or an adapted standard deck) into a draw pile; deal 7 cards to each player; flip the top card of the remaining pile to start the discard pile.
+How to play: Players alternate turns. On your turn, play a card from your hand that matches the top discard card by color or number/symbol, or play a wild card. If you have no playable card, draw one from the pile (play it if it's now playable, otherwise your turn ends). Action cards (Skip, Draw Two, Wild, Wild Draw Four) affect the next turn — in 2-player, a Reverse or Skip simply gives you another turn. Announce when you're down to your last card.
+How to win: First player to play their last card wins the round.
+Video: How to Play UNO in 3 Minutes (UNO Card Game Rules) (Tabletop Duo) — https://www.youtube.com/watch?v=jWbpCIgTYhU
+
+--- Memory / Concentration ---
+Objective: Collect more matching pairs than your opponent.
+Setup: Shuffle a deck of paired cards (numbers, pictures, or a standard deck) and lay every card face-down in a grid.
+How to play: Players alternate turns. On your turn, flip two cards face-up. If they match, keep the pair and take another turn. If they don't match, flip both back face-down and it becomes the other player's turn.
+How to win: When every card has been matched, the player holding the most pairs wins.
+Video: How to Play Concentration - a memory matching card game (Riffle Shuffle & Roll) — https://www.youtube.com/watch?v=wQV5RJKs_qI
+
+=========================================
+PARTY / WORD
+=========================================
+
+--- Rock Paper Scissors ---
+Objective: Beat your opponent's hand shape on a given throw.
+Setup: No materials needed — just two players and their hands.
+How to play: Both players simultaneously count off (e.g. "Rock, Paper, Scissors, Shoot!") and on the last beat reveal one shape at the same time: Rock (fist), Paper (flat hand), or Scissors (two fingers extended).
+How to win: Rock beats Scissors, Scissors beats Paper, Paper beats Rock. A matching throw is a tie and is replayed. Usually played as best-of-3 or best-of-5.
+Video: How to play Rock Paper Scissors (Triple S Games) — https://www.youtube.com/watch?v=2dsHuU10udY
+
+--- Scrabble-style word building ---
+Objective: Score the most points by building words on a shared board.
+Setup: Put letter tiles (each with a point value) in a bag; each player draws 7 tiles; start with an empty board with a marked center square.
+How to play: Players alternate turns. On your turn, form a word from your tiles, placing it on the board like a crossword (the first word must cross the center square; every later word must connect to existing letters). Score points based on the tiles used and any bonus squares covered, then draw back up to 7 tiles. You may also pass or exchange tiles instead of playing.
+How to win: Play ends when the tile bag is empty and a player uses their last tile, or when neither player can play. Highest total score wins.
+Video: How to Play Scrabble (Triple S Games) — https://www.youtube.com/watch?v=K1KgvZwwJqo
+
+--- 20 Questions / word-guessing ---
+Objective: Guess the secret person, place, or thing the other player is thinking of.
+Setup: One player (the answerer) secretly picks a person, place, or thing; the other player is the guesser.
+How to play: Players alternate — the guesser asks yes/no questions (up to 20 total) to narrow down the answer; the answerer must respond truthfully with "yes" or "no." The guesser may make a guess at the answer at any point instead of asking a question.
+How to win: The guesser wins if they name the correct answer within 20 questions; the answerer wins if the guesser runs out of questions first. Players typically swap roles for the next round.
+Video: How to Play 20 Questions (Howcast) — https://www.youtube.com/watch?v=FDu3S2lXa_k
+
+=========================================
+NOTE ON VIDEO LINKS
+=========================================
+All 26 links were verified as real, currently-live YouTube videos (title + channel confirmed).
+Exact runtimes could not be double-checked on every one due to rate-limiting, but each was chosen
+as a short, dedicated "how to play" rules explainer rather than a gameplay/review upload — most
+run well under 6 minutes. Worth a quick skim-check before publishing, since channels occasionally
+re-upload or remove videos.

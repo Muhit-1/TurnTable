@@ -1,2 +1,6 @@
 game-list.txt
 stack-list.txt
+
+node_modules/
+dist/
+.vite/

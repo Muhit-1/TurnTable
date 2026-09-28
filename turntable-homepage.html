@@ -1,0 +1,577 @@
+<title>TurnTable</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: #fbf6ea; font-family: 'Space Grotesk', sans-serif; color: #171712;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; text-decoration: none; }
+  img { max-width: 100%; }
+  :focus-visible { outline: 3px solid #171712; outline-offset: 3px; }
+
+  .page {
+    --bg: #fbf6ea; --surface: #ffffff; --ink: #171712; --muted: #726f5e;
+    --accent: #ffb703; --accent-2: #2f9e44; --line: rgba(23,23,18,.16);
+    padding: 0 14px 70px;
+  }
+
+  /* ---------- header, neal.fun-style: one bold wordmark, one small tagline ---------- */
+  .head { max-width: 1400px; margin: 0 auto; padding: 40px 2px 24px; text-align: center; }
+  .wordmark {
+    font-family: 'Bebas Neue', sans-serif; font-size: clamp(42px, 7vw, 66px); letter-spacing: .01em; margin: 0;
+  }
+  .tagline { color: var(--muted); font-size: 14px; margin: 6px 0 0; }
+
+  /* ---------- category filter bar ---------- */
+  .filters {
+    position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10;
+    max-width: 1400px; margin: 0 auto; padding: 10px 2px;
+    display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; background: var(--bg);
+    border-bottom: 2px solid var(--line); margin-bottom: 22px;
+  }
+  .filters button {
+    font: inherit; cursor: pointer; background: var(--surface); border: 2px solid var(--ink); color: var(--ink);
+    padding: 8px 16px; border-radius: 999px; font-size: 13px; font-weight: 600;
+    transition: background .12s ease, color .12s ease, transform .12s ease, box-shadow .12s ease;
+  }
+  .filters button .count { color: var(--muted); font-family: 'JetBrains Mono', monospace; font-size: 11px; margin-left: 5px; }
+  .filters button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+  .filters button[aria-pressed="true"] .count { color: rgba(251,246,234,.65); }
+  .filters button:hover { transform: translate(-1px,-1px); box-shadow: 3px 3px 0 var(--ink); }
+  .filters button[aria-pressed="true"]:hover { box-shadow: 3px 3px 0 var(--accent-2); }
+
+  /* ---------- mini game preview engine ---------- */
+  .mg { width: 92px; height: 92px; position: relative; }
+  @keyframes mg-pop { 0% { opacity: 0; transform: scale(.5); } 8% { opacity: 1; transform: scale(1); } 78% { opacity: 1; } 90% { opacity: 0; } 100% { opacity: 0; } }
+  .mg-ttt { display: grid; grid-template-columns: repeat(3,1fr); grid-template-rows: repeat(3,1fr); gap: 4px; }
+  .mg-ttt .cell { background: rgba(251,246,234,.08); border-radius: 4px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .mg-ttt .mark { font-weight: 700; font-size: 20px; line-height: 1; animation: mg-pop 5s ease-in-out infinite; animation-play-state: paused; }
+  .mg-ttt .mark.x { color: var(--accent); }
+  .mg-ttt .mark.o { color: var(--accent-2); }
+  .mg-ttt .win-line {
+    position: absolute; left: 6px; top: 44px; width: 80px; height: 3px; border-radius: 2px;
+    background: var(--accent); transform-origin: left center; transform: rotate(-45deg) translateY(-40px);
+    animation: mg-pop 5s ease-in-out infinite; animation-delay: 3s; animation-play-state: paused;
+  }
+  .mg-c4 { background: rgba(251,246,234,.06); border-radius: 8px; overflow: hidden; padding: 6px; }
+  .mg-c4 .hole { position: absolute; width: 16px; height: 16px; border-radius: 50%; background: rgba(251,246,234,.1); bottom: 6px; }
+  @keyframes c4-drop { 0% { opacity: 0; transform: translateY(-70px); } 10% { opacity: 1; } 22% { transform: translateY(0); } 74% { transform: translateY(0); opacity: 1; } 88% { opacity: 0; } 100% { opacity: 0; transform: translateY(-70px); } }
+  .mg-c4 .disc { position: absolute; width: 16px; height: 16px; border-radius: 50%; bottom: 6px; animation: c4-drop 4.4s ease-in infinite; animation-play-state: paused; }
+  .mg-chess { display: grid; grid-template-columns: repeat(4,1fr); grid-template-rows: repeat(4,1fr); gap: 1px; position: relative; }
+  .mg-chess .sq { background: rgba(251,246,234,.05); }
+  .mg-chess .sq:nth-child(odd) { background: rgba(251,246,234,.1); }
+  .mg-chess .knight { position: absolute; font-size: 30px; color: var(--accent); line-height: 1; animation: knight-move 4s ease-in-out infinite; animation-play-state: paused; }
+  @keyframes knight-move {
+    0%, 6% { transform: translate(2px, 2px); } 28%, 34% { transform: translate(46px, 2px); }
+    56%, 62% { transform: translate(46px, 46px); } 84%, 90% { transform: translate(2px, 46px); } 100% { transform: translate(2px, 2px); }
+  }
+  .mg-gomoku { position: relative; display: grid; grid-template-columns: repeat(5,1fr); grid-template-rows: repeat(3,1fr); gap: 3px; }
+  .mg-gomoku .cell { background: rgba(251,246,234,.08); border-radius: 3px; display: flex; align-items: center; justify-content: center; }
+  .mg-gomoku .stone { width: 70%; height: 70%; border-radius: 50%; background: var(--accent); animation: mg-pop 5s ease-in-out infinite; animation-play-state: paused; }
+  .mg-gomoku .win-line {
+    position: absolute; left: 2px; top: calc(50% - 1.5px); width: calc(100% - 4px); height: 3px; border-radius: 2px;
+    background: var(--accent-2); animation: mg-pop 5s ease-in-out infinite; animation-delay: 2.6s; animation-play-state: paused;
+  }
+  .mg-nim { display: flex; flex-direction: column; justify-content: center; gap: 9px; height: 100%; padding: 4px 0; }
+  .mg-nim .nim-row { display: flex; gap: 6px; justify-content: center; }
+  @keyframes nim-take { 0%, 8% { opacity: 1; transform: scale(1); } 14% { opacity: 0; transform: scale(.3); } 92% { opacity: 0; } 100% { opacity: 1; transform: scale(1); } }
+  .mg-nim .token { width: 11px; height: 11px; border-radius: 2px; background: var(--accent-2); animation: nim-take 5s ease-in-out infinite; animation-play-state: paused; }
+  .mg-nim .token:nth-child(odd) { background: var(--accent); }
+  .mg-hex { position: relative; display: grid; grid-template-columns: repeat(5,1fr); grid-template-rows: repeat(3,1fr); gap: 4px; padding: 2px; }
+  .mg-hex .cell { background: rgba(251,246,234,.08); border-radius: 3px; display: flex; align-items: center; justify-content: center; }
+  .mg-hex .stone { width: 62%; height: 62%; border-radius: 50%; animation: mg-pop 5s ease-in-out infinite; animation-play-state: paused; }
+  .mg-hex .stone.a { background: var(--accent); }
+  .mg-hex .stone.b { background: var(--accent-2); }
+  .mg-hex .bridge {
+    position: absolute; left: 4px; top: calc(50% - 1.5px); width: calc(100% - 8px); height: 3px; border-radius: 2px;
+    background: var(--accent); transform: rotate(-16deg); animation: mg-pop 5s ease-in-out infinite; animation-delay: 2.4s; animation-play-state: paused;
+  }
+  .mg-die { display: flex; align-items: center; justify-content: center; }
+  .mg-die .die-body {
+    width: 58px; height: 58px; border-radius: 12px; background: rgba(251,246,234,.9); border: 2px solid var(--muted);
+    position: relative; animation: die-roll 3.6s ease-in-out infinite; animation-play-state: paused;
+  }
+  @keyframes die-roll { 0%,8% { transform: rotate(0deg); } 30% { transform: rotate(100deg); } 55% { transform: rotate(190deg); } 78% { transform: rotate(280deg); } 100% { transform: rotate(360deg); } }
+  .mg-die .pip { position: absolute; width: 9px; height: 9px; border-radius: 50%; background: var(--ink); }
+  .mg-die .pip.tl { top: 9px; left: 9px; } .mg-die .pip.tr { top: 9px; right: 9px; }
+  .mg-die .pip.bl { bottom: 9px; left: 9px; } .mg-die .pip.br { bottom: 9px; right: 9px; }
+  .mg-battleship { display: grid; grid-template-columns: repeat(4,1fr); grid-template-rows: repeat(4,1fr); gap: 3px; }
+  .mg-battleship .cell { background: rgba(251,246,234,.08); border-radius: 3px; display: flex; align-items: center; justify-content: center; }
+  .mg-battleship .hit { width: 60%; height: 60%; border-radius: 50%; background: var(--accent); animation: mg-pop 5s ease-in-out infinite; animation-play-state: paused; }
+  .mg-battleship .miss { width: 46%; height: 46%; border-radius: 50%; border: 2px solid rgba(251,246,234,.6); animation: mg-pop 5s ease-in-out infinite; animation-delay: 1.4s; animation-play-state: paused; }
+  .mg-soon { display: flex; align-items: center; justify-content: center; }
+  .mg-soon .glow {
+    position: relative; width: 62px; height: 62px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    background: radial-gradient(circle, var(--accent-2) 0%, transparent 72%);
+    opacity: .3; animation: soon-pulse 3.2s ease-in-out infinite; animation-play-state: paused;
+  }
+  .mg-soon .glow span { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; color: rgba(251,246,234,.85); }
+  @keyframes soon-pulse { 0%,100% { transform: scale(.82); opacity: .22; } 50% { transform: scale(1.2); opacity: .5; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mg-ttt .mark, .mg-ttt .win-line, .mg-c4 .disc, .mg-chess .knight,
+    .mg-gomoku .stone, .mg-gomoku .win-line, .mg-nim .token,
+    .mg-hex .stone, .mg-hex .bridge, .mg-die .die-body, .mg-battleship .hit, .mg-battleship .miss, .mg-soon .glow
+    { animation: none !important; opacity: 1 !important; transform: none !important; }
+  }
+
+  .mono-icon {
+    width: 52px; height: 52px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700;
+    background: rgba(23,23,18,.07); color: var(--muted); flex: 0 0 auto;
+  }
+
+  /* ---------- grid of chunky, neal.fun-styled cards, single shrink-panel hover effect ---------- */
+  .grid {
+    max-width: 1400px; margin: 0 auto;
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px;
+  }
+  .icd-card { position: relative; height: 168px; }
+  .icd-shell {
+    position: relative; width: 100%; height: 100%; border-radius: 18px; overflow: hidden;
+    border: 3px solid var(--ink); background: var(--ink);
+    box-shadow: 0 3px 0 rgba(23,23,18,.15);
+    transition: transform .12s ease, box-shadow .12s ease;
+  }
+  .icd-card:hover .icd-shell, .icd-card:focus-within .icd-shell {
+    transform: translate(-2px, -3px);
+    box-shadow: 4px 6px 0 rgba(23,23,18,.85);
+  }
+  .icd-content { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+  .icd-shell .ic-num {
+    position: absolute; top: 10px; right: 12px; z-index: 3;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); transition: color .3s ease;
+  }
+  .icd-card:hover .icd-shell .ic-num, .icd-card:focus-within .icd-shell .ic-num { color: rgba(251,246,234,.6); }
+  .icd-panel {
+    position: absolute; left: 0; right: 0; bottom: 0; height: 100%; z-index: 2;
+    background: var(--surface); border-top: 3px solid var(--ink);
+    transition: height .35s ease;
+  }
+  .icd-card:hover .icd-panel, .icd-card:focus-within .icd-panel { height: 46px; }
+  .icd-panel-top {
+    position: absolute; inset: 0; display: flex; align-items: center; gap: 14px;
+    padding: 14px 40px 14px 18px; transition: opacity .18s ease;
+  }
+  .icd-card:hover .icd-panel-top, .icd-card:focus-within .icd-panel-top { opacity: 0; pointer-events: none; }
+  .icd-desc {
+    font-family: 'Space Grotesk', sans-serif; font-size: 12px; color: var(--muted); line-height: 1.4; margin: 0;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .icd-panel-name {
+    position: absolute; left: 18px; top: 0; height: 46px; display: flex; align-items: center;
+    font-family: 'Fraunces', serif; font-style: italic; font-size: 15px; color: var(--ink);
+    opacity: 0; transition: opacity .2s ease .1s;
+  }
+  .icd-card:hover .icd-panel-name, .icd-card:focus-within .icd-panel-name { opacity: 1; }
+
+  .icd-card:hover .icd-shell .mark, .icd-card:hover .icd-shell .win-line, .icd-card:hover .icd-shell .disc, .icd-card:hover .icd-shell .knight,
+  .icd-card:hover .icd-shell .stone, .icd-card:hover .icd-shell .bridge, .icd-card:hover .icd-shell .token,
+  .icd-card:hover .icd-shell .die-body, .icd-card:hover .icd-shell .hit, .icd-card:hover .icd-shell .miss,
+  .icd-card:hover .icd-shell .glow,
+  .icd-card:focus-within .icd-shell .mark, .icd-card:focus-within .icd-shell .win-line, .icd-card:focus-within .icd-shell .disc, .icd-card:focus-within .icd-shell .knight,
+  .icd-card:focus-within .icd-shell .stone, .icd-card:focus-within .icd-shell .bridge, .icd-card:focus-within .icd-shell .token,
+  .icd-card:focus-within .icd-shell .die-body, .icd-card:focus-within .icd-shell .hit, .icd-card:focus-within .icd-shell .miss,
+  .icd-card:focus-within .icd-shell .glow {
+    animation-play-state: running;
+  }
+
+  @media (max-width: 480px) {
+    .grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+    .icd-card { height: 154px; }
+    .mono-icon { width: 42px; height: 42px; }
+  }
+</style>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Fraunces:ital,wght@1,500;1,600&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap">
+
+<div class="page">
+  <div class="head">
+    <h1 class="wordmark">TurnTable</h1>
+    <p class="tagline">26 two-player games, one shared screen.</p>
+  </div>
+
+  <nav class="filters" id="filters" aria-label="Filter games by category">
+    <button data-filter="all" aria-pressed="true">All <span class="count">26</span></button>
+    <button data-filter="strategy" aria-pressed="false">Strategy <span class="count">13</span></button>
+    <button data-filter="dice" aria-pressed="false">Dice <span class="count">4</span></button>
+    <button data-filter="hidden" aria-pressed="false">Hidden <span class="count">2</span></button>
+    <button data-filter="cards" aria-pressed="false">Cards <span class="count">4</span></button>
+    <button data-filter="party" aria-pressed="false">Party <span class="count">3</span></button>
+  </nav>
+
+  <div class="grid" id="grid">
+
+    <div class="icd-card" data-category="strategy" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content">
+          <div class="mg mg-ttt" aria-hidden="true">
+            <div class="cell"><span class="mark x" style="animation-delay:0s">✕</span></div><div class="cell"></div>
+            <div class="cell"><span class="mark o" style="animation-delay:.6s">○</span></div>
+            <div class="cell"></div><div class="cell"><span class="mark x" style="animation-delay:1.2s">✕</span></div><div class="cell"></div>
+            <div class="cell"><span class="mark o" style="animation-delay:1.8s">○</span></div><div class="cell"></div>
+            <div class="cell"><span class="mark x" style="animation-delay:2.4s">✕</span></div><span class="win-line"></span>
+          </div>
+        </div>
+        <div class="icd-panel">
+          <div class="icd-panel-top">
+            <div class="mono-icon">TT</div>
+            <p class="icd-desc">Get three in a row — across, down, or diagonal.</p>
+          </div>
+          <span class="icd-panel-name">Tic-Tac-Toe</span>
+        </div>
+        <span class="ic-num">No. 01</span>
+      </div>
+    </div>
+
+    <div class="icd-card" data-category="strategy" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content">
+          <div class="mg mg-c4" style="position:relative" aria-hidden="true">
+            <span class="hole" style="left:8px"></span><span class="hole" style="left:32px"></span><span class="hole" style="left:56px"></span><span class="hole" style="left:80px"></span>
+            <span class="disc" style="left:8px;background:var(--accent);animation-delay:0s"></span>
+            <span class="disc" style="left:32px;background:var(--accent-2);animation-delay:.5s"></span>
+            <span class="disc" style="left:56px;background:var(--accent);animation-delay:1s"></span>
+            <span class="disc" style="left:80px;background:var(--accent-2);animation-delay:1.5s"></span>
+          </div>
+        </div>
+        <div class="icd-panel">
+          <div class="icd-panel-top">
+            <div class="mono-icon">C4</div>
+            <p class="icd-desc">Drop discs and line up four before your opponent.</p>
+          </div>
+          <span class="icd-panel-name">Connect Four</span>
+        </div>
+        <span class="ic-num">No. 02</span>
+      </div>
+    </div>
+
+    <div class="icd-card" data-category="strategy" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content">
+          <div class="mg mg-chess" aria-hidden="true">
+            <span class="sq"></span><span class="sq"></span><span class="sq"></span><span class="sq"></span>
+            <span class="sq"></span><span class="sq"></span><span class="sq"></span><span class="sq"></span>
+            <span class="sq"></span><span class="sq"></span><span class="sq"></span><span class="sq"></span>
+            <span class="sq"></span><span class="sq"></span><span class="sq"></span><span class="sq"></span>
+            <span class="knight">♞</span>
+          </div>
+        </div>
+        <div class="icd-panel">
+          <div class="icd-panel-top">
+            <div class="mono-icon">♞</div>
+            <p class="icd-desc">Outmaneuver every piece and checkmate their king.</p>
+          </div>
+          <span class="icd-panel-name">Chess</span>
+        </div>
+        <span class="ic-num">No. 03</span>
+      </div>
+    </div>
+
+    <div class="icd-card" data-category="strategy" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content"><div class="mg mg-soon" aria-hidden="true"><div class="glow"><span>CK</span></div></div></div>
+        <div class="icd-panel">
+          <div class="icd-panel-top"><div class="mono-icon">CK</div><p class="icd-desc">Jump your way across the board and clear their pieces.</p></div>
+          <span class="icd-panel-name">Checkers</span>
+        </div>
+        <span class="ic-num">No. 04</span>
+      </div>
+    </div>
+
+    <div class="icd-card" data-category="strategy" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content"><div class="mg mg-soon" aria-hidden="true"><div class="glow"><span>RV</span></div></div></div>
+        <div class="icd-panel">
+          <div class="icd-panel-top"><div class="mono-icon">RV</div><p class="icd-desc">Flip your opponent's discs to claim the board.</p></div>
+          <span class="icd-panel-name">Reversi</span>
+        </div>
+        <span class="ic-num">No. 05</span>
+      </div>
+    </div>
+
+    <div class="icd-card" data-category="strategy" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content">
+          <div class="mg mg-gomoku" aria-hidden="true">
+            <div class="cell"></div><div class="cell"></div><div class="cell"><span class="stone" style="animation-delay:0s"></span></div><div class="cell"></div><div class="cell"></div>
+            <div class="cell"></div><div class="cell"><span class="stone" style="animation-delay:.5s"></span></div><div class="cell"><span class="stone" style="animation-delay:1s"></span></div><div class="cell"><span class="stone" style="animation-delay:1.5s"></span></div><div class="cell"></div>
+            <div class="cell"></div><div class="cell"></div><div class="cell"><span class="stone" style="animation-delay:2s"></span></div><div class="cell"></div><div class="cell"></div>
+            <span class="win-line"></span>
+          </div>
+        </div>
+        <div class="icd-panel">
+          <div class="icd-panel-top"><div class="mono-icon">GM</div><p class="icd-desc">Line up five stones in a row before your opponent.</p></div>
+          <span class="icd-panel-name">Gomoku</span>
+        </div>
+        <span class="ic-num">No. 06</span>
+      </div>
+    </div>
+
+    <div class="icd-card" data-category="strategy" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content"><div class="mg mg-soon" aria-hidden="true"><div class="glow"><span>GO</span></div></div></div>
+        <div class="icd-panel">
+          <div class="icd-panel-top"><div class="mono-icon">GO</div><p class="icd-desc">Surround more territory than your opponent.</p></div>
+          <span class="icd-panel-name">Go</span>
+        </div>
+        <span class="ic-num">No. 07</span>
+      </div>
+    </div>
+
+    <div class="icd-card" data-category="strategy" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content"><div class="mg mg-soon" aria-hidden="true"><div class="glow"><span>DB</span></div></div></div>
+        <div class="icd-panel">
+          <div class="icd-panel-top"><div class="mono-icon">DB</div><p class="icd-desc">Draw lines, claim boxes, outscore your opponent.</p></div>
+          <span class="icd-panel-name">Dots &amp; Boxes</span>
+        </div>
+        <span class="ic-num">No. 08</span>
+      </div>
+    </div>
+
+    <div class="icd-card" data-category="strategy" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content">
+          <div class="mg mg-nim" aria-hidden="true">
+            <div class="nim-row">
+              <span class="token" style="animation-delay:0s"></span><span class="token" style="animation-delay:.15s"></span><span class="token" style="animation-delay:.3s"></span><span class="token" style="animation-delay:.45s"></span><span class="token" style="animation-delay:.6s"></span>
+            </div>
+            <div class="nim-row">
+              <span class="token" style="animation-delay:1.4s"></span><span class="token" style="animation-delay:1.55s"></span><span class="token" style="animation-delay:1.7s"></span>
+            </div>
+            <div class="nim-row"><span class="token" style="animation-delay:2.6s"></span></div>
+          </div>
+        </div>
+        <div class="icd-panel">
+          <div class="icd-panel-top"><div class="mono-icon">NI</div><p class="icd-desc">Take turns removing tokens — don't take the last one.</p></div>
+          <span class="icd-panel-name">Nim</span>
+        </div>
+        <span class="ic-num">No. 09</span>
+      </div>
+    </div>
+
+    <div class="icd-card" data-category="strategy" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content"><div class="mg mg-soon" aria-hidden="true"><div class="glow"><span>9M</span></div></div></div>
+        <div class="icd-panel">
+          <div class="icd-panel-top"><div class="mono-icon">9M</div><p class="icd-desc">Form mills to capture your opponent's pieces.</p></div>
+          <span class="icd-panel-name">Nine Men's Morris</span>
+        </div>
+        <span class="ic-num">No. 10</span>
+      </div>
+    </div>
+
+    <div class="icd-card" data-category="strategy" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content"><div class="mg mg-soon" aria-hidden="true"><div class="glow"><span>QT</span></div></div></div>
+        <div class="icd-panel">
+          <div class="icd-panel-top"><div class="mono-icon">QT</div><p class="icd-desc">Hand off the piece that beats you — if you dare.</p></div>
+          <span class="icd-panel-name">Quarto</span>
+        </div>
+        <span class="ic-num">No. 11</span>
+      </div>
+    </div>
+
+    <div class="icd-card" data-category="strategy" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content">
+          <div class="mg mg-hex" aria-hidden="true">
+            <div class="cell"><span class="stone a" style="animation-delay:0s"></span></div><div class="cell"></div><div class="cell"><span class="stone b" style="animation-delay:.6s"></span></div><div class="cell"></div><div class="cell"></div>
+            <div class="cell"></div><div class="cell"><span class="stone a" style="animation-delay:1.2s"></span></div><div class="cell"><span class="stone a" style="animation-delay:1.8s"></span></div><div class="cell"></div><div class="cell"></div>
+            <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"><span class="stone a" style="animation-delay:2.4s"></span></div><div class="cell"><span class="stone a" style="animation-delay:3s"></span></div>
+            <span class="bridge"></span>
+          </div>
+        </div>
+        <div class="icd-panel">
+          <div class="icd-panel-top"><div class="mono-icon">HX</div><p class="icd-desc">Connect your two sides with an unbroken chain.</p></div>
+          <span class="icd-panel-name">Hex</span>
+        </div>
+        <span class="ic-num">No. 12</span>
+      </div>
+    </div>
+
+    <div class="icd-card" data-category="strategy" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content"><div class="mg mg-soon" aria-hidden="true"><div class="glow"><span>MC</span></div></div></div>
+        <div class="icd-panel">
+          <div class="icd-panel-top"><div class="mono-icon">MC</div><p class="icd-desc">Sow seeds around the board to fill your store.</p></div>
+          <span class="icd-panel-name">Mancala</span>
+        </div>
+        <span class="ic-num">No. 13</span>
+      </div>
+    </div>
+
+    <div class="icd-card" data-category="dice" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content"><div class="mg mg-soon" aria-hidden="true"><div class="glow"><span>BG</span></div></div></div>
+        <div class="icd-panel">
+          <div class="icd-panel-top"><div class="mono-icon">BG</div><p class="icd-desc">Race your checkers home before your opponent.</p></div>
+          <span class="icd-panel-name">Backgammon</span>
+        </div>
+        <span class="ic-num">No. 14</span>
+      </div>
+    </div>
+
+    <div class="icd-card" data-category="dice" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content">
+          <div class="mg mg-die" aria-hidden="true">
+            <div class="die-body"><span class="pip tl"></span><span class="pip tr"></span><span class="pip bl"></span><span class="pip br"></span></div>
+          </div>
+        </div>
+        <div class="icd-panel">
+          <div class="icd-panel-top"><div class="mono-icon">LD</div><p class="icd-desc">Race all four tokens home on a lucky roll.</p></div>
+          <span class="icd-panel-name">Ludo</span>
+        </div>
+        <span class="ic-num">No. 15</span>
+      </div>
+    </div>
+
+    <div class="icd-card" data-category="dice" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content"><div class="mg mg-soon" aria-hidden="true"><div class="glow"><span>SL</span></div></div></div>
+        <div class="icd-panel">
+          <div class="icd-panel-top"><div class="mono-icon">SL</div><p class="icd-desc">Climb ladders, dodge snakes, race to the end.</p></div>
+          <span class="icd-panel-name">Snakes &amp; Ladders</span>
+        </div>
+        <span class="ic-num">No. 16</span>
+      </div>
+    </div>
+
+    <div class="icd-card" data-category="dice" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content"><div class="mg mg-soon" aria-hidden="true"><div class="glow"><span>YZ</span></div></div></div>
+        <div class="icd-panel">
+          <div class="icd-panel-top"><div class="mono-icon">YZ</div><p class="icd-desc">Roll the dice and chase the highest-scoring hand.</p></div>
+          <span class="icd-panel-name">Yahtzee</span>
+        </div>
+        <span class="ic-num">No. 17</span>
+      </div>
+    </div>
+
+    <div class="icd-card" data-category="hidden" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content">
+          <div class="mg mg-battleship" aria-hidden="true">
+            <div class="cell"></div><div class="cell"></div><div class="cell"><span class="miss" style="animation-delay:0s"></span></div><div class="cell"></div>
+            <div class="cell"><span class="hit" style="animation-delay:.8s"></span></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+            <div class="cell"></div><div class="cell"><span class="hit" style="animation-delay:1.6s"></span></div><div class="cell"></div><div class="cell"></div>
+            <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"><span class="miss" style="animation-delay:2.4s"></span></div>
+          </div>
+        </div>
+        <div class="icd-panel">
+          <div class="icd-panel-top"><div class="mono-icon">BS</div><p class="icd-desc">Call your shots and sink the hidden fleet.</p></div>
+          <span class="icd-panel-name">Battleship</span>
+        </div>
+        <span class="ic-num">No. 18</span>
+      </div>
+    </div>
+
+    <div class="icd-card" data-category="hidden" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content"><div class="mg mg-soon" aria-hidden="true"><div class="glow"><span>HM</span></div></div></div>
+        <div class="icd-panel">
+          <div class="icd-panel-top"><div class="mono-icon">HM</div><p class="icd-desc">Guess the word before you run out of tries.</p></div>
+          <span class="icd-panel-name">Hangman</span>
+        </div>
+        <span class="ic-num">No. 19</span>
+      </div>
+    </div>
+
+    <div class="icd-card" data-category="cards" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content"><div class="mg mg-soon" aria-hidden="true"><div class="glow"><span>WR</span></div></div></div>
+        <div class="icd-panel">
+          <div class="icd-panel-top"><div class="mono-icon">WR</div><p class="icd-desc">Highest card wins — winner takes the pile.</p></div>
+          <span class="icd-panel-name">War</span>
+        </div>
+        <span class="ic-num">No. 20</span>
+      </div>
+    </div>
+
+    <div class="icd-card" data-category="cards" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content"><div class="mg mg-soon" aria-hidden="true"><div class="glow"><span>GF</span></div></div></div>
+        <div class="icd-panel">
+          <div class="icd-panel-top"><div class="mono-icon">GF</div><p class="icd-desc">Ask, collect, and match sets of cards.</p></div>
+          <span class="icd-panel-name">Go Fish</span>
+        </div>
+        <span class="ic-num">No. 21</span>
+      </div>
+    </div>
+
+    <div class="icd-card" data-category="cards" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content"><div class="mg mg-soon" aria-hidden="true"><div class="glow"><span>CE</span></div></div></div>
+        <div class="icd-panel">
+          <div class="icd-panel-top"><div class="mono-icon">CE</div><p class="icd-desc">Match suit or number — eights are wild.</p></div>
+          <span class="icd-panel-name">Crazy Eights</span>
+        </div>
+        <span class="ic-num">No. 22</span>
+      </div>
+    </div>
+
+    <div class="icd-card" data-category="cards" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content"><div class="mg mg-soon" aria-hidden="true"><div class="glow"><span>MM</span></div></div></div>
+        <div class="icd-panel">
+          <div class="icd-panel-top"><div class="mono-icon">MM</div><p class="icd-desc">Flip pairs and remember where the matches are.</p></div>
+          <span class="icd-panel-name">Memory</span>
+        </div>
+        <span class="ic-num">No. 23</span>
+      </div>
+    </div>
+
+    <div class="icd-card" data-category="party" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content"><div class="mg mg-soon" aria-hidden="true"><div class="glow"><span>RPS</span></div></div></div>
+        <div class="icd-panel">
+          <div class="icd-panel-top"><div class="mono-icon">RPS</div><p class="icd-desc">Best of three — read their next move.</p></div>
+          <span class="icd-panel-name">Rock Paper Scissors</span>
+        </div>
+        <span class="ic-num">No. 24</span>
+      </div>
+    </div>
+
+    <div class="icd-card" data-category="party" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content"><div class="mg mg-soon" aria-hidden="true"><div class="glow"><span>SD</span></div></div></div>
+        <div class="icd-panel">
+          <div class="icd-panel-top"><div class="mono-icon">SD</div><p class="icd-desc">Build words and rack up the highest score.</p></div>
+          <span class="icd-panel-name">Scrabble Duel</span>
+        </div>
+        <span class="ic-num">No. 25</span>
+      </div>
+    </div>
+
+    <div class="icd-card" data-category="party" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content"><div class="mg mg-soon" aria-hidden="true"><div class="glow"><span>TQ</span></div></div></div>
+        <div class="icd-panel">
+          <div class="icd-panel-top"><div class="mono-icon">TQ</div><p class="icd-desc">Twenty guesses to name their secret word.</p></div>
+          <span class="icd-panel-name">Twenty Questions</span>
+        </div>
+        <span class="ic-num">No. 26</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function () {
+  var buttons = document.querySelectorAll('#filters button');
+  var cards = document.querySelectorAll('#grid .icd-card');
+  buttons.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var filter = btn.getAttribute('data-filter');
+      buttons.forEach(function (b) { b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'); });
+      cards.forEach(function (card) {
+        card.hidden = filter !== 'all' && card.getAttribute('data-category') !== filter;
+      });
+    });
+  });
+})();
+</script>
