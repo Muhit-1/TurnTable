@@ -16,6 +16,8 @@ export interface UseGame<State, Move, Line> {
   canRedo: boolean;
   play: (move: Move) => boolean;
   undo: (steps?: number) => void;
+  /** Step back at least once, then keep stepping back while `keepGoing(candidate)` holds. */
+  undoWhile: (keepGoing: (state: State) => boolean) => void;
   redo: () => void;
   reset: () => void;
 }
@@ -41,10 +43,10 @@ export function useGame<State, Move, Line = unknown>(
     [engine, past, present],
   );
 
-  const undo = useCallback((steps = 1) => {
+  const rewind = useCallback((pick: (past: State[]) => number) => {
     setHistory((h) => {
-      const n = Math.min(steps, h.past.length);
-      if (n === 0) return h;
+      const n = Math.min(pick(h.past), h.past.length);
+      if (n <= 0) return h;
       const taken = h.past.slice(h.past.length - n);
       return {
         past: h.past.slice(0, h.past.length - n),
@@ -53,6 +55,18 @@ export function useGame<State, Move, Line = unknown>(
       };
     });
   }, []);
+
+  const undo = useCallback((steps = 1) => rewind(() => steps), [rewind]);
+
+  const undoWhile = useCallback(
+    (keepGoing: (state: State) => boolean) =>
+      rewind((past) => {
+        let n = 1;
+        while (n < past.length && keepGoing(past[past.length - n])) n++;
+        return n;
+      }),
+    [rewind],
+  );
 
   const redo = useCallback(() => {
     setHistory((h) => {
@@ -78,6 +92,7 @@ export function useGame<State, Move, Line = unknown>(
     canRedo: future.length > 0,
     play,
     undo,
+    undoWhile,
     redo,
     reset,
   };

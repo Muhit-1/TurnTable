@@ -29,7 +29,7 @@ Goal: decide the shape once, so the 26 games are copy-paste-consistent instead o
 
 ---
 
-## Phase 2 — Game Mechanics (all 26 games)  (status: 7/26 games done)
+## Phase 2 — Game Mechanics (all 26 games)  (status: 12/26 games done)
 
 Goal: every game is fully playable and rule-correct with plain UI. Each game is "done" only when:
 rules implemented per `game-rules.txt` · win/draw/end detection · invalid moves rejected · unit tests pass · hot-seat playable end to end · rules + video link reachable from the game page.
@@ -42,12 +42,12 @@ rules implemented per `game-rules.txt` · win/draw/end detection · invalid move
 - [x] Reversi / Othello (flips, forced pass, end detection, alpha-beta AI)
 - [x] Gomoku (freestyle 5+, heuristic AI)
 - [ ] Go (captures, ko, suicide rule, pass/scoring)
-- [ ] Dots and Boxes
+- [x] Dots and Boxes (4x4, extra turns, chain-aware AI)
 - [x] Nim (normal + misère toggle, nim-sum AI)
 - [ ] Nine Men's Morris (placing / moving / flying phases, mills)
 - [ ] Quarto
 - [x] Hex (11x11, shortest-path AI)
-- [ ] Mancala / Kalah
+- [x] Mancala / Kalah (captures, extra turns, alpha-beta AI)
 
 ### 2B — Dice & movement
 - [ ] Backgammon
@@ -57,13 +57,13 @@ rules implemented per `game-rules.txt` · win/draw/end detection · invalid move
 
 ### 2C — Hidden-info / pass-and-look-away
 - [ ] Battleship (pass-device screen so players can't peek)
-- [ ] Hangman
+- [x] Hangman (hidden secret entry for 2 players or random word vs computer, alternating roles)
 
 ### 2D — Card-style
-- [ ] War
+- [x] War (seeded deal, 3-down wars, 2000-flip stalemate cap)
 - [ ] Go Fish
 - [ ] Uno-style matching
-- [ ] Memory / Concentration
+- [x] Memory / Concentration (6/8/12 pairs, memory-limited AI)
 
 ### 2E — Party / word
 - [x] Rock Paper Scissors (best of 3/5, hidden pass-the-device throw, random CPU)
@@ -72,8 +72,8 @@ rules implemented per `game-rules.txt` · win/draw/end detection · invalid move
 
 ### 2F — Cross-cutting mechanics (added: things you didn't list)
 - [x] Undo / redo for turn-based board games (`useGame`)
-- [ ] Seedable RNG utility shared by dice/card games (reproducible tests + replays)
-- [ ] Reusable deck/shuffle utility (War, Go Fish, Uno, Memory)
+- [x] Seedable RNG utility shared by dice/card games (`src/shared/rng.ts`)
+- [x] Reusable deck/shuffle utility (`src/shared/deck.ts`)
 - [ ] AI opponents where reasonable: Tic-Tac-Toe, Connect 4, Reversi, Checkers, Nim, Gomoku, Mancala, RPS (vs computer mode); difficulty levels easy/medium/hard
 - [ ] Run AI in a Web Worker so Chess/Go search never freezes the UI
 - [ ] Game-state save/resume in `localStorage` (refresh doesn't lose a game)

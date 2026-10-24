@@ -14,7 +14,7 @@ export function getBestMove(s: NimState): NimMove {
     if (bigIdx >= 0) {
       return { pile: bigIdx, count: piles[bigIdx] - (ones % 2 === 0 ? 1 : 0) };
     }
-    return { pile: piles.findIndex((p) => p === 1), count: 1 };
+    return { pile: piles.indexOf(1), count: 1 };
   }
 
   const x = nimSum(piles);

@@ -130,7 +130,7 @@ export const games: GameMeta[] = [
     id: 'dots-and-boxes',
     title: 'Dots and Boxes',
     category: 'strategy',
-    ready: false,
+    ready: true,
     objective: 'Claim more boxes than your opponent by drawing the fourth (final) side of a box.',
     setup: 'Draw a grid of dots (e.g. 5x5 dots for a 4x4 grid of boxes); decide who goes first.',
     howToPlay:
@@ -202,7 +202,7 @@ export const games: GameMeta[] = [
     id: 'mancala',
     title: 'Mancala / Kalah',
     category: 'strategy',
-    ready: false,
+    ready: true,
     objective: 'Capture more seeds into your store than your opponent.',
     setup:
       'Board with two rows of 6 small pits plus a larger store at each end; each small pit starts with 4 seeds; each player owns the row and store on their right.',
@@ -291,7 +291,7 @@ export const games: GameMeta[] = [
     id: 'hangman',
     title: 'Hangman',
     category: 'hidden',
-    ready: false,
+    ready: true,
     objective: 'Guess the secret word or phrase letter by letter before the drawing is completed.',
     setup:
       'One player secretly picks a word/phrase and draws a blank dash for each letter, plus the empty gallows.',
@@ -306,7 +306,7 @@ export const games: GameMeta[] = [
     id: 'war',
     title: 'War',
     category: 'card',
-    ready: false,
+    ready: true,
     objective: "Win the entire deck by beating your opponent's cards.",
     setup:
       "Split a standard 52-card deck evenly (26 cards each), dealt face-down as each player's draw pile.",
@@ -348,7 +348,7 @@ export const games: GameMeta[] = [
     id: 'memory',
     title: 'Memory / Concentration',
     category: 'card',
-    ready: false,
+    ready: true,
     objective: 'Collect more matching pairs than your opponent.',
     setup:
       'Shuffle a deck of paired cards (numbers, pictures, or a standard deck) and lay every card face-down in a grid.',

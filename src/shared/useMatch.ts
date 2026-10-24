@@ -59,7 +59,9 @@ export function useMatch<State, Move, Line = unknown>(
     },
     scores,
     isCpuTurn,
-    undo: () => game.undo(mode === 'vs-cpu' && pickMove ? 2 : 1),
+    // Against the computer, rewind to the human's previous turn (the computer may have moved several times).
+    undo: () =>
+      mode === 'vs-cpu' && pickMove ? game.undoWhile((st) => engine.currentPlayer(st) === cpu) : game.undo(1),
     names: (p1, p2) => (mode === 'vs-cpu' ? { 1: 'You', 2: 'Computer' } : { 1: p1, 2: p2 }),
   };
 }
