@@ -3,7 +3,7 @@ import { useMatch } from '../../shared/useMatch';
 import { FINAL, LADDERS, SNAKES, snakesEngine } from './engine';
 
 const DESCRIBE = {
-  move: '',
+  move: '.',
   ladder: ' and climbs a ladder!',
   snake: ' and slides down a snake!',
   blocked: ' — needs an exact roll, stays put.',
