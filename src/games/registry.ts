@@ -217,7 +217,7 @@ export const games: GameMeta[] = [
     id: 'backgammon',
     title: 'Backgammon',
     category: 'dice',
-    ready: false,
+    ready: true,
     objective: 'Move all 15 of your checkers around the board and bear them off before your opponent does.',
     setup:
       'Board of 24 triangular points grouped into 4 quadrants; each player starts with 15 checkers in the standard opening formation, moving in opposite directions toward their own home board.',
@@ -376,7 +376,7 @@ export const games: GameMeta[] = [
     id: 'scrabble',
     title: 'Scrabble-style word building',
     category: 'party',
-    ready: false,
+    ready: true,
     objective: 'Score the most points by building words on a shared board.',
     setup:
       'Put letter tiles (each with a point value) in a bag; each player draws 7 tiles; start with an empty board with a marked center square.',

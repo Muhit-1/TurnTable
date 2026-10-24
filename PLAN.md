@@ -29,7 +29,7 @@ Goal: decide the shape once, so the 26 games are copy-paste-consistent instead o
 
 ---
 
-## Phase 2 — Game Mechanics (all 26 games)  (status: 22/26 games done)
+## Phase 2 — Game Mechanics (all 26 games)  (status: 24/26 games done)
 
 Goal: every game is fully playable and rule-correct with plain UI. Each game is "done" only when:
 rules implemented per `game-rules.txt` · win/draw/end detection · invalid moves rejected · unit tests pass · hot-seat playable end to end · rules + video link reachable from the game page.
@@ -50,7 +50,7 @@ rules implemented per `game-rules.txt` · win/draw/end detection · invalid move
 - [x] Mancala / Kalah (captures, extra turns, alpha-beta AI)
 
 ### 2B — Dice & movement
-- [ ] Backgammon
+- [x] Backgammon (full rules incl. bar, hitting, bearing off, must-use-both-dice and larger-die rules, doubles; no doubling cube or gammon scoring; heuristic AI)
 - [x] Ludo (52-square loop, sixes give extra rolls, 3-six forfeit, captures, exact home roll, AI)
 - [x] Snakes and Ladders (classic 100-square board, exact finish, seeded dice)
 - [x] Yahtzee (seeded dice, holds, upper bonus, extra-Yahtzee bonus + joker, computer opponent; simplified: no forced-category joker rule)
@@ -67,7 +67,7 @@ rules implemented per `game-rules.txt` · win/draw/end detection · invalid move
 
 ### 2E — Party / word
 - [x] Rock Paper Scissors (best of 3/5, hidden pass-the-device throw, random CPU)
-- [ ] Scrabble-style word building (needs a dictionary file)
+- [x] Scrabble-style word building (270k-word dictionary vendored and lazy-loaded, full scoring with premiums/blanks/bingo, exchange/pass/end rules, move-generator AI)
 - [x] 20 Questions / word-guessing (hot-seat with hidden secret, or computer guesses from a 54-item database)
 
 ### 2F — Cross-cutting mechanics (added: things you didn't list)
