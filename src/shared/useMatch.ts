@@ -5,7 +5,8 @@ import { type UseGame, useGame } from './useGame';
 
 interface Options<State, Move> {
   /** Computer's move for the current position. Omit for games with no computer opponent. */
-  pickMove?: (state: State) => Move;
+  /** May return a promise (for example from a Web Worker); a stale answer is ignored if the position changed. */
+  pickMove?: (state: State) => Move | Promise<Move>;
   cpu?: PlayerId;
   delayMs?: number;
 }
@@ -35,8 +36,15 @@ export function useMatch<State, Move, Line = unknown>(
 
   useEffect(() => {
     if (!isCpuTurn || !pickMove) return;
-    const timer = setTimeout(() => play(pickMove(state)), delayMs);
-    return () => clearTimeout(timer);
+    let cancelled = false;
+    const timer = setTimeout(async () => {
+      const move = await pickMove(state);
+      if (!cancelled) play(move);
+    }, delayMs);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
   }, [isCpuTurn, pickMove, state, play, delayMs]);
 
   // Count each finished position once; redo restores the same state object, so it is not re-counted.

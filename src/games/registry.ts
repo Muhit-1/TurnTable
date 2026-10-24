@@ -60,7 +60,7 @@ export const games: GameMeta[] = [
     id: 'chess',
     title: 'Chess',
     category: 'strategy',
-    ready: false,
+    ready: true,
     objective: "Checkmate the opponent's king — trap it under attack with no legal escape.",
     setup:
       '8x8 board; each side has 16 pieces (king, queen, 2 rooks, 2 bishops, 2 knights, 8 pawns) on their two nearest ranks; each queen starts on a matching-color square.',

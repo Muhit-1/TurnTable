@@ -29,7 +29,7 @@ Goal: decide the shape once, so the 26 games are copy-paste-consistent instead o
 
 ---
 
-## Phase 2 — Game Mechanics (all 26 games)  (status: 24/26 games done)
+## Phase 2 — Game Mechanics (all 26 games)  (status: 25/26 games done)
 
 Goal: every game is fully playable and rule-correct with plain UI. Each game is "done" only when:
 rules implemented per `game-rules.txt` · win/draw/end detection · invalid moves rejected · unit tests pass · hot-seat playable end to end · rules + video link reachable from the game page.
@@ -37,7 +37,7 @@ rules implemented per `game-rules.txt` · win/draw/end detection · invalid move
 ### 2A — Classic abstract strategy
 - [x] Tic-Tac-Toe (React port, tests, minimax AI, undo)
 - [x] Connect 4 (engine, tests, AI, undo/redo)
-- [ ] Chess (castling, en passant, promotion, check/checkmate/stalemate, repetition, 50-move)
+- [x] Chess (full rules verified with perft on 5 reference positions; SAN move list; alpha-beta AI with 3 difficulty levels running in a Web Worker; draws applied automatically: stalemate, insufficient material, threefold repetition, 50-move)
 - [x] Checkers / Draughts (forced captures, multi-jump, kings, 40-move draw, alpha-beta AI)
 - [x] Reversi / Othello (flips, forced pass, end detection, alpha-beta AI)
 - [x] Gomoku (freestyle 5+, heuristic AI)
