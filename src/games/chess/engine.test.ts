@@ -70,7 +70,7 @@ describe('move generation (perft against known node counts)', () => {
   for (const [name, fen, counts] of cases) {
     it(name, () => {
       const s = fromFen(fen);
-      counts.forEach((n, i) => expect(perft(s, i + 1), `depth ${i + 1}`).toBe(n));
+      for (const [i, n] of counts.entries()) expect(perft(s, i + 1), `depth ${i + 1}`).toBe(n);
     }, 60000);
   }
 });

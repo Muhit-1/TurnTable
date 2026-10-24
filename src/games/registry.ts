@@ -115,7 +115,7 @@ export const games: GameMeta[] = [
     id: 'go',
     title: 'Go (Baduk)',
     category: 'strategy',
-    ready: false,
+    ready: true,
     objective: 'Control more territory (empty points surrounded by your stones) than your opponent.',
     setup:
       'Played on a grid of intersections — 19x19 standard, or 9x9/13x13 for beginners; board starts empty; one player uses black stones, the other white.',

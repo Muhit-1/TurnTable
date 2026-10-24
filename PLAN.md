@@ -29,7 +29,7 @@ Goal: decide the shape once, so the 26 games are copy-paste-consistent instead o
 
 ---
 
-## Phase 2 — Game Mechanics (all 26 games)  (status: 25/26 games done)
+## Phase 2 — Game Mechanics (all 26 games)  (status: 26/26 games done · 3 cross-cutting items still open)
 
 Goal: every game is fully playable and rule-correct with plain UI. Each game is "done" only when:
 rules implemented per `game-rules.txt` · win/draw/end detection · invalid moves rejected · unit tests pass · hot-seat playable end to end · rules + video link reachable from the game page.
@@ -41,7 +41,7 @@ rules implemented per `game-rules.txt` · win/draw/end detection · invalid move
 - [x] Checkers / Draughts (forced captures, multi-jump, kings, 40-move draw, alpha-beta AI)
 - [x] Reversi / Othello (flips, forced pass, end detection, alpha-beta AI)
 - [x] Gomoku (freestyle 5+, heuristic AI)
-- [ ] Go (captures, ko, suicide rule, pass/scoring)
+- [x] Go (9/13/19 boards, captures, no-suicide, positional superko, area scoring with 7.5 komi, Monte Carlo tree search AI with 3 levels in a Web Worker)
 - [x] Dots and Boxes (4x4, extra turns, chain-aware AI)
 - [x] Nim (normal + misère toggle, nim-sum AI)
 - [x] Nine Men's Morris (placing / moving / flying phases, mills, 100-ply quiet draw, AI)
@@ -74,8 +74,9 @@ rules implemented per `game-rules.txt` · win/draw/end detection · invalid move
 - [x] Undo / redo for turn-based board games (`useGame`)
 - [x] Seedable RNG utility shared by dice/card games (`src/shared/rng.ts`)
 - [x] Reusable deck/shuffle utility (`src/shared/deck.ts`)
-- [ ] AI opponents where reasonable: Tic-Tac-Toe, Connect 4, Reversi, Checkers, Nim, Gomoku, Mancala, RPS (vs computer mode); difficulty levels easy/medium/hard
-- [ ] Run AI in a Web Worker so Chess/Go search never freezes the UI
+- [x] AI opponents where reasonable (vs-computer mode in every game that has choices; hidden-information games use pass-the-device)
+- [ ] Difficulty levels easy/medium/hard (done for Chess and Go; the other games have one fixed strength)
+- [x] Run AI in a Web Worker so Chess/Go search never freezes the UI (`src/shared/workerRpc.ts`, with main-thread fallback)
 - [ ] Game-state save/resume in `localStorage` (refresh doesn't lose a game)
 - [x] Per-game rules panel + embedded "how to play" video link from `game-rules.txt`
 - [ ] Integration smoke test per game: play a scripted full game to a finish
