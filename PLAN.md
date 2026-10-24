@@ -29,7 +29,7 @@ Goal: decide the shape once, so the 26 games are copy-paste-consistent instead o
 
 ---
 
-## Phase 2 — Game Mechanics (all 26 games)  (status: 17/26 games done)
+## Phase 2 — Game Mechanics (all 26 games)  (status: 22/26 games done)
 
 Goal: every game is fully playable and rule-correct with plain UI. Each game is "done" only when:
 rules implemented per `game-rules.txt` · win/draw/end detection · invalid moves rejected · unit tests pass · hot-seat playable end to end · rules + video link reachable from the game page.
@@ -51,24 +51,24 @@ rules implemented per `game-rules.txt` · win/draw/end detection · invalid move
 
 ### 2B — Dice & movement
 - [ ] Backgammon
-- [ ] Ludo
+- [x] Ludo (52-square loop, sixes give extra rolls, 3-six forfeit, captures, exact home roll, AI)
 - [x] Snakes and Ladders (classic 100-square board, exact finish, seeded dice)
 - [x] Yahtzee (seeded dice, holds, upper bonus, extra-Yahtzee bonus + joker, computer opponent; simplified: no forced-category joker rule)
 
 ### 2C — Hidden-info / pass-and-look-away
-- [ ] Battleship (pass-device screen so players can't peek)
+- [x] Battleship (placement + random fleet, pass-the-device gate, hunt/target AI)
 - [x] Hangman (hidden secret entry for 2 players or random word vs computer, alternating roles)
 
 ### 2D — Card-style
 - [x] War (seeded deal, 3-down wars, 2000-flip stalemate cap)
-- [ ] Go Fish
-- [ ] Uno-style matching
+- [x] Go Fish (books, empty-hand refill, pass-the-device gate, AI)
+- [x] Uno-style matching (108-card deck, 2-player skip/reverse, draw-then-play, AI)
 - [x] Memory / Concentration (6/8/12 pairs, memory-limited AI)
 
 ### 2E — Party / word
 - [x] Rock Paper Scissors (best of 3/5, hidden pass-the-device throw, random CPU)
 - [ ] Scrabble-style word building (needs a dictionary file)
-- [ ] 20 Questions / word-guessing
+- [x] 20 Questions / word-guessing (hot-seat with hidden secret, or computer guesses from a 54-item database)
 
 ### 2F — Cross-cutting mechanics (added: things you didn't list)
 - [x] Undo / redo for turn-based board games (`useGame`)

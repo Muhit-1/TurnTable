@@ -231,7 +231,7 @@ export const games: GameMeta[] = [
     id: 'ludo',
     title: 'Ludo',
     category: 'dice',
-    ready: false,
+    ready: true,
     objective:
       'Race all four of your tokens around the board and into your home triangle before your opponent does.',
     setup:
@@ -276,7 +276,7 @@ export const games: GameMeta[] = [
     id: 'battleship',
     title: 'Battleship',
     category: 'hidden',
-    ready: false,
+    ready: true,
     objective: "Sink your opponent's entire fleet before they sink yours.",
     setup:
       'Each player secretly places a fleet of ships (e.g., carrier, battleship, cruiser, submarine, destroyer) on their own grid, hidden from the other player, and keeps a second tracking grid for recording guesses.',
@@ -320,7 +320,7 @@ export const games: GameMeta[] = [
     id: 'go-fish',
     title: 'Go Fish',
     category: 'card',
-    ready: false,
+    ready: true,
     objective: 'Collect the most four-of-a-kind sets ("books") by asking your opponent for cards.',
     setup:
       'Standard 52-card deck; deal 5 cards to each player (2-player game), remaining cards form the face-down draw pile ("the ocean").',
@@ -334,7 +334,7 @@ export const games: GameMeta[] = [
     id: 'uno',
     title: 'Uno-style matching',
     category: 'card',
-    ready: false,
+    ready: true,
     objective: 'Be the first player to get rid of all your cards.',
     setup:
       'Shuffle a deck of color/number cards (or an adapted standard deck) into a draw pile; deal 7 cards to each player; flip the top card of the remaining pile to start the discard pile.',
@@ -391,7 +391,7 @@ export const games: GameMeta[] = [
     id: '20-questions',
     title: '20 Questions / word-guessing',
     category: 'party',
-    ready: false,
+    ready: true,
     objective: 'Guess the secret person, place, or thing the other player is thinking of.',
     setup:
       'One player (the answerer) secretly picks a person, place, or thing; the other player is the guesser.',
