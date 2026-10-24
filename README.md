@@ -34,9 +34,9 @@ design/                    static visual prototypes kept as reference for the UI
    - `logic.ts`: pure rules, **no React/DOM imports**, immutable state in → new state out.
    - `engine.ts`: implement `GameEngine` from `src/shared/engine.ts` (`initialState`, `currentPlayer`,
      `legalMoves`, `applyMove` returning `null` for illegal moves, `getStatus`).
-   - `<Game>.tsx`: use `useGame(engine)` and the shared components (`GameShell`, `TurnBanner`, `GameControls`, ...).
-   - `main.tsx` (copy from another game) and `engine.test.ts` covering legal/illegal moves, win, draw, no moves after game over.
-3. Create `allgames/<id>/index.html` (copy from another game, change title + script path).
+   - `<Game>.tsx`: use `useMatch(engine, { pickMove })` (pvp / vs-computer, scores, undo) and the shared components (`GameShell`, `TurnBanner`, `GameControls`, ...).
+   - `engine.test.ts` covering legal/illegal moves, win, draw, no moves after game over.
+3. `scripts/scaffold-entry.sh <id> <ComponentName> "<Title>"` creates `allgames/<id>/index.html` and `src/games/<id>/main.tsx`.
 4. Set `ready: true` in the registry. Run `npm run lint && npm run typecheck && npm test && npm run build`.
 
 Games that don't fit the strict two-player alternating-turn engine (dice, hidden info, cards) can extend it

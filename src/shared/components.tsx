@@ -87,3 +87,6 @@ export function GameShell({ id, title, children }: { id: string; title: string; 
     </div>
   );
 }
+
+/** "You" → "Your", "Player 1" → "Player 1's". */
+export const possessive = (name: string) => (name === 'You' ? 'Your' : `${name}'s`);

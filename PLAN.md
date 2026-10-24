@@ -29,7 +29,7 @@ Goal: decide the shape once, so the 26 games are copy-paste-consistent instead o
 
 ---
 
-## Phase 2 — Game Mechanics (all 26 games)  (status: 2/26 games done)
+## Phase 2 — Game Mechanics (all 26 games)  (status: 7/26 games done)
 
 Goal: every game is fully playable and rule-correct with plain UI. Each game is "done" only when:
 rules implemented per `game-rules.txt` · win/draw/end detection · invalid moves rejected · unit tests pass · hot-seat playable end to end · rules + video link reachable from the game page.
@@ -39,14 +39,14 @@ rules implemented per `game-rules.txt` · win/draw/end detection · invalid move
 - [x] Connect 4 (engine, tests, AI, undo/redo)
 - [ ] Chess (castling, en passant, promotion, check/checkmate/stalemate, repetition, 50-move)
 - [ ] Checkers / Draughts (forced captures, multi-jump, kings)
-- [ ] Reversi / Othello (flips, forced pass, end detection)
-- [ ] Gomoku
+- [x] Reversi / Othello (flips, forced pass, end detection, alpha-beta AI)
+- [x] Gomoku (freestyle 5+, heuristic AI)
 - [ ] Go (captures, ko, suicide rule, pass/scoring)
 - [ ] Dots and Boxes
-- [ ] Nim
+- [x] Nim (normal + misère toggle, nim-sum AI)
 - [ ] Nine Men's Morris (placing / moving / flying phases, mills)
 - [ ] Quarto
-- [ ] Hex
+- [x] Hex (11x11, shortest-path AI)
 - [ ] Mancala / Kalah
 
 ### 2B — Dice & movement
@@ -66,7 +66,7 @@ rules implemented per `game-rules.txt` · win/draw/end detection · invalid move
 - [ ] Memory / Concentration
 
 ### 2E — Party / word
-- [ ] Rock Paper Scissors
+- [x] Rock Paper Scissors (best of 3/5, hidden pass-the-device throw, random CPU)
 - [ ] Scrabble-style word building (needs a dictionary file)
 - [ ] 20 Questions / word-guessing
 

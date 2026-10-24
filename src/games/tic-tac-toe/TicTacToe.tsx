@@ -1,61 +1,34 @@
-import { useEffect, useRef, useState } from 'react';
 import {
   GameControls,
   GameShell,
-  type Mode,
   ModeToggle,
+  possessive,
   Scoreboard,
   TurnBanner,
 } from '../../shared/components';
-import type { PlayerId } from '../../shared/engine';
-import { useGame } from '../../shared/useGame';
+import { useMatch } from '../../shared/useMatch';
 import { getBestMove } from './ai';
-import { tttEngine } from './engine';
+import { type TttState, tttEngine } from './engine';
 
-const CPU: PlayerId = 2;
 const AI_DELAY_MS = 400;
 
+const pickMove = (state: TttState) => getBestMove(state);
+
 export default function TicTacToe() {
-  const game = useGame(tttEngine);
-  const [mode, setMode] = useState<Mode>('pvp');
-  const [scores, setScores] = useState<Record<PlayerId, number>>({ 1: 0, 2: 0 });
+  const m = useMatch(tttEngine, { pickMove, delayMs: AI_DELAY_MS });
+  const { game, mode, isCpuTurn } = m;
   const { state, status, player, play, reset } = game;
-  const isCpuTurn = mode === 'vs-cpu' && player === CPU && status.state === 'playing';
-  const names: Record<PlayerId, string> = {
-    1: mode === 'vs-cpu' ? 'You (X)' : 'Player 1 (X)',
-    2: mode === 'vs-cpu' ? 'Computer (O)' : 'Player 2 (O)',
-  };
-
-  useEffect(() => {
-    if (!isCpuTurn) return;
-    const timer = setTimeout(() => play(getBestMove(state)), AI_DELAY_MS);
-    return () => clearTimeout(timer);
-  }, [isCpuTurn, state, play]);
-
-  // Count each finished position once; redo restores the same state object, so it is not re-counted.
-  const scoredCells = useRef<unknown>(null);
-  const winner = status.state === 'won' ? status.winner : null;
-  useEffect(() => {
-    if (!winner || scoredCells.current === state.cells) return;
-    scoredCells.current = state.cells;
-    setScores((s) => ({ ...s, [winner]: s[winner] + 1 }));
-  }, [winner, state.cells]);
-
-  const handleModeChange = (next: Mode) => {
-    if (next === mode) return;
-    setMode(next);
-    setScores({ 1: 0, 2: 0 });
-    reset();
-  };
+  const names = m.names('Player 1 (X)', 'Player 2 (O)');
 
   const winLine = status.state === 'won' ? status.line : undefined;
 
   return (
     <GameShell id="tic-tac-toe" title="Tic-Tac-Toe">
-      <ModeToggle mode={mode} onChange={handleModeChange} />
-      <Scoreboard names={names} scores={scores} />
+      <ModeToggle mode={mode} onChange={m.changeMode} />
+      <Scoreboard names={names} scores={m.scores} />
       <TurnBanner>
-        {status.state === 'playing' && (isCpuTurn ? 'Computer is thinking…' : `${names[player]}'s turn`)}
+        {status.state === 'playing' &&
+          (isCpuTurn ? 'Computer is thinking…' : `${possessive(names[player])} turn`)}
         {status.state === 'won' && `${names[status.winner]} wins!`}
         {status.state === 'draw' && "It's a draw!"}
       </TurnBanner>
@@ -81,7 +54,7 @@ export default function TicTacToe() {
       <GameControls
         canUndo={game.canUndo && !isCpuTurn}
         canRedo={game.canRedo && !isCpuTurn}
-        onUndo={() => game.undo(mode === 'vs-cpu' ? 2 : 1)}
+        onUndo={m.undo}
         onRedo={() => game.redo()}
         onRestart={reset}
       />

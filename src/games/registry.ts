@@ -89,7 +89,7 @@ export const games: GameMeta[] = [
     id: 'reversi',
     title: 'Reversi / Othello',
     category: 'strategy',
-    ready: false,
+    ready: true,
     objective: 'Have the majority of discs showing your color when the board is full or no moves remain.',
     setup: '8x8 board; start with 4 discs in the center in a diagonal pattern (2 black, 2 white).',
     howToPlay:
@@ -102,7 +102,7 @@ export const games: GameMeta[] = [
     id: 'gomoku',
     title: 'Gomoku (Five in a Row)',
     category: 'strategy',
-    ready: false,
+    ready: true,
     objective: 'Be the first to form an unbroken line of 5 stones — horizontal, vertical, or diagonal.',
     setup: 'A 15x15 (or 19x19) grid of intersections; one player takes black stones, the other white.',
     howToPlay:
@@ -143,7 +143,7 @@ export const games: GameMeta[] = [
     id: 'nim',
     title: 'Nim',
     category: 'strategy',
-    ready: false,
+    ready: true,
     objective: 'Force your opponent into the losing position by controlling who takes the last object.',
     setup:
       'Arrange tokens (coins, matchsticks) into several heaps — a common casual setup is 3 heaps of 3, 5, and 7.',
@@ -187,7 +187,7 @@ export const games: GameMeta[] = [
     id: 'hex',
     title: 'Hex',
     category: 'strategy',
-    ready: false,
+    ready: true,
     objective: 'Build an unbroken chain of your pieces connecting your two assigned sides of the board.',
     setup:
       'Rhombus-shaped board of hexagons (commonly 11x11); each player is assigned one pair of opposite sides and a color.',
@@ -362,7 +362,7 @@ export const games: GameMeta[] = [
     id: 'rock-paper-scissors',
     title: 'Rock Paper Scissors',
     category: 'party',
-    ready: false,
+    ready: true,
     objective: "Beat your opponent's hand shape on a given throw.",
     setup: 'No materials needed — just two players and their hands.',
     howToPlay:
