@@ -1,15 +1,20 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+import { resolve } from 'node:path';
 import tailwindcss from '@tailwindcss/vite';
-import { resolve } from 'path';
+import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vite';
+import { games } from './src/games/registry.ts';
+
+const root = import.meta.dirname;
+
+// One HTML entry per ready game, generated from the registry, plus the homepage.
+const input: Record<string, string> = { home: resolve(root, 'index.html') };
+for (const g of games) {
+  if (g.ready) input[g.id] = resolve(root, `allgames/${g.id}/index.html`);
+}
 
 export default defineConfig({
+  base: './',
   plugins: [react(), tailwindcss()],
-  build: {
-    rollupOptions: {
-      input: {
-        connect4: resolve(import.meta.dirname, 'allgames/connect-4/index.html'),
-      },
-    },
-  },
+  build: { rollupOptions: { input } },
+  test: { environment: 'node', include: ['src/**/*.test.ts'] },
 });

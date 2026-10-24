@@ -1,4 +1,4 @@
-import { Board, Cell, COLS, Line, Player, ROWS } from './types';
+import { type Board, type Cell, COLS, type Line, type Player, ROWS } from './types';
 
 export function createEmptyBoard(): Board {
   return Array.from({ length: ROWS }, () => Array<Cell>(COLS).fill(null));

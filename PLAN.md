@@ -10,33 +10,33 @@ Legend: `[x]` done · `[ ]` to do
 
 ---
 
-## Phase 1 — Foundation & Architecture  (status: 0/12)
+## Phase 1 — Foundation & Architecture  (status: 12/12 ✅ complete)
 
 Goal: decide the shape once, so the 26 games are copy-paste-consistent instead of 26 one-offs.
 
-- [ ] Fix per-game folder convention: `src/games/<id>/{types.ts, logic.ts, ai.ts?, <Game>.tsx, main.tsx}`
-- [ ] Pure-logic rule: `logic.ts` has no React/DOM imports (immutable state in, new state out) → testable and reusable
-- [ ] Shared `GameEngine` interface: `initialState()`, `legalMoves(state)`, `applyMove(state, move)`, `getStatus(state)` → playing / won / draw
-- [ ] Shared `src/shared/` kit: `useGame` hook (state + undo/redo + reset), turn indicator, game-over dialog, player-name inputs, scoreboard
-- [ ] Registry file `src/games/registry.ts` (id, title, category, player count, rules text, video link) — drives homepage, routing, and vite inputs
-- [ ] Vite: auto-generate multi-page `input` from the registry (no hand-edited entry per game)
-- [ ] Add Vitest + first tests for Connect 4 logic (win detection, full column, draw)
-- [ ] Add ESLint + Prettier + `npm run typecheck` + `npm test` scripts
-- [ ] GitHub Actions CI: typecheck, lint, test, build on every push/PR
-- [ ] Migrate Tic-Tac-Toe from standalone HTML to the React/TS structure
-- [ ] README: how to run, how to add a new game (checklist), folder layout
-- [ ] Game-selection homepage reads from the registry (basic, unstyled is fine)
+- [x] Fix per-game folder convention: `src/games/<id>/{types.ts, logic.ts, ai.ts?, <Game>.tsx, main.tsx}`
+- [x] Pure-logic rule: `logic.ts` has no React/DOM imports (immutable state in, new state out) → testable and reusable
+- [x] Shared `GameEngine` interface: `initialState()`, `legalMoves(state)`, `applyMove(state, move)`, `getStatus(state)` → playing / won / draw
+- [x] Shared `src/shared/` kit: `useGame` hook (state + undo/redo + reset), turn banner, scoreboard, mode toggle, controls, rules panel (game-over dialog and player-name inputs deferred to Phase 3 UI)
+- [x] Registry file `src/games/registry.ts` (id, title, category, ready flag, rules text, video link) — drives homepage, routing, and vite inputs
+- [x] Vite: auto-generate multi-page `input` from the registry (no hand-edited entry per game)
+- [x] Add Vitest + first tests for Connect 4 logic (win detection, full column, draw)
+- [x] Add lint/format (Biome — typescript-eslint doesn't support TypeScript 7 yet) + `npm run typecheck` + `npm test` scripts
+- [x] GitHub Actions CI: typecheck, lint, test, build on every push/PR
+- [x] Migrate Tic-Tac-Toe from standalone HTML to the React/TS structure
+- [x] README: how to run, how to add a new game (checklist), folder layout
+- [x] Game-selection homepage reads from the registry (basic, unstyled is fine)
 
 ---
 
-## Phase 2 — Game Mechanics (all 26 games)  (status: 2/26 started, 0/26 tested-complete)
+## Phase 2 — Game Mechanics (all 26 games)  (status: 2/26 games done)
 
 Goal: every game is fully playable and rule-correct with plain UI. Each game is "done" only when:
 rules implemented per `game-rules.txt` · win/draw/end detection · invalid moves rejected · unit tests pass · hot-seat playable end to end · rules + video link reachable from the game page.
 
 ### 2A — Classic abstract strategy
-- [ ] Tic-Tac-Toe (exists as HTML; port + tests; minimax AI)
-- [ ] Connect 4 (logic + AI exist; needs tests, undo, restart polish)
+- [x] Tic-Tac-Toe (React port, tests, minimax AI, undo)
+- [x] Connect 4 (engine, tests, AI, undo/redo)
 - [ ] Chess (castling, en passant, promotion, check/checkmate/stalemate, repetition, 50-move)
 - [ ] Checkers / Draughts (forced captures, multi-jump, kings)
 - [ ] Reversi / Othello (flips, forced pass, end detection)
@@ -71,13 +71,13 @@ rules implemented per `game-rules.txt` · win/draw/end detection · invalid move
 - [ ] 20 Questions / word-guessing
 
 ### 2F — Cross-cutting mechanics (added: things you didn't list)
-- [ ] Undo / redo for turn-based board games
+- [x] Undo / redo for turn-based board games (`useGame`)
 - [ ] Seedable RNG utility shared by dice/card games (reproducible tests + replays)
 - [ ] Reusable deck/shuffle utility (War, Go Fish, Uno, Memory)
 - [ ] AI opponents where reasonable: Tic-Tac-Toe, Connect 4, Reversi, Checkers, Nim, Gomoku, Mancala, RPS (vs computer mode); difficulty levels easy/medium/hard
 - [ ] Run AI in a Web Worker so Chess/Go search never freezes the UI
 - [ ] Game-state save/resume in `localStorage` (refresh doesn't lose a game)
-- [ ] Per-game rules panel + embedded "how to play" video link from `game-rules.txt`
+- [x] Per-game rules panel + embedded "how to play" video link from `game-rules.txt`
 - [ ] Integration smoke test per game: play a scripted full game to a finish
 
 ---

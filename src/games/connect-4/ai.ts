@@ -1,5 +1,5 @@
 import { checkWin, dropDisc, getValidColumns, otherPlayer } from './logic';
-import { Board, Cell, COLS, Player, ROWS } from './types';
+import { type Board, type Cell, COLS, type Player, ROWS } from './types';
 
 const CENTER_COL = Math.floor(COLS / 2);
 const WIN_SCORE = 1_000_000;
