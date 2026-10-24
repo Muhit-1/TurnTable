@@ -29,7 +29,7 @@ Goal: decide the shape once, so the 26 games are copy-paste-consistent instead o
 
 ---
 
-## Phase 2 — Game Mechanics (all 26 games)  (status: 12/26 games done)
+## Phase 2 — Game Mechanics (all 26 games)  (status: 17/26 games done)
 
 Goal: every game is fully playable and rule-correct with plain UI. Each game is "done" only when:
 rules implemented per `game-rules.txt` · win/draw/end detection · invalid moves rejected · unit tests pass · hot-seat playable end to end · rules + video link reachable from the game page.
@@ -38,22 +38,22 @@ rules implemented per `game-rules.txt` · win/draw/end detection · invalid move
 - [x] Tic-Tac-Toe (React port, tests, minimax AI, undo)
 - [x] Connect 4 (engine, tests, AI, undo/redo)
 - [ ] Chess (castling, en passant, promotion, check/checkmate/stalemate, repetition, 50-move)
-- [ ] Checkers / Draughts (forced captures, multi-jump, kings)
+- [x] Checkers / Draughts (forced captures, multi-jump, kings, 40-move draw, alpha-beta AI)
 - [x] Reversi / Othello (flips, forced pass, end detection, alpha-beta AI)
 - [x] Gomoku (freestyle 5+, heuristic AI)
 - [ ] Go (captures, ko, suicide rule, pass/scoring)
 - [x] Dots and Boxes (4x4, extra turns, chain-aware AI)
 - [x] Nim (normal + misère toggle, nim-sum AI)
-- [ ] Nine Men's Morris (placing / moving / flying phases, mills)
-- [ ] Quarto
+- [x] Nine Men's Morris (placing / moving / flying phases, mills, 100-ply quiet draw, AI)
+- [x] Quarto (give/place turns, 10 lines, AI avoids handing over winning pieces)
 - [x] Hex (11x11, shortest-path AI)
 - [x] Mancala / Kalah (captures, extra turns, alpha-beta AI)
 
 ### 2B — Dice & movement
 - [ ] Backgammon
 - [ ] Ludo
-- [ ] Snakes and Ladders
-- [ ] Yahtzee (seedable RNG so tests are deterministic)
+- [x] Snakes and Ladders (classic 100-square board, exact finish, seeded dice)
+- [x] Yahtzee (seeded dice, holds, upper bonus, extra-Yahtzee bonus + joker, computer opponent; simplified: no forced-category joker rule)
 
 ### 2C — Hidden-info / pass-and-look-away
 - [ ] Battleship (pass-device screen so players can't peek)

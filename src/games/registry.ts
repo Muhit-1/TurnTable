@@ -75,7 +75,7 @@ export const games: GameMeta[] = [
     id: 'checkers',
     title: 'Checkers / Draughts',
     category: 'strategy',
-    ready: false,
+    ready: true,
     objective: "Capture all of the opponent's pieces, or block them so they have no legal move.",
     setup:
       '8x8 board (dark squares only used); each player has 12 pieces on the dark squares of their three closest rows.',
@@ -158,7 +158,7 @@ export const games: GameMeta[] = [
     id: 'nine-mens-morris',
     title: "Nine Men's Morris",
     category: 'strategy',
-    ready: false,
+    ready: true,
     objective: "Reduce your opponent to fewer than three pieces, or trap them so they can't move.",
     setup:
       'Board of three nested squares joined by lines at the midpoints (24 points); each player has 9 pieces off the board.',
@@ -172,7 +172,7 @@ export const games: GameMeta[] = [
     id: 'quarto',
     title: 'Quarto',
     category: 'strategy',
-    ready: false,
+    ready: true,
     objective: 'Be the player who places the piece that completes a line of four sharing a common trait.',
     setup:
       '4x4 board and 16 unique pieces, each a combination of 4 binary traits (tall/short, light/dark, round/square, solid/hollow).',
@@ -247,7 +247,7 @@ export const games: GameMeta[] = [
     id: 'snakes-and-ladders',
     title: 'Snakes and Ladders',
     category: 'dice',
-    ready: false,
+    ready: true,
     objective: 'Be the first to move your token from square 1 to the final numbered square (usually 100).',
     setup:
       'Each player takes a token and starts off the board (or on square 1); the board has ladders (climb up) and snakes (slide down) scattered across it.',
@@ -261,7 +261,7 @@ export const games: GameMeta[] = [
     id: 'yahtzee',
     title: 'Yahtzee',
     category: 'dice',
-    ready: false,
+    ready: true,
     objective: 'Score the most total points by rolling dice into scoring combinations over 13 rounds.',
     setup:
       'Each player has 5 dice and a scorecard listing upper-section categories (Ones-Sixes) and lower-section categories (3/4-of-a-Kind, Full House, Straights, Yahtzee, Chance).',
