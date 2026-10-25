@@ -96,7 +96,7 @@ Goal: make it feel like one product. Because Phase 1–2 isolate logic from rend
 - [x] Redesign homepage (category filters, animated game cards) — search and "recently played" still to do
 
 ### Per-game graphics
-- [ ] Board/piece art: 22 of 26 games done (wooden frames, gem/stone/checker pieces, felt/paper boards, card backs and faces, pip dice); Hangman, 20 Questions, Scrabble and Rock Paper Scissors still have the basic look
+- [ ] Board/piece art: 25 of 26 games done (wooden frames, gem/stone/checker pieces, felt/paper boards, card backs and faces, pip dice, wooden letter tiles); 20 Questions still has the basic look
 - [x] Animations: pieces pop in and discs flip, Connect Four discs drop, cards flip/deal, dice tumble, last-move and win glow (all switched off by `prefers-reduced-motion`)
 - [x] Sound effects + mute toggle (soft "tong" per move, win chime; mute remembered)
 

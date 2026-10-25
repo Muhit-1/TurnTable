@@ -382,3 +382,24 @@ fieldset.swatches {
   border-radius: 10px;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
 }
+
+/* ---- Wooden letter tiles (Scrabble, Hangman keys) ---- */
+.tile-wood {
+  background: linear-gradient(145deg, #f3deae, #d9b46c);
+  border: 1px solid #8a5d1c;
+  border-radius: 6px;
+  color: #2b2016;
+  font-weight: 800;
+  box-shadow:
+    0 2px 3px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+.tile-wood.hit {
+  background: linear-gradient(145deg, #c8f3ea, #7fd1c2);
+  border-color: #1d6d60;
+}
+.tile-wood.miss {
+  background: linear-gradient(145deg, #f3b9a8, #d4725a);
+  border-color: #7a2c18;
+  text-decoration: line-through;
+}

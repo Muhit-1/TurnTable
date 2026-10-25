@@ -63,7 +63,7 @@ function Match({
             aria-label={t}
             disabled={status.state !== 'playing' || isCpuTurn}
             onClick={() => play(t)}
-            className="w-24 h-24 text-5xl rounded border bg-white hover:bg-neutral-50 disabled:opacity-40"
+            className="pcard w-24 h-28 text-5xl enabled:hover:-translate-y-1 transition-transform disabled:opacity-40"
           >
             {EMOJI[t]}
           </button>
@@ -72,8 +72,9 @@ function Match({
 
       {last && (
         <div className="text-center" role="status">
-          <div className="text-4xl">
-            {EMOJI[last.p1]} vs {EMOJI[last.p2]}
+          <div className="text-4xl" key={`${last.p1}${last.p2}${state.rounds.length}`}>
+            <span className="dice-tumble inline-block">{EMOJI[last.p1]}</span> vs{' '}
+            <span className="dice-tumble inline-block">{EMOJI[last.p2]}</span>
           </div>
           <div className="text-sm text-neutral-600">
             {last.winner ? `${names[last.winner]} wins the round` : 'Tie — replay'}

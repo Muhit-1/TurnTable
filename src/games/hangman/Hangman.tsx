@@ -8,9 +8,14 @@ type Person = 1 | 2;
 const LETTERS = 'abcdefghijklmnopqrstuvwxyz'.split('');
 
 function Gallows({ wrong }: { wrong: number }) {
-  const part = 'stroke-neutral-900 fill-none';
+  const part = 'stroke-amber-950 fill-none piece-pop';
   return (
-    <svg viewBox="0 0 120 140" className="w-40 h-48" role="img" aria-label={`${wrong} of 6 wrong guesses`}>
+    <svg
+      viewBox="0 0 120 140"
+      className="board-paper w-40 h-48 p-2"
+      role="img"
+      aria-label={`${wrong} of 6 wrong guesses`}
+    >
       <path d="M10 130 H90 M30 130 V10 H80 V25" className={`${part} stroke-[4]`} />
       {wrong > 0 && <circle cx="80" cy="37" r="12" className={`${part} stroke-[4]`} />}
       {wrong > 1 && <path d="M80 49 V90" className={`${part} stroke-[4]`} />}
@@ -199,7 +204,7 @@ function Round({
               type="button"
               disabled={over || used}
               onClick={() => guess(l)}
-              className={`w-9 h-9 rounded border text-sm font-bold uppercase ${hit ? 'bg-emerald-200' : used ? 'bg-red-200 line-through' : 'bg-white'}`}
+              className={`tile-wood w-9 h-9 text-sm uppercase disabled:cursor-default ${hit ? 'hit' : used ? 'miss' : ''}`}
             >
               {l}
             </button>

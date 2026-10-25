@@ -1,5 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
-import { GameShell, ModeToggle, possessive, Scoreboard, TurnBanner } from '../../shared/components';
+import {
+  BoardFrame,
+  GameShell,
+  ModeToggle,
+  possessive,
+  Scoreboard,
+  TurnBanner,
+} from '../../shared/components';
 import type { PlayerId } from '../../shared/engine';
 import { useLevel } from '../../shared/level';
 import { PassGate } from '../../shared/PassGate';
@@ -127,53 +134,55 @@ function Match({ dict }: { dict: Dictionary }) {
         {status.state === 'draw' && "Game over — it's a draw!"}
       </TurnBanner>
 
-      <div className="max-w-full overflow-auto">
-        <div
-          className="grid gap-px bg-neutral-400 p-px"
-          style={{ gridTemplateColumns: `repeat(${SIZE}, 2rem)` }}
-        >
-          {state.board.map((tile, i) => {
-            const row = Math.floor(i / SIZE);
-            const col = i % SIZE;
-            const pend = pending.find((p) => p.row === row && p.col === col);
-            const prem = PREMIUMS[i];
-            const shown = tile ?? (pend ? { letter: pend.letter || '?', blank: pend.blank } : null);
-            return (
-              <button
-                key={`${row}-${col}`}
-                type="button"
-                aria-label={`Row ${row + 1}, column ${col + 1}${shown ? `, ${shown.letter}` : prem ? `, ${prem}` : ''}`}
-                disabled={!canAct || (!!tile && !pend)}
-                onClick={() => (pend ? setPending((p) => p.filter((x) => x !== pend)) : placeAt(row, col))}
-                className={`w-8 h-8 text-[10px] relative flex items-center justify-center ${
-                  shown
-                    ? pend
-                      ? 'bg-yellow-200 font-bold text-base border-2 border-yellow-500'
-                      : 'bg-amber-100 font-bold text-base'
-                    : prem
-                      ? PREMIUM_STYLE[prem]
-                      : 'bg-green-100'
-                }`}
-              >
-                {shown ? (
-                  <>
-                    <span className={shown.blank ? 'text-blue-700' : ''}>{shown.letter}</span>
-                    {!shown.blank && shown.letter !== '?' && (
-                      <sub className="absolute bottom-0 right-0.5 text-[8px]">
-                        {LETTER_VALUES[shown.letter]}
-                      </sub>
-                    )}
-                  </>
-                ) : i === 7 * SIZE + 7 ? (
-                  '★'
-                ) : (
-                  prem
-                )}
-              </button>
-            );
-          })}
+      <BoardFrame>
+        <div className="board-paper max-w-full overflow-auto">
+          <div
+            className="grid gap-px bg-amber-900/40 p-px"
+            style={{ gridTemplateColumns: `repeat(${SIZE}, 2rem)` }}
+          >
+            {state.board.map((tile, i) => {
+              const row = Math.floor(i / SIZE);
+              const col = i % SIZE;
+              const pend = pending.find((p) => p.row === row && p.col === col);
+              const prem = PREMIUMS[i];
+              const shown = tile ?? (pend ? { letter: pend.letter || '?', blank: pend.blank } : null);
+              return (
+                <button
+                  key={`${row}-${col}`}
+                  type="button"
+                  aria-label={`Row ${row + 1}, column ${col + 1}${shown ? `, ${shown.letter}` : prem ? `, ${prem}` : ''}`}
+                  disabled={!canAct || (!!tile && !pend)}
+                  onClick={() => (pend ? setPending((p) => p.filter((x) => x !== pend)) : placeAt(row, col))}
+                  className={`w-8 h-8 text-[10px] relative flex items-center justify-center ${
+                    shown
+                      ? pend
+                        ? 'tile-wood piece-pop font-bold text-base ring-2 ring-yellow-500'
+                        : 'tile-wood font-bold text-base'
+                      : prem
+                        ? PREMIUM_STYLE[prem]
+                        : 'bg-green-100'
+                  }`}
+                >
+                  {shown ? (
+                    <>
+                      <span className={shown.blank ? 'text-blue-700' : ''}>{shown.letter}</span>
+                      {!shown.blank && shown.letter !== '?' && (
+                        <sub className="absolute bottom-0 right-0.5 text-[8px]">
+                          {LETTER_VALUES[shown.letter]}
+                        </sub>
+                      )}
+                    </>
+                  ) : i === 7 * SIZE + 7 ? (
+                    '★'
+                  ) : (
+                    prem
+                  )}
+                </button>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      </BoardFrame>
 
       <PassGate player={viewer} name={names[viewer]} enabled={pvp && !over}>
         <div className="flex flex-col items-center gap-3">
@@ -194,7 +203,7 @@ function Match({ dict }: { dict: Dictionary }) {
                       setExchanging((x) => (x?.includes(i) ? x.filter((y) => y !== i) : [...(x ?? []), i]));
                     else setSelected(selected === i ? null : i);
                   }}
-                  className={`w-10 h-10 rounded border-2 font-bold text-lg relative ${used ? 'opacity-20' : 'bg-amber-100'} ${selected === i ? 'ring-4 ring-yellow-400' : ''} ${marked ? 'ring-4 ring-red-400' : ''}`}
+                  className={`tile-wood w-10 h-10 text-lg relative ${used ? 'opacity-20' : ''} ${selected === i ? 'ring-4 ring-yellow-400' : ''} ${marked ? 'ring-4 ring-red-400' : ''}`}
                 >
                   {letter === '?' ? '' : letter}
                   <sub className="absolute bottom-0 right-1 text-[9px]">{LETTER_VALUES[letter]}</sub>
