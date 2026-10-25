@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Connect Four — TurnTable game page mock</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="preserved-game.css">
+<link rel="stylesheet" href="mock.css">
+</head>
+<body class="theme-tavern">
+
+<div class="gp-page">
+  <nav class="gp-nav">
+    <a class="gp-back" href="homepage.html">&larr; All games</a>
+    <span class="gp-wordmark">TurnTable</span>
+    <div class="table-tools">
+      <a class="icon-pill" href="design-guide.html">Design guide</a>
+    </div>
+  </nav>
+
+  <header class="game-head">
+    <p class="gp-eyebrow">No. 02 <span class="dot">&middot;</span> Strategy</p>
+    <h1 class="gp-title">Connect Four</h1>
+  </header>
+
+  <div class="game-layout">
+    <!-- LEFT: who is playing and what just happened -->
+    <aside class="col-left">
+      <section class="panel" aria-label="Players">
+        <p class="kicker">Players</p>
+        <div class="player active" id="p1"><span class="gem" style="--size:34px"></span><div><div class="name">Ruby</div><div class="sub">Player 1</div></div><span class="pts" id="s1">0</span></div>
+        <div class="player" id="p2"><span class="gem sapphire" style="--size:34px"></span><div><div class="name">Sapphire</div><div class="sub">Player 2</div></div><span class="pts" id="s2">0</span></div>
+      </section>
+      <section class="panel flat" aria-label="Moves">
+        <p class="kicker">Moves</p>
+        <ol id="moves" class="mono" style="list-style:none;margin:0;padding:0;max-height:190px;overflow:auto;font-size:13px;color:var(--parchment-dim)"></ol>
+        <p id="no-moves" class="dim" style="font-size:13px">No moves yet &mdash; drop a disc in any column.</p>
+      </section>
+    </aside>
+
+    <!-- CENTRE: the board -->
+    <main class="col-center">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;max-width:470px;margin:0 auto 14px;color:var(--on-table)">
+        <span class="gp-turn"><span class="dot" id="turn-dot" style="background:#e0243f"></span><span id="turn-text">Ruby to move</span></span>
+        <span class="gp-score">Ruby <b id="score-a" style="color:inherit">0</b> &nbsp;&ndash;&nbsp; <b id="score-b" style="color:inherit">0</b> Sapphire</span>
+      </div>
+      <div class="board-stage">
+        <div class="board-frame" style="--frame-1:#7a5733;--frame-2:#4a3220">
+          <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+          <div style="position:relative">
+            <div class="c4-board wood" id="board" aria-hidden="true"></div>
+            <div class="c4-cols" id="cols"></div>
+          </div>
+        </div>
+      </div>
+      <div class="game-actions">
+        <button class="gp-btn" type="button" id="undoBtn">&#8630; Undo</button>
+        <button class="gp-btn" type="button" id="restartBtn">&#8635; Restart</button>
+        <button class="gp-btn" type="button" id="rulesBtn">&#128214; Rules</button>
+      </div>
+    </main>
+
+    <!-- RIGHT: reference and table -->
+    <aside class="col-right">
+      <section class="panel" aria-label="How to win">
+        <p class="kicker">How to win</p>
+        <h3>Four in a row</h3>
+        <p>Line up four discs &mdash; across, down or diagonally &mdash; before your opponent does. If the board fills first, it&rsquo;s a draw.</p>
+      </section>
+      <section class="panel flat" aria-label="Table colour">
+        <p class="kicker">Table</p>
+        <div class="swatches" id="swatches"></div>
+        <p style="margin-top:10px;font-size:12px">Remembered in this browser, like on the game-board site.</p>
+      </section>
+      <section class="panel flat" aria-label="Keyboard shortcuts">
+        <p class="kicker">Keys</p>
+        <div class="rule-line"><span>Drop in a column</span><span><span class="chip-key">1</span>&ndash;<span class="chip-key">7</span></span></div>
+        <div class="rule-line"><span>Undo</span><span class="chip-key">Z</span></div>
+        <div class="rule-line" style="border:0"><span>Restart</span><span class="chip-key">R</span></div>
+      </section>
+    </aside>
+  </div>
+</div>
+
+<div id="layer"></div>
+
+<dialog class="gp-modal" id="rulesModal">
+  <div class="gp-modal-inner">
+    <div class="gp-modal-head">
+      <h2 class="gp-modal-title">Connect Four</h2>
+      <button class="gp-modal-close" type="button" id="rulesClose" aria-label="Close rules">&times;</button>
+    </div>
+    <div class="gp-rules">
+      <div class="gp-rule-block"><p class="gp-rule-label">Objective</p><p class="gp-rule-body">Be the first to connect 4 of your coloured discs in a row &mdash; horizontally, vertically, or diagonally.</p></div>
+      <div class="gp-rule-block"><p class="gp-rule-label">Setup</p><p class="gp-rule-body">Stand the 7-column &times; 6-row grid upright; each player takes one disc colour.</p></div>
+      <div class="gp-rule-block"><p class="gp-rule-label">How to play</p><p class="gp-rule-body">Players alternate turns dropping one disc into the top of any column; it falls to the lowest open slot in that column.</p></div>
+      <div class="gp-rule-block"><p class="gp-rule-label">How to win</p><p class="gp-rule-body">First to get 4 in a row wins; if the grid fills with no 4-in-a-row, it&rsquo;s a draw.</p></div>
+    </div>
+    <div class="gp-video">
+      <p class="gp-video-label">Watch</p>
+      <a class="gp-thumb" href="https://www.youtube.com/watch?v=ylZBRUJi3UQ" target="_blank" rel="noopener"><span class="gp-play">&#9658;</span></a>
+      <p class="gp-video-title">How to play Connect 4</p>
+      <p class="gp-video-meta">Triple S Games &middot; how-to-play</p>
+      <a class="gp-video-link" href="https://www.youtube.com/watch?v=ylZBRUJi3UQ" target="_blank" rel="noopener">Watch on YouTube &#8599;</a>
+    </div>
+  </div>
+</dialog>
+
+<script src="tavern.js"></script>
+<script>
+(function () {
+  var ROWS = 6, COLS = 7;
+  var PLAYERS = [
+    { name: 'Ruby', cls: '', color: '#e0243f' },
+    { name: 'Sapphire', cls: 'sapphire', color: '#4a7fe0' }
+  ];
+  var grid, turn, moves, scores = [0, 0], over, winCells;
+  var board = document.getElementById('board'), cols = document.getElementById('cols');
+  var layer = document.getElementById('layer');
+
+  TavernTable.apply(TavernTable.saved());
+  TavernTable.swatches(document.getElementById('swatches'), TavernTable.saved());
+
+  // build the 42 slots and the 7 column buttons once
+  var slots = [];
+  for (var r = 0; r < ROWS; r++) for (var c = 0; c < COLS; c++) { var s = document.createElement('div'); s.className = 'c4-slot'; board.appendChild(s); slots.push(s); }
+  var colBtns = [];
+  for (var c = 0; c < COLS; c++) {
+    (function (c) {
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'c4-col'; b.setAttribute('aria-label', 'Drop in column ' + (c + 1));
+      b.innerHTML = '<span class="gem c4-ghost"></span>';
+      b.addEventListener('click', function () { drop(c); });
+      cols.appendChild(b); colBtns.push(b);
+    })(c);
+  }
+
+  function reset(keepScores) {
+    grid = []; for (var r = 0; r < ROWS; r++) grid.push(new Array(COLS).fill(-1));
+    turn = 0; moves = []; over = false; winCells = [];
+    slots.forEach(function (s) { s.className = 'c4-slot'; s.innerHTML = ''; });
+    if (!keepScores) scores = [0, 0];
+    render(true);
+  }
+
+  function gemEl(p, fall, row) {
+    var g = document.createElement('span');
+    g.className = 'gem ' + PLAYERS[p].cls + (fall ? ' fall' : '');
+    g.style.setProperty('--size', '82%');
+    if (fall) { g.style.setProperty('--drop', ((row + 1.2) * 1.22).toFixed(2)); g.style.setProperty('--fall', (0.32 + row * 0.07).toFixed(2) + 's'); }
+    return g;
+  }
+
+  function render(silent) {
+    var P = PLAYERS[turn];
+    document.getElementById('p1').classList.toggle('active', !over && turn === 0);
+    document.getElementById('p2').classList.toggle('active', !over && turn === 1);
+    document.getElementById('s1').textContent = scores[0]; document.getElementById('s2').textContent = scores[1];
+    document.getElementById('score-a').textContent = scores[0]; document.getElementById('score-b').textContent = scores[1];
+    document.getElementById('turn-dot').style.background = P.color;
+    document.getElementById('turn-text').textContent = over ? (winCells.length ? PLAYERS[turn].name + ' wins' : 'Draw') : P.name + ' to move';
+    colBtns.forEach(function (b, c) {
+      b.disabled = over || grid[0][c] !== -1;
+      var ghost = b.querySelector('.c4-ghost'); ghost.className = 'gem c4-ghost ' + P.cls;
+    });
+    var list = document.getElementById('moves'); list.innerHTML = '';
+    moves.slice(-8).forEach(function (m, i) {
+      var li = document.createElement('li'); li.style.cssText = 'display:flex;gap:8px;align-items:center;padding:4px 0';
+      li.innerHTML = '<span class="gem ' + PLAYERS[m.p].cls + '" style="--size:14px"></span><span>' + (moves.length - Math.min(8, moves.length) + i + 1) + '. ' + PLAYERS[m.p].name + ' &rarr; column ' + (m.c + 1) + '</span>';
+      list.appendChild(li);
+    });
+    document.getElementById('no-moves').style.display = moves.length ? 'none' : '';
+    if (!silent) banner(P);
+  }
+
+  function drop(c) {
+    if (over) return;
+    var r = ROWS - 1; while (r >= 0 && grid[r][c] !== -1) r--;
+    if (r < 0) { toast('That column is full'); return; }
+    grid[r][c] = turn; moves.push({ p: turn, c: c, r: r });
+    var slot = slots[r * COLS + c]; slot.appendChild(gemEl(turn, true, r));
+    var line = findWin(r, c, turn);
+    if (line) {
+      over = true; winCells = line; scores[turn]++;
+      line.forEach(function (p) { setTimeout(function () { slots[p[0] * COLS + p[1]].classList.add('win'); }, 480); });
+      renderEnd(turn);
+    } else if (moves.length === ROWS * COLS) {
+      over = true; renderEnd(-1);
+    } else { turn = 1 - turn; render(); return; }
+    // after a finish: show the final state without the turn banner
+    render(true);
+  }
+
+  function findWin(r, c, p) {
+    var dirs = [[0, 1], [1, 0], [1, 1], [1, -1]];
+    for (var i = 0; i < dirs.length; i++) {
+      var dr = dirs[i][0], dc = dirs[i][1], line = [[r, c]], k;
+      for (k = 1; ; k++) { var rr = r + dr * k, cc = c + dc * k; if (rr < 0 || rr >= ROWS || cc < 0 || cc >= COLS || grid[rr][cc] !== p) break; line.push([rr, cc]); }
+      for (k = 1; ; k++) { var r2 = r - dr * k, c2 = c - dc * k; if (r2 < 0 || r2 >= ROWS || c2 < 0 || c2 >= COLS || grid[r2][c2] !== p) break; line.push([r2, c2]); }
+      if (line.length >= 4) return line;
+    }
+    return null;
+  }
+
+  function undo() {
+    if (!moves.length) return;
+    var m = moves.pop(); grid[m.r][m.c] = -1;
+    if (over && winCells.length) scores[m.p]--;
+    over = false; winCells = []; turn = m.p;
+    slots.forEach(function (s) { s.classList.remove('win'); });
+    slots[m.r * COLS + m.c].innerHTML = '';
+    render(true);
+  }
+
+  function banner(P) {
+    var old = layer.querySelector('.turn-banner'); if (old) old.remove();
+    var b = document.createElement('div'); b.className = 'turn-banner'; b.setAttribute('role', 'status');
+    b.innerHTML = '<span class="gem ' + P.cls + '" style="--size:26px"></span><span><small>Now playing</small>' + P.name + '</span>';
+    layer.appendChild(b); setTimeout(function () { b.remove(); }, 1900);
+  }
+
+  function toast(msg) {
+    var old = layer.querySelector('.toast'); if (old) old.remove();
+    var t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); t.textContent = msg;
+    layer.appendChild(t); setTimeout(function () { t.remove(); }, 2400);
+  }
+
+  function renderEnd(winner) {
+    setTimeout(function () {
+      var o = document.createElement('div'); o.className = 'overlay top';
+      var P = winner >= 0 ? PLAYERS[winner] : null;
+      o.innerHTML = '<div class="award-card" role="status"><div class="medal">' + (P ? '&#127942;' : '&#129309;') + '</div>' +
+        '<div class="kicker" style="margin-bottom:0">' + (P ? 'Four in a row' : 'Board full') + '</div>' +
+        '<div class="title">' + (P ? P.name + ' wins!' : 'It&rsquo;s a draw') + '</div>' +
+        (P ? '<span class="gem ' + P.cls + '" style="--size:34px"></span>' : '') +
+        '<p style="margin-top:12px;color:var(--parchment-dim);font-size:14px">' + (P ? 'Press R or Restart to play again.' : 'Nobody connected four. Press R for a rematch.') + '</p>' +
+        '<div class="drain"></div></div>';
+      var close = function () { o.remove(); };
+      o.querySelector('.award-card').addEventListener('click', close);
+      layer.appendChild(o); setTimeout(close, 3800);
+    }, 900);
+  }
+
+  document.getElementById('undoBtn').addEventListener('click', undo);
+  document.getElementById('restartBtn').addEventListener('click', function () { reset(true); });
+  var modal = document.getElementById('rulesModal');
+  document.getElementById('rulesBtn').addEventListener('click', function () { modal.showModal(); });
+  document.getElementById('rulesClose').addEventListener('click', function () { modal.close(); });
+  modal.addEventListener('click', function (e) {
+    var box = modal.querySelector('.gp-modal-inner').getBoundingClientRect();
+    if (!(e.clientX >= box.left && e.clientX <= box.right && e.clientY >= box.top && e.clientY <= box.bottom)) modal.close();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (modal.open || e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.key >= '1' && e.key <= '7') drop(+e.key - 1);
+    else if (e.key.toLowerCase() === 'z') undo();
+    else if (e.key.toLowerCase() === 'r') reset(true);
+  });
+
+  reset(false);
+  window.__c4 = { drop: drop, reset: reset };   // handy for screenshots and demos
+})();
+</script>
+</body>
+</html>

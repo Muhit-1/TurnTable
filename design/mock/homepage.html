@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TurnTable — homepage mock</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="preserved-hub.css">
+<link rel="stylesheet" href="mock.css">
+</head>
+<body class="theme-hub">
+<div class="page">
+  <div class="head">
+    <h1 class="wordmark">TurnTable</h1>
+    <p class="tagline">26 two-player games, one shared screen.</p>
+  </div>
+
+  <nav class="filters" id="filters" aria-label="Filter games by category">
+    <button data-filter="all" aria-pressed="true">All <span class="count">26</span></button>
+    <button data-filter="strategy" aria-pressed="false">Strategy <span class="count">13</span></button>
+    <button data-filter="dice" aria-pressed="false">Dice <span class="count">4</span></button>
+    <button data-filter="hidden" aria-pressed="false">Hidden <span class="count">2</span></button>
+    <button data-filter="cards" aria-pressed="false">Cards <span class="count">4</span></button>
+    <button data-filter="party" aria-pressed="false">Party <span class="count">3</span></button>
+  </nav>
+
+  <div class="grid" id="grid">
+    <div class="icd-card" data-category="strategy" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content">
+          <div class="mg mg-ttt" aria-hidden="true">
+            <div class="cell"><span class="mark x" style="animation-delay:0s">✕</span></div><div class="cell"></div>
+            <div class="cell"><span class="mark o" style="animation-delay:.6s">○</span></div>
+            <div class="cell"></div><div class="cell"><span class="mark x" style="animation-delay:1.2s">✕</span></div><div class="cell"></div>
+            <div class="cell"><span class="mark o" style="animation-delay:1.8s">○</span></div><div class="cell"></div>
+            <div class="cell"><span class="mark x" style="animation-delay:2.4s">✕</span></div><span class="win-line"></span>
+          </div>
+        </div>
+        <div class="icd-panel">
+          <div class="icd-panel-top">
+            <div class="mono-icon">TT</div>
+            <p class="icd-desc">Get three in a row — across, down, or diagonal.</p>
+          </div>
+          <span class="icd-panel-name">Tic-Tac-Toe</span>
+        </div>
+        <span class="ic-num">No. 01</span>
+      </div>
+    </div>
+    <div class="icd-card" data-href="game-board.html" data-category="strategy" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content">
+          <div class="mg mg-c4" style="position:relative" aria-hidden="true">
+            <span class="hole" style="left:8px"></span><span class="hole" style="left:32px"></span><span class="hole" style="left:56px"></span><span class="hole" style="left:80px"></span>
+            <span class="disc" style="left:8px;background:var(--accent);animation-delay:0s"></span>
+            <span class="disc" style="left:32px;background:var(--accent-2);animation-delay:.5s"></span>
+            <span class="disc" style="left:56px;background:var(--accent);animation-delay:1s"></span>
+            <span class="disc" style="left:80px;background:var(--accent-2);animation-delay:1.5s"></span>
+          </div>
+        </div>
+        <div class="icd-panel">
+          <div class="icd-panel-top">
+            <div class="mono-icon">C4</div>
+            <p class="icd-desc">Drop discs and line up four before your opponent.</p>
+          </div>
+          <span class="icd-panel-name">Connect Four</span>
+        </div>
+        <span class="ic-num">No. 02</span>
+      </div>
+    </div>
+    <div class="icd-card" data-category="strategy" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content">
+          <div class="mg mg-chess" aria-hidden="true">
+            <span class="sq"></span><span class="sq"></span><span class="sq"></span><span class="sq"></span>
+            <span class="sq"></span><span class="sq"></span><span class="sq"></span><span class="sq"></span>
+            <span class="sq"></span><span class="sq"></span><span class="sq"></span><span class="sq"></span>
+            <span class="sq"></span><span class="sq"></span><span class="sq"></span><span class="sq"></span>
+            <span class="knight">♞</span>
+          </div>
+        </div>
+        <div class="icd-panel">
+          <div class="icd-panel-top">
+            <div class="mono-icon">♞</div>
+            <p class="icd-desc">Outmaneuver every piece and checkmate their king.</p>
+          </div>
+          <span class="icd-panel-name">Chess</span>
+        </div>
+        <span class="ic-num">No. 03</span>
+      </div>
+    </div>
+    <div class="icd-card" data-category="strategy" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content"><div class="mg mg-grid mg-checks" aria-hidden="true"><div class="cell"></div><div class="cell dk"><span class="stone b" style="animation-delay:0s"></span></div><div class="cell"></div><div class="cell dk"><span class="stone b" style="animation-delay:0.6s"></span></div><div class="cell dk"><span class="stone b" style="animation-delay:1.2s"></span></div><div class="cell"></div><div class="cell dk"></div><div class="cell"></div><div class="cell"></div><div class="cell dk"><span class="stone a" style="animation-delay:1.8s"></span></div><div class="cell"></div><div class="cell dk"><span class="stone a" style="animation-delay:2.4s"></span></div><div class="cell dk"></div><div class="cell"></div><div class="cell dk"><span class="stone a" style="animation-delay:3.0s"></span></div><div class="cell"></div></div></div>
+        <div class="icd-panel">
+          <div class="icd-panel-top"><div class="mono-icon">CK</div><p class="icd-desc">Jump your way across the board and clear their pieces.</p></div>
+          <span class="icd-panel-name">Checkers</span>
+        </div>
+        <span class="ic-num">No. 04</span>
+      </div>
+    </div>
+    <div class="icd-card" data-category="strategy" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content"><div class="mg mg-grid mg-reversi" aria-hidden="true"><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"><span class="stone a" style="animation-delay:2.1s"></span></div><div class="cell"><span class="stone a" style="animation-delay:0s"></span></div><div class="cell"><span class="stone b" style="animation-delay:0.5s"></span></div><div class="cell"><span class="stone b" style="animation-delay:2.7s"></span></div><div class="cell"></div><div class="cell"><span class="stone b" style="animation-delay:1s"></span></div><div class="cell"><span class="stone a" style="animation-delay:1.5s"></span></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div></div></div>
+        <div class="icd-panel">
+          <div class="icd-panel-top"><div class="mono-icon">RV</div><p class="icd-desc">Flip your opponent's discs to claim the board.</p></div>
+          <span class="icd-panel-name">Reversi</span>
+        </div>
+        <span class="ic-num">No. 05</span>
+      </div>
+    </div>
+    <div class="icd-card" data-category="strategy" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content">
+          <div class="mg mg-gomoku" aria-hidden="true">
+            <div class="cell"></div><div class="cell"></div><div class="cell"><span class="stone" style="animation-delay:0s"></span></div><div class="cell"></div><div class="cell"></div>
+            <div class="cell"></div><div class="cell"><span class="stone" style="animation-delay:.5s"></span></div><div class="cell"><span class="stone" style="animation-delay:1s"></span></div><div class="cell"><span class="stone" style="animation-delay:1.5s"></span></div><div class="cell"></div>
+            <div class="cell"></div><div class="cell"></div><div class="cell"><span class="stone" style="animation-delay:2s"></span></div><div class="cell"></div><div class="cell"></div>
+            <span class="win-line"></span>
+          </div>
+        </div>
+        <div class="icd-panel">
+          <div class="icd-panel-top"><div class="mono-icon">GM</div><p class="icd-desc">Line up five stones in a row before your opponent.</p></div>
+          <span class="icd-panel-name">Gomoku</span>
+        </div>
+        <span class="ic-num">No. 06</span>
+      </div>
+    </div>
+    <div class="icd-card" data-category="strategy" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content"><div class="mg mg-grid mg-go" aria-hidden="true"><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"><span class="stone a" style="animation-delay:0s"></span></div><div class="cell"><span class="stone b" style="animation-delay:3s"></span></div><div class="cell"><span class="stone b" style="animation-delay:0.6s"></span></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"><span class="stone a" style="animation-delay:1.2s"></span></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"><span class="stone b" style="animation-delay:1.8s"></span></div><div class="cell"></div><div class="cell"><span class="stone a" style="animation-delay:2.4s"></span></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div></div></div>
+        <div class="icd-panel">
+          <div class="icd-panel-top"><div class="mono-icon">GO</div><p class="icd-desc">Surround more territory than your opponent.</p></div>
+          <span class="icd-panel-name">Go</span>
+        </div>
+        <span class="ic-num">No. 07</span>
+      </div>
+    </div>
+    <div class="icd-card" data-category="strategy" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content"><div class="mg mg-dots" aria-hidden="true"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="win-line" style="left:11px;top:10px;width:24px;height:3px;animation-delay:0s"></span><span class="win-line" style="left:34px;top:10px;width:24px;height:3px;animation-delay:0.5s"></span><span class="win-line" style="left:11px;top:33px;width:24px;height:3px;animation-delay:1.0s"></span><span class="win-line" style="left:11px;top:10px;width:3px;height:24px;animation-delay:1.5s"></span><span class="win-line" style="left:34px;top:10px;width:3px;height:24px;animation-delay:2.0s"></span><span class="box" style="left:14px;top:13px;width:21px;height:21px"></span></div></div>
+        <div class="icd-panel">
+          <div class="icd-panel-top"><div class="mono-icon">DB</div><p class="icd-desc">Draw lines, claim boxes, outscore your opponent.</p></div>
+          <span class="icd-panel-name">Dots &amp; Boxes</span>
+        </div>
+        <span class="ic-num">No. 08</span>
+      </div>
+    </div>
+    <div class="icd-card" data-category="strategy" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content">
+          <div class="mg mg-nim" aria-hidden="true">
+            <div class="nim-row">
+              <span class="token" style="animation-delay:0s"></span><span class="token" style="animation-delay:.15s"></span><span class="token" style="animation-delay:.3s"></span><span class="token" style="animation-delay:.45s"></span><span class="token" style="animation-delay:.6s"></span>
+            </div>
+            <div class="nim-row">
+              <span class="token" style="animation-delay:1.4s"></span><span class="token" style="animation-delay:1.55s"></span><span class="token" style="animation-delay:1.7s"></span>
+            </div>
+            <div class="nim-row"><span class="token" style="animation-delay:2.6s"></span></div>
+          </div>
+        </div>
+        <div class="icd-panel">
+          <div class="icd-panel-top"><div class="mono-icon">NI</div><p class="icd-desc">Take turns removing tokens — don't take the last one.</p></div>
+          <span class="icd-panel-name">Nim</span>
+        </div>
+        <span class="ic-num">No. 09</span>
+      </div>
+    </div>
+    <div class="icd-card" data-category="strategy" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content"><div class="mg mg-grid mg-go" aria-hidden="true"><div class="cell"></div><div class="cell"></div><div class="cell"><span class="stone a" style="animation-delay:0s"></span></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"><span class="stone a" style="animation-delay:0.6s"></span></div><div class="cell"></div><div class="cell"></div><div class="cell"><span class="stone b" style="animation-delay:1.8s"></span></div><div class="cell"></div><div class="cell"><span class="stone a" style="animation-delay:1.2s"></span></div><div class="cell"></div><div class="cell"><span class="stone b" style="animation-delay:2.4s"></span></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"><span class="stone b" style="animation-delay:3.0s"></span></div><div class="cell"></div><div class="cell"></div></div></div>
+        <div class="icd-panel">
+          <div class="icd-panel-top"><div class="mono-icon">9M</div><p class="icd-desc">Form mills to capture your opponent's pieces.</p></div>
+          <span class="icd-panel-name">Nine Men's Morris</span>
+        </div>
+        <span class="ic-num">No. 10</span>
+      </div>
+    </div>
+    <div class="icd-card" data-category="strategy" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content"><div class="mg mg-grid mg-quarto" aria-hidden="true"><div class="cell"><span class="stone a sq" style="animation-delay:0s"></span></div><div class="cell"><span class="stone b tall" style="animation-delay:0.5s"></span></div><div class="cell"><span class="stone b" style="animation-delay:2.5s"></span></div><div class="cell"></div><div class="cell"><span class="stone b sq" style="animation-delay:1.0s"></span></div><div class="cell"><span class="stone a tall" style="animation-delay:1.5s"></span></div><div class="cell"></div><div class="cell"></div><div class="cell"><span class="stone a" style="animation-delay:2.0s"></span></div></div></div>
+        <div class="icd-panel">
+          <div class="icd-panel-top"><div class="mono-icon">QT</div><p class="icd-desc">Hand off the piece that beats you — if you dare.</p></div>
+          <span class="icd-panel-name">Quarto</span>
+        </div>
+        <span class="ic-num">No. 11</span>
+      </div>
+    </div>
+    <div class="icd-card" data-category="strategy" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content">
+          <div class="mg mg-hex" aria-hidden="true">
+            <div class="cell"><span class="stone a" style="animation-delay:0s"></span></div><div class="cell"></div><div class="cell"><span class="stone b" style="animation-delay:.6s"></span></div><div class="cell"></div><div class="cell"></div>
+            <div class="cell"></div><div class="cell"><span class="stone a" style="animation-delay:1.2s"></span></div><div class="cell"><span class="stone a" style="animation-delay:1.8s"></span></div><div class="cell"></div><div class="cell"></div>
+            <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"><span class="stone a" style="animation-delay:2.4s"></span></div><div class="cell"><span class="stone a" style="animation-delay:3s"></span></div>
+            <span class="bridge"></span>
+          </div>
+        </div>
+        <div class="icd-panel">
+          <div class="icd-panel-top"><div class="mono-icon">HX</div><p class="icd-desc">Connect your two sides with an unbroken chain.</p></div>
+          <span class="icd-panel-name">Hex</span>
+        </div>
+        <span class="ic-num">No. 12</span>
+      </div>
+    </div>
+    <div class="icd-card" data-category="strategy" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content"><div class="mg mg-grid mg-pits" aria-hidden="true"><div class="cell"><span class="stone b" style="animation-delay:0.0s"></span></div><div class="cell"><span class="stone a" style="animation-delay:0.4s"></span></div><div class="cell"><span class="stone b" style="animation-delay:0.8s"></span></div><div class="cell"><span class="stone a" style="animation-delay:1.2000000000000002s"></span></div><div class="cell"><span class="stone b" style="animation-delay:1.6s"></span></div><div class="cell"><span class="stone a" style="animation-delay:2.0s"></span></div></div></div>
+        <div class="icd-panel">
+          <div class="icd-panel-top"><div class="mono-icon">MC</div><p class="icd-desc">Sow seeds around the board to fill your store.</p></div>
+          <span class="icd-panel-name">Mancala</span>
+        </div>
+        <span class="ic-num">No. 13</span>
+      </div>
+    </div>
+    <div class="icd-card" data-category="dice" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content"><div class="mg mg-grid mg-points" aria-hidden="true"><div class="cell up"><span class="stone b" style="top:4px;animation-delay:0.00s"></span><span class="stone b" style="top:16px;animation-delay:0.20s"></span></div><div class="cell up"><span class="stone a" style="top:4px;animation-delay:0.35s"></span></div><div class="cell up"><span class="stone a" style="top:4px;animation-delay:0.70s"></span><span class="stone a" style="top:16px;animation-delay:0.90s"></span></div><div class="cell up"><span class="stone b" style="top:4px;animation-delay:1.05s"></span></div><div class="cell up"><span class="stone a" style="top:4px;animation-delay:1.40s"></span><span class="stone a" style="top:16px;animation-delay:1.60s"></span></div><div class="cell up"><span class="stone a" style="top:4px;animation-delay:1.75s"></span></div><div class="cell dn"><span class="stone b" style="bottom:4px;animation-delay:2.10s"></span><span class="stone b" style="bottom:16px;animation-delay:2.30s"></span></div><div class="cell dn"><span class="stone a" style="bottom:4px;animation-delay:2.45s"></span></div><div class="cell dn"><span class="stone a" style="bottom:4px;animation-delay:2.80s"></span><span class="stone a" style="bottom:16px;animation-delay:3.00s"></span></div><div class="cell dn"><span class="stone b" style="bottom:4px;animation-delay:3.15s"></span></div><div class="cell dn"><span class="stone a" style="bottom:4px;animation-delay:3.50s"></span><span class="stone a" style="bottom:16px;animation-delay:3.70s"></span></div><div class="cell dn"><span class="stone a" style="bottom:4px;animation-delay:3.85s"></span></div></div></div>
+        <div class="icd-panel">
+          <div class="icd-panel-top"><div class="mono-icon">BG</div><p class="icd-desc">Race your checkers home before your opponent.</p></div>
+          <span class="icd-panel-name">Backgammon</span>
+        </div>
+        <span class="ic-num">No. 14</span>
+      </div>
+    </div>
+    <div class="icd-card" data-category="dice" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content">
+          <div class="mg mg-die" aria-hidden="true">
+            <div class="die-body"><span class="pip tl"></span><span class="pip tr"></span><span class="pip bl"></span><span class="pip br"></span></div>
+          </div>
+        </div>
+        <div class="icd-panel">
+          <div class="icd-panel-top"><div class="mono-icon">LD</div><p class="icd-desc">Race all four tokens home on a lucky roll.</p></div>
+          <span class="icd-panel-name">Ludo</span>
+        </div>
+        <span class="ic-num">No. 15</span>
+      </div>
+    </div>
+    <div class="icd-card" data-category="dice" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content"><div class="mg mg-grid mg-snakes" aria-hidden="true"><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"><span class="stone " style="animation-delay:0.0s"></span></div><div class="cell"></div><div class="cell"><span class="stone " style="animation-delay:1.0s"></span></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"><span class="stone " style="animation-delay:3.5s"></span></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><span class="ladder"></span></div></div>
+        <div class="icd-panel">
+          <div class="icd-panel-top"><div class="mono-icon">SL</div><p class="icd-desc">Climb ladders, dodge snakes, race to the end.</p></div>
+          <span class="icd-panel-name">Snakes &amp; Ladders</span>
+        </div>
+        <span class="ic-num">No. 16</span>
+      </div>
+    </div>
+    <div class="icd-card" data-category="dice" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content"><div class="mg mg-dice" aria-hidden="true"><span class="die"><i></i><i></i><i></i></span><span class="die"><i></i><i></i><i></i></span><span class="die"><i></i><i></i><i></i></span></div></div>
+        <div class="icd-panel">
+          <div class="icd-panel-top"><div class="mono-icon">YZ</div><p class="icd-desc">Roll the dice and chase the highest-scoring hand.</p></div>
+          <span class="icd-panel-name">Yahtzee</span>
+        </div>
+        <span class="ic-num">No. 17</span>
+      </div>
+    </div>
+    <div class="icd-card" data-category="hidden" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content">
+          <div class="mg mg-battleship" aria-hidden="true">
+            <div class="cell"></div><div class="cell"></div><div class="cell"><span class="miss" style="animation-delay:0s"></span></div><div class="cell"></div>
+            <div class="cell"><span class="hit" style="animation-delay:.8s"></span></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+            <div class="cell"></div><div class="cell"><span class="hit" style="animation-delay:1.6s"></span></div><div class="cell"></div><div class="cell"></div>
+            <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"><span class="miss" style="animation-delay:2.4s"></span></div>
+          </div>
+        </div>
+        <div class="icd-panel">
+          <div class="icd-panel-top"><div class="mono-icon">BS</div><p class="icd-desc">Call your shots and sink the hidden fleet.</p></div>
+          <span class="icd-panel-name">Battleship</span>
+        </div>
+        <span class="ic-num">No. 18</span>
+      </div>
+    </div>
+    <div class="icd-card" data-category="hidden" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content"><div class="mg mg-text" aria-hidden="true"><span class="mark" style="animation-delay:0s">H</span><span class="blank"></span><span class="mark" style="animation-delay:.8s">N</span><span class="blank"></span><span class="mark" style="animation-delay:1.6s">M</span></div></div>
+        <div class="icd-panel">
+          <div class="icd-panel-top"><div class="mono-icon">HM</div><p class="icd-desc">Guess the word before you run out of tries.</p></div>
+          <span class="icd-panel-name">Hangman</span>
+        </div>
+        <span class="ic-num">No. 19</span>
+      </div>
+    </div>
+    <div class="icd-card" data-category="cards" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content"><div class="mg mg-cards" aria-hidden="true"><span class="stone " style="animation-delay:0s">K</span><span class="stone red" style="animation-delay:0.7s">7</span><span class="stone " style="animation-delay:1.4s">A</span></div></div>
+        <div class="icd-panel">
+          <div class="icd-panel-top"><div class="mono-icon">WR</div><p class="icd-desc">Highest card wins — winner takes the pile.</p></div>
+          <span class="icd-panel-name">War</span>
+        </div>
+        <span class="ic-num">No. 20</span>
+      </div>
+    </div>
+    <div class="icd-card" data-category="cards" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content"><div class="mg mg-cards" aria-hidden="true"><span class="stone red" style="animation-delay:0s">♥</span><span class="stone red" style="animation-delay:0.6s">♥</span><span class="stone " style="animation-delay:1.2s">♠</span><span class="stone red" style="animation-delay:1.8s">♥</span></div></div>
+        <div class="icd-panel">
+          <div class="icd-panel-top"><div class="mono-icon">GF</div><p class="icd-desc">Ask, collect, and match sets of cards.</p></div>
+          <span class="icd-panel-name">Go Fish</span>
+        </div>
+        <span class="ic-num">No. 21</span>
+      </div>
+    </div>
+    <div class="icd-card" data-category="cards" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content"><div class="mg mg-cards" aria-hidden="true"><span class="stone" style="animation-delay:0s;background:#e0243f;color:#fff">7</span><span class="stone" style="animation-delay:.7s;background:#2f9e44;color:#fff">+2</span><span class="stone" style="animation-delay:1.4s;background:#ffb703;color:#2b2016">⊘</span><span class="stone" style="animation-delay:2.1s;background:#2f5fbf;color:#fff">4</span></div></div>
+        <div class="icd-panel">
+          <div class="icd-panel-top"><div class="mono-icon">CE</div><p class="icd-desc">Match colour or number — wild cards twist the game.</p></div>
+          <span class="icd-panel-name">Uno-style Matching</span>
+        </div>
+        <span class="ic-num">No. 22</span>
+      </div>
+    </div>
+    <div class="icd-card" data-category="cards" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content"><div class="mg mg-cards" aria-hidden="true"><span class="stone " style="animation-delay:0s">🍎</span><span class="stone " style="animation-delay:0.8s">🍌</span><span class="stone " style="animation-delay:1.6s">🍎</span></div></div>
+        <div class="icd-panel">
+          <div class="icd-panel-top"><div class="mono-icon">MM</div><p class="icd-desc">Flip pairs and remember where the matches are.</p></div>
+          <span class="icd-panel-name">Memory</span>
+        </div>
+        <span class="ic-num">No. 23</span>
+      </div>
+    </div>
+    <div class="icd-card" data-category="party" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content"><div class="mg mg-text" aria-hidden="true" style="font-size:26px"><span class="mark" style="animation-delay:0s">✊</span><span class="mark" style="animation-delay:.8s">✋</span><span class="mark" style="animation-delay:1.6s">✌</span></div></div>
+        <div class="icd-panel">
+          <div class="icd-panel-top"><div class="mono-icon">RPS</div><p class="icd-desc">Best of three — read their next move.</p></div>
+          <span class="icd-panel-name">Rock Paper Scissors</span>
+        </div>
+        <span class="ic-num">No. 24</span>
+      </div>
+    </div>
+    <div class="icd-card" data-category="party" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content"><div class="mg mg-text" aria-hidden="true"><span class="tile" style="animation-delay:0.0s">W</span><span class="tile" style="animation-delay:0.5s">O</span><span class="tile" style="animation-delay:1.0s">R</span><span class="tile" style="animation-delay:1.5s">D</span></div></div>
+        <div class="icd-panel">
+          <div class="icd-panel-top"><div class="mono-icon">SD</div><p class="icd-desc">Build words on a shared board for the top score.</p></div>
+          <span class="icd-panel-name">Scrabble-style Word Building</span>
+        </div>
+        <span class="ic-num">No. 25</span>
+      </div>
+    </div>
+    <div class="icd-card" data-category="party" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content"><div class="mg mg-text" aria-hidden="true" style="font-size:40px"><span class="mark" style="animation-delay:0s;font-size:44px">?</span><span class="mark" style="animation-delay:.9s;font-size:30px">?</span><span class="mark" style="animation-delay:1.8s;font-size:22px">?</span></div></div>
+        <div class="icd-panel">
+          <div class="icd-panel-top"><div class="mono-icon">TQ</div><p class="icd-desc">Twenty guesses to name their secret word.</p></div>
+          <span class="icd-panel-name">Twenty Questions</span>
+        </div>
+        <span class="ic-num">No. 26</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<a class="pill-link" href="design-guide.html">Design guide &nbsp;→</a>
+
+<script>
+(function () {
+  var buttons = document.querySelectorAll('#filters button');
+  var cards = document.querySelectorAll('#grid .icd-card');
+  buttons.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var filter = btn.getAttribute('data-filter');
+      buttons.forEach(function (b) { b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'); });
+      cards.forEach(function (card) {
+        card.hidden = filter !== 'all' && card.getAttribute('data-category') !== filter;
+      });
+    });
+  });
+  // mock only: the Connect Four card opens the game-page mock
+  document.querySelectorAll('.icd-card[data-href]').forEach(function (card) {
+    var go = function () { location.href = card.getAttribute('data-href'); };
+    card.style.cursor = 'pointer';
+    card.addEventListener('click', go);
+    card.addEventListener('keydown', function (e) { if (e.key === 'Enter') go(); });
+  });
+})();
+</script>
+</body>
+</html>

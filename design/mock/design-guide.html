@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TurnTable — design guide (mock)</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="preserved-hub.css">
+<link rel="stylesheet" href="preserved-game.css">
+<link rel="stylesheet" href="mock.css">
+</head>
+<body class="theme-tavern">
+<div class="guide">
+
+  <nav class="guide-nav" aria-label="Sections">
+    <span class="brand">TurnTable</span>
+    <a class="nav-pill" href="#principles">Principles</a>
+    <a class="nav-pill" href="#colour">Colour</a>
+    <a class="nav-pill" href="#type">Type</a>
+    <a class="nav-pill" href="#components">Components</a>
+    <a class="nav-pill" href="#motion">Motion</a>
+    <a class="nav-pill" href="#boards">Board look</a>
+    <a class="nav-pill" href="#layout">Layout</a>
+    <a class="nav-pill" href="#build">Build plan</a>
+    <span style="flex:1"></span>
+    <a class="nav-pill" href="homepage.html">Homepage mock &rarr;</a>
+    <a class="nav-pill" href="game-board.html">Game page mock &rarr;</a>
+  </nav>
+
+  <header>
+    <h1>Design guide</h1>
+    <p class="lead">TurnTable keeps the card hovers and animations you already chose, and takes its look from your game-board site: a warm tavern table, brass and parchment, gems for players, and boards that feel like real pieces of a set. This page is the reference for Phase 3 &mdash; every colour, font, component and motion rule, with live demos.</p>
+    <div class="callout"><b>What is kept exactly as it was:</b> the card lift + hard shadow, the white panel that shrinks to reveal the game preview, the name fading in, the preview animations that only play on hover, the filter-pill and button hover shadows, the back-link nudge, the modal close and play-button hovers. They are copied byte-for-byte into <code>preserved-hub.css</code> / <code>preserved-game.css</code>, and <code>check-motion.mjs</code> fails if a single value drifts.</div>
+  </header>
+
+  <!-- ====================================================== -->
+  <section id="principles">
+    <p class="sec-kicker">01</p>
+    <h2>Principles</h2>
+    <p class="lead">Four ideas decide every choice below.</p>
+    <div class="grid-2">
+      <div class="panel flat"><p class="kicker">One table, many games</p><h3>A single set of materials</h3><p>Every board sits in the same wooden frame with a brass inlay, on the same table. Switching games feels like swapping the board, not the room.</p></div>
+      <div class="panel flat"><p class="kicker">Warm, never flat</p><h3>Gradients and soft shadows</h3><p>Pieces and players are materials &mdash; gems, glossy discs, lacquered stones &mdash; not flat colour swaps. Surfaces are tinted by the table wood.</p></div>
+      <div class="panel flat"><p class="kicker">Motion has a job</p><h3>Say what changed</h3><p>A disc drops, a turn banner slides in, a win pops. Hover previews teach what a game is. Nothing moves just to move, and everything respects reduced-motion.</p></div>
+      <div class="panel flat"><p class="kicker">Keep the signature</p><h3>The card system stays</h3><p>The chunky cards and their hover choreography are TurnTable&rsquo;s own. They are the one thing deliberately not restyled by the tavern theme.</p></div>
+    </div>
+  </section>
+
+  <!-- ====================================================== -->
+  <section id="colour">
+    <p class="sec-kicker">02</p>
+    <h2>Colour</h2>
+    <p class="lead">Two moods: a light cream hub where you choose a game, and a dark tavern table where you play it.</p>
+
+    <h4>Tavern palette <span class="badge new">from game-board</span></h4>
+    <div class="grid-auto">
+      <div class="token"><div class="chip" style="background:#2b2016"></div><div class="meta"><b>Charred oak</b><code>#2B2016 &middot; --charred-oak</code></div></div>
+      <div class="token"><div class="chip" style="background:#3c2a1c"></div><div class="meta"><b>Walnut</b><code>#3C2A1C &middot; panels</code></div></div>
+      <div class="token"><div class="chip" style="background:#4a3423"></div><div class="meta"><b>Walnut 2</b><code>#4A3423 &middot; raised panels</code></div></div>
+      <div class="token"><div class="chip" style="background:#c9903f"></div><div class="meta"><b>Brass</b><code>#C9903F &middot; accents, borders</code></div></div>
+      <div class="token"><div class="chip" style="background:#e2b876"></div><div class="meta"><b>Brass soft</b><code>#E2B876 &middot; kickers, numbers</code></div></div>
+      <div class="token"><div class="chip" style="background:#ede1c8"></div><div class="meta"><b>Parchment</b><code>#EDE1C8 &middot; text</code></div></div>
+      <div class="token"><div class="chip" style="background:#d8cbae"></div><div class="meta"><b>Parchment dim</b><code>#D8CBAE &middot; secondary text</code></div></div>
+      <div class="token"><div class="chip" style="background:#b5502e"></div><div class="meta"><b>Ember</b><code>#B55 02E &middot; errors, danger</code></div></div>
+    </div>
+
+    <h4>Hub (light) <span class="badge keep">from TurnTable</span> <span class="badge new">+ game-board cream</span></h4>
+    <div class="grid-auto">
+      <div class="token"><div class="chip" style="background:linear-gradient(180deg,#fffaf0,#f6ecd6)"></div><div class="meta"><b>Cream page</b><code>#FFFAF0 &rarr; #F6ECD6</code></div></div>
+      <div class="token"><div class="chip" style="background:#2b2016"></div><div class="meta"><b>Card shell / ink</b><code>--ink &middot; was #171712</code></div></div>
+      <div class="token"><div class="chip" style="background:#fff"></div><div class="meta"><b>Card panel</b><code>--surface #FFFFFF</code></div></div>
+      <div class="token"><div class="chip" style="background:#ffb703"></div><div class="meta"><b>Accent</b><code>--accent #FFB703 (unchanged)</code></div></div>
+      <div class="token"><div class="chip" style="background:#2f9e44"></div><div class="meta"><b>Accent 2</b><code>--accent-2 #2F9E44 (unchanged)</code></div></div>
+      <div class="token"><div class="chip" style="background:#c05a12"></div><div class="meta"><b>Wordmark orange</b><code>#C05A12 &middot; hub title</code></div></div>
+      <div class="token"><div class="chip" style="background:#4a3520"></div><div class="meta"><b>Hub ink</b><code>#4A3520 &middot; headings</code></div></div>
+      <div class="token"><div class="chip" style="background:#8a7758"></div><div class="meta"><b>Hub ink dim</b><code>#8A7758 &middot; tagline</code></div></div>
+    </div>
+
+    <h4>Table woods <span class="badge new">pick one &mdash; the whole page follows</span></h4>
+    <p class="dim" style="max-width:680px;margin:0 0 14px">Each wood recolours the page background, every panel, the shadows and the text that sits on the table. Light woods get dark panels; the darkest wood gets lighter ones. Try them &mdash; this page uses the same switcher as the game page.</p>
+    <div class="swatches" id="swatches"></div>
+    <div class="grid-auto" id="wood-tokens" style="margin-top:18px"></div>
+
+    <h4>Player gems <span class="badge new">from game-board</span></h4>
+    <p class="dim" style="max-width:680px;margin:0 0 14px">Each player is a material, not just a hue. Slots are assigned in this order, the same every game. Two-player games use the first two (Ruby, Sapphire).</p>
+    <div style="display:flex;flex-wrap:wrap;gap:22px">
+      <div style="text-align:center"><span class="gem" style="--size:56px"></span><div class="mono" style="font-size:12px;margin-top:8px">Ruby</div></div>
+      <div style="text-align:center"><span class="gem sapphire" style="--size:56px"></span><div class="mono" style="font-size:12px;margin-top:8px">Sapphire</div></div>
+      <div style="text-align:center"><span class="gem amethyst" style="--size:56px"></span><div class="mono" style="font-size:12px;margin-top:8px">Amethyst</div></div>
+      <div style="text-align:center"><span class="gem onyx" style="--size:56px"></span><div class="mono" style="font-size:12px;margin-top:8px">Onyx</div></div>
+      <div style="text-align:center"><span class="gem aquamarine" style="--size:56px"></span><div class="mono" style="font-size:12px;margin-top:8px">Aquamarine</div></div>
+      <div style="text-align:center"><span class="gem rosequartz" style="--size:56px"></span><div class="mono" style="font-size:12px;margin-top:8px">Rose Quartz</div></div>
+      <div style="text-align:center"><span class="gem brass" style="--size:56px"></span><div class="mono" style="font-size:12px;margin-top:8px">Brass (neutral)</div></div>
+    </div>
+    <h4>Pieces</h4>
+    <div style="display:flex;flex-wrap:wrap;gap:26px;align-items:center">
+      <span class="stone-b" style="width:46px;height:46px"></span><span class="stone-w" style="width:46px;height:46px"></span>
+      <span class="checker red" style="width:46px;height:46px"></span><span class="checker cream" style="width:46px;height:46px"></span>
+      <span class="piece w" style="font-size:46px">&#9812;</span><span class="piece b" style="font-size:46px">&#9818;</span>
+    </div>
+  </section>
+
+  <!-- ====================================================== -->
+  <section id="type">
+    <p class="sec-kicker">03</p>
+    <h2>Typography</h2>
+    <p class="lead">Four families, each with one job. All are free (SIL Open Font License) and hosted with the site, so nothing loads from a third party.</p>
+    <div class="type-row"><div class="label">Fredoka 700<br>wordmark</div><div style="font:700 56px/1 var(--font-pop);color:var(--brass-soft)">TurnTable</div></div>
+    <div class="type-row"><div class="label">Fraunces 600 italic<br>game titles, card names, dialogs</div><div style="font:italic 600 44px/1.05 var(--font-display)">Connect Four &middot; Nine Men&rsquo;s Morris</div></div>
+    <div class="type-row"><div class="label">Fraunces 600<br>panel headings</div><div style="font:600 28px/1.15 var(--font-display)">Four in a row</div></div>
+    <div class="type-row"><div class="label">Karla 400&ndash;700<br>interface and body</div><div style="font:400 17px/1.55 var(--font-body);max-width:560px">Drop a disc in any column; it falls to the lowest open slot. Players alternate turns, and the first to connect four wins.</div></div>
+    <div class="type-row"><div class="label">Karla 700 caps, .12em<br>kickers</div><div class="kicker" style="margin:0">Players &middot; How to win &middot; Table</div></div>
+    <div class="type-row"><div class="label">JetBrains Mono 500&ndash;700<br>numbers, scores, key hints</div><div class="mono" style="font-size:20px;font-weight:700">No. 02 &nbsp; Ruby 3 &ndash; 1 Sapphire &nbsp; <span class="chip-key">Z</span></div></div>
+    <table class="motion-table" style="margin-top:22px">
+      <thead><tr><th>Role</th><th>Size</th><th>Weight / style</th></tr></thead>
+      <tbody>
+        <tr><td>Page title (game)</td><td>clamp(38px, 6vw, 60px)</td><td>Fraunces 600 italic</td></tr>
+        <tr><td>Panel heading</td><td>22px</td><td>Fraunces 600</td></tr>
+        <tr><td>Body</td><td>14&ndash;15px / 1.5</td><td>Karla 400</td></tr>
+        <tr><td>Kicker</td><td>12px, tracking .12em, caps</td><td>Karla 700</td></tr>
+        <tr><td>Numbers &amp; labels</td><td>11&ndash;13px</td><td>JetBrains Mono 500&ndash;700</td></tr>
+      </tbody>
+    </table>
+    <p class="dim" style="margin-top:14px;font-size:13px">Change from the current prototype: Bebas Neue and Space Grotesk are replaced by Fredoka (wordmark) and Karla (body). Fraunces italic and JetBrains Mono stay.</p>
+  </section>
+
+  <!-- ====================================================== -->
+  <section id="components">
+    <p class="sec-kicker">04</p>
+    <h2>Components</h2>
+    <p class="lead">Small, rounded, warm. Panels hold information; the preserved pill buttons trigger actions; brass is for the single main action.</p>
+
+    <h4>Panel, kicker and player card</h4>
+    <div class="grid-2">
+      <div>
+        <section class="panel"><p class="kicker">Players</p>
+          <div class="player active"><span class="gem" style="--size:34px"></span><div><div class="name">Ruby</div><div class="sub">Player 1</div></div><span class="pts">3</span></div>
+          <div class="player"><span class="gem sapphire" style="--size:34px"></span><div><div class="name">Sapphire</div><div class="sub">Player 2</div></div><span class="pts">1</span></div>
+        </section>
+      </div>
+      <div>
+        <section class="panel flat"><p class="kicker">How to win</p><h3>Four in a row</h3><p>Rounded-2xl walnut panel, 1px parchment-tinted border, deep shadow tinted by the table. A brass kicker names it.</p></section>
+        <section class="panel flat"><p class="kicker">Rules of thumb</p>
+          <div class="rule-line"><span>Radius</span><b>20px panel &middot; 16px card &middot; 999px pill</b></div>
+          <div class="rule-line"><span>Padding</span><b>20px</b></div>
+          <div class="rule-line" style="border:0"><span>Gap between panels</span><b>16px</b></div>
+        </section>
+      </div>
+    </div>
+
+    <h4>Buttons <span class="badge keep">pill buttons: hover preserved</span></h4>
+    <div style="display:flex;flex-wrap:wrap;gap:14px;align-items:center">
+      <button class="gp-btn" type="button">&#8635; Restart</button>
+      <button class="gp-btn" type="button">&#128214; Rules</button>
+      <button class="btn-brass" type="button">Start game</button>
+      <button class="icon-pill" type="button">Table</button>
+      <span class="chip-key">N</span>
+    </div>
+    <p class="dim" style="margin-top:10px;font-size:13px">Hover a pill: it lifts 1px up-left and casts a 3px hard shadow (unchanged). Use the brass button once per screen for the primary action.</p>
+
+    <h4>Filter pills <span class="badge keep">preserved</span></h4>
+    <div class="hub-scope"><nav class="filters" aria-label="demo"><button aria-pressed="true">All <span class="count">26</span></button><button aria-pressed="false">Strategy <span class="count">13</span></button><button aria-pressed="false">Dice <span class="count">4</span></button></nav></div>
+
+    <h4>Feedback: turn banner, award pop-up, toast <span class="badge new">from game-board</span></h4>
+    <div style="display:flex;flex-wrap:wrap;gap:12px">
+      <button class="gp-btn" type="button" id="demoBanner">Show turn banner</button>
+      <button class="gp-btn" type="button" id="demoAward">Show award pop-up</button>
+      <button class="gp-btn" type="button" id="demoToast">Show toast</button>
+      <button class="gp-btn" type="button" id="demoRules">Open rules dialog</button>
+    </div>
+    <p class="dim" style="margin-top:10px;font-size:13px">Banner: 1.9s, slides down and fades. Award: scale-in with a gentle overshoot and a brass bar that drains over 3.8s; click to dismiss; the backdrop never blocks the board. Toast: ember border for &ldquo;you can&rsquo;t do that&rdquo;.</p>
+  </section>
+
+  <!-- ====================================================== -->
+  <section id="motion">
+    <p class="sec-kicker">05</p>
+    <h2>Motion</h2>
+    <p class="lead">Hover a card below &mdash; this is your original behaviour, untouched. The table lists every preserved rule and the few new ones.</p>
+
+    <div class="hub-scope"><div class="demo-card-row">
+    <div class="icd-card" data-category="strategy" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content">
+          <div class="mg mg-chess" aria-hidden="true">
+            <span class="sq"></span><span class="sq"></span><span class="sq"></span><span class="sq"></span>
+            <span class="sq"></span><span class="sq"></span><span class="sq"></span><span class="sq"></span>
+            <span class="sq"></span><span class="sq"></span><span class="sq"></span><span class="sq"></span>
+            <span class="sq"></span><span class="sq"></span><span class="sq"></span><span class="sq"></span>
+            <span class="knight">♞</span>
+          </div>
+        </div>
+        <div class="icd-panel">
+          <div class="icd-panel-top">
+            <div class="mono-icon">♞</div>
+            <p class="icd-desc">Outmaneuver every piece and checkmate their king.</p>
+          </div>
+          <span class="icd-panel-name">Chess</span>
+        </div>
+        <span class="ic-num">No. 03</span>
+      </div>
+    </div>
+    <div class="icd-card" data-category="strategy" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content"><div class="mg mg-grid mg-checks" aria-hidden="true"><div class="cell"></div><div class="cell dk"><span class="stone b" style="animation-delay:0s"></span></div><div class="cell"></div><div class="cell dk"><span class="stone b" style="animation-delay:0.6s"></span></div><div class="cell dk"><span class="stone b" style="animation-delay:1.2s"></span></div><div class="cell"></div><div class="cell dk"></div><div class="cell"></div><div class="cell"></div><div class="cell dk"><span class="stone a" style="animation-delay:1.8s"></span></div><div class="cell"></div><div class="cell dk"><span class="stone a" style="animation-delay:2.4s"></span></div><div class="cell dk"></div><div class="cell"></div><div class="cell dk"><span class="stone a" style="animation-delay:3.0s"></span></div><div class="cell"></div></div></div>
+        <div class="icd-panel">
+          <div class="icd-panel-top"><div class="mono-icon">CK</div><p class="icd-desc">Jump your way across the board and clear their pieces.</p></div>
+          <span class="icd-panel-name">Checkers</span>
+        </div>
+        <span class="ic-num">No. 04</span>
+      </div>
+    </div>
+    <div class="icd-card" data-category="strategy" tabindex="0">
+      <div class="icd-shell">
+        <div class="icd-content"><div class="mg mg-grid mg-go" aria-hidden="true"><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"><span class="stone a" style="animation-delay:0s"></span></div><div class="cell"><span class="stone b" style="animation-delay:3s"></span></div><div class="cell"><span class="stone b" style="animation-delay:0.6s"></span></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"><span class="stone a" style="animation-delay:1.2s"></span></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"><span class="stone b" style="animation-delay:1.8s"></span></div><div class="cell"></div><div class="cell"><span class="stone a" style="animation-delay:2.4s"></span></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div></div></div>
+        <div class="icd-panel">
+          <div class="icd-panel-top"><div class="mono-icon">GO</div><p class="icd-desc">Surround more territory than your opponent.</p></div>
+          <span class="icd-panel-name">Go</span>
+        </div>
+        <span class="ic-num">No. 07</span>
+      </div>
+    </div>
+
+    </div></div>
+
+    <table class="motion-table" style="margin-top:30px">
+      <thead><tr><th>Effect</th><th>Where</th><th>Values</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>Card lift</td><td><code>.icd-card:hover .icd-shell</code></td><td><code>translate(-2px,-3px)</code> + <code>4px 6px 0</code> hard shadow, <code>.12s ease</code></td><td><span class="badge keep">keep</span></td></tr>
+        <tr><td>Panel shrink-reveal</td><td><code>.icd-panel</code></td><td>height 100% &rarr; 46px, <code>.35s ease</code>; description fades <code>.18s</code></td><td><span class="badge keep">keep</span></td></tr>
+        <tr><td>Name fade-in</td><td><code>.icd-panel-name</code></td><td>opacity 0 &rarr; 1, <code>.2s ease .1s</code> (Fraunces italic)</td><td><span class="badge keep">keep</span></td></tr>
+        <tr><td>Preview animations</td><td><code>.mg-*</code></td><td><code>mg-pop 5s</code> &middot; <code>c4-drop 4.4s</code> &middot; <code>knight-move 4s</code> &middot; <code>nim-take 5s</code> &middot; <code>die-roll 3.6s</code>; paused until hover/focus</td><td><span class="badge keep">keep</span></td></tr>
+        <tr><td>Filter &amp; button hover</td><td><code>.filters button</code>, <code>.gp-btn</code></td><td><code>translate(-1px,-1px)</code> + <code>3px 3px 0</code> shadow, <code>.12s</code></td><td><span class="badge keep">keep</span></td></tr>
+        <tr><td>Back link, modal close, play</td><td><code>.gp-back</code>, <code>.gp-modal-close</code>, <code>.gp-play</code></td><td>nudge <code>-2px</code> &middot; invert colours &middot; scale <code>1.08</code></td><td><span class="badge keep">keep</span></td></tr>
+        <tr><td>New previews</td><td>18 games that only had &ldquo;soon&rdquo;</td><td>same <code>mg-pop</code> keyframes, same hover-to-play rule</td><td><span class="badge new">new</span></td></tr>
+        <tr><td>Disc drop</td><td><code>disc-fall</code></td><td>falls with a two-bounce settle, <code>.32s + .07s&times;row</code></td><td><span class="badge new">new</span></td></tr>
+        <tr><td>Win ring &amp; glow</td><td><code>win-ring</code>, <code>win-glow</code></td><td>1.1s ease-in-out, infinite</td><td><span class="badge new">new</span></td></tr>
+        <tr><td>Turn pulse</td><td><code>.player.active</code></td><td>brass glow, 2.4s</td><td><span class="badge new">new</span></td></tr>
+        <tr><td>Banner / award</td><td><code>banner-life</code>, <code>award-in</code>, <code>award-drain</code></td><td>1.9s &middot; .45s &middot; 3.8s (copied from game-board)</td><td><span class="badge new">new</span></td></tr>
+      </tbody>
+    </table>
+    <p class="dim" style="margin-top:14px;font-size:13px"><b>Reduced motion:</b> every looping preview and new animation has a <code>prefers-reduced-motion</code> rule that freezes it on its end frame; the original card hovers keep working because they are short, single transitions.</p>
+  </section>
+
+  <!-- ====================================================== -->
+  <section id="boards">
+    <p class="sec-kicker">06</p>
+    <h2>Board look</h2>
+    <p class="lead">One frame, many boards. Each game keeps its own surface &mdash; felt, paper, lacquered wood, painted squares &mdash; inside the same walnut frame with a brass inlay and corner studs, so the set feels like it came out of one box.</p>
+    <div class="gallery" id="gallery"></div>
+    <h4>Recipe</h4>
+    <div class="grid-2">
+      <div class="panel flat"><p class="kicker">Frame</p><p>18px walnut frame with a faint grain, an inner 2px brass inlay 9px in from the edge, four brass corner studs, and a deep table-tinted drop shadow. Radius 22px. The same <code>.board-frame</code> wraps every game.</p></div>
+      <div class="panel flat"><p class="kicker">Surface &amp; pieces</p><p>The playing surface is inset (inner shadow) and styled per game. Pieces use radial gradients with a highlight and a contact shadow. Legal moves glow brass; the last move gets a soft ring; wins pulse.</p></div>
+    </div>
+  </section>
+
+  <!-- ====================================================== -->
+  <section id="layout">
+    <p class="sec-kicker">07</p>
+    <h2>Layout</h2>
+    <p class="lead">Two page types, both designed to read from across a table on a shared screen.</p>
+    <div class="grid-2">
+      <div>
+        <h4 style="margin-top:0">Hub</h4>
+        <div class="wire">
+          <div>Wordmark (Fredoka) &middot; tagline</div>
+          <div class="brass">Sticky filter pills &mdash; All &middot; Strategy &middot; Dice &middot; Hidden &middot; Cards &middot; Party</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center"><div>card</div><div>card</div><div>card</div><div>card</div><div>card</div><div>card</div><div>card</div><div>card</div></div>
+          <div>Floating pill, bottom-right</div>
+        </div>
+        <p class="dim" style="font-size:13px;margin-top:10px">Cards are 168px tall in an auto-fill grid (min 280px); two columns on phones.</p>
+      </div>
+      <div>
+        <h4 style="margin-top:0">Game page</h4>
+        <div class="wire">
+          <div>&larr; All games &nbsp;&middot;&nbsp; TurnTable &nbsp;&middot;&nbsp; tools</div>
+          <div>No. 02 &middot; Strategy &mdash; <b>Game title</b> (Fraunces italic)</div>
+          <div style="display:grid;grid-template-columns:1fr 1.6fr 1fr;gap:8px"><div>Players<br>Moves</div><div class="brass">BOARD in frame<br>turn &middot; score strip</div><div>How to win<br>Table<br>Keys</div></div>
+          <div>Undo &middot; Restart &middot; Rules (pill buttons)</div>
+        </div>
+        <p class="dim" style="font-size:13px;margin-top:10px">Three columns above ~1020px; on phones the board comes first, then players, then reference. The board takes as much room as it can.</p>
+      </div>
+    </div>
+    <h4>Rules for both</h4>
+    <div class="grid-2">
+      <div class="do"><b>Do</b><ul><li>Keep touch targets 44px or larger on boards.</li><li>Show whose turn it is in two ways (glow + words).</li><li>Let the table colour drive every panel and shadow.</li><li>Use brass for the one thing that matters now.</li></ul></div>
+      <div class="dont"><b>Don&rsquo;t</b><ul><li>Restyle the card shell, panel, or preview animations.</li><li>Rely on colour alone &mdash; players also differ by name and position.</li><li>Cover the winning line with a pop-up for longer than a few seconds.</li><li>Add new motion without a reduced-motion rule.</li></ul></div>
+    </div>
+  </section>
+
+  <!-- ====================================================== -->
+  <section id="build">
+    <p class="sec-kicker">08</p>
+    <h2>Build plan for Phase 3</h2>
+    <p class="lead">How this mock turns into the real React site, in order. Nothing here touches game rules.</p>
+    <table class="motion-table">
+      <thead><tr><th>Step</th><th>What changes</th><th>Where</th></tr></thead>
+      <tbody>
+        <tr><td>1. Tokens</td><td>Palette, fonts (self-hosted), radii, shadows as CSS variables; table-wood themes</td><td><code>src/styles/tokens.css</code>, <code>src/shared/theme/tableThemes.ts</code></td></tr>
+        <tr><td>2. Preserved layer</td><td>Move <code>preserved-hub.css</code> / <code>preserved-game.css</code> into the app unchanged; keep the motion check in CI</td><td><code>src/styles/preserved/</code>, <code>npm test</code></td></tr>
+        <tr><td>3. Shared kit</td><td>Restyle <code>GameShell</code>, <code>Scoreboard</code>, <code>TurnBanner</code>, <code>GameControls</code>, <code>PassGate</code>; add panels, player cards, toast, award</td><td><code>src/shared/components.tsx</code></td></tr>
+        <tr><td>4. Homepage</td><td>Generate the cards from the registry, with a preview component per game</td><td><code>src/home/</code>, <code>src/games/registry.ts</code></td></tr>
+        <tr><td>5. Boards</td><td>Shared <code>BoardFrame</code>, then per-game surfaces and pieces, starting with Connect 4, Tic-Tac-Toe, Chess</td><td><code>src/shared/BoardFrame.tsx</code>, <code>src/games/*</code></td></tr>
+        <tr><td>6. Polish</td><td>Sounds with a mute toggle, accessibility pass, performance, PWA</td><td>plan items in Phase 3</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+</div>
+
+<div id="layer"></div>
+<dialog class="gp-modal" id="rulesModal">
+  <div class="gp-modal-inner">
+    <div class="gp-modal-head"><h2 class="gp-modal-title">Connect Four</h2><button class="gp-modal-close" type="button" id="rulesClose" aria-label="Close rules">&times;</button></div>
+    <div class="gp-rules">
+      <div class="gp-rule-block"><p class="gp-rule-label">Objective</p><p class="gp-rule-body">Be the first to connect 4 of your coloured discs in a row.</p></div>
+      <div class="gp-rule-block"><p class="gp-rule-label">How to win</p><p class="gp-rule-body">First to get 4 in a row wins; if the grid fills first, it&rsquo;s a draw.</p></div>
+    </div>
+    <div class="gp-video"><p class="gp-video-label">Watch</p><a class="gp-thumb" href="#" onclick="return false"><span class="gp-play">&#9658;</span></a><p class="gp-video-title">How to play Connect 4</p><p class="gp-video-meta">Triple S Games &middot; how-to-play</p></div>
+  </div>
+</dialog>
+
+<script src="tavern.js"></script>
+<script>
+(function () {
+  // ---- table wood picker + token list ----
+  var cur = TavernTable.saved(); TavernTable.apply(cur);
+  TavernTable.swatches(document.getElementById('swatches'), cur);
+  var wt = document.getElementById('wood-tokens');
+  TavernTable.THEMES.forEach(function (t) {
+    var d = document.createElement('div'); d.className = 'token';
+    d.innerHTML = '<div class="chip" style="background:' + t.hex + '"></div><div class="meta"><b>' + t.name + '</b><code>' + t.hex + '</code></div>';
+    wt.appendChild(d);
+  });
+
+  // ---- demos for banner / award / toast / dialog ----
+  var layer = document.getElementById('layer');
+  var clear = function (sel) { var o = layer.querySelector(sel); if (o) o.remove(); };
+  document.getElementById('demoBanner').addEventListener('click', function () {
+    clear('.turn-banner');
+    var b = document.createElement('div'); b.className = 'turn-banner'; b.innerHTML = '<span class="gem sapphire" style="--size:26px"></span><span><small>Now playing</small>Sapphire</span>';
+    layer.appendChild(b); setTimeout(function () { b.remove(); }, 1900);
+  });
+  document.getElementById('demoToast').addEventListener('click', function () {
+    clear('.toast'); var t = document.createElement('div'); t.className = 'toast'; t.textContent = 'That column is full'; layer.appendChild(t); setTimeout(function () { t.remove(); }, 2400);
+  });
+  document.getElementById('demoAward').addEventListener('click', function () {
+    clear('.overlay');
+    var o = document.createElement('div'); o.className = 'overlay top';
+    o.innerHTML = '<div class="award-card"><div class="medal">&#127942;</div><div class="kicker" style="margin-bottom:0">Four in a row</div><div class="title">Ruby wins!</div><span class="gem" style="--size:34px"></span><p style="margin-top:12px;color:var(--parchment-dim);font-size:14px">Click to dismiss.</p><div class="drain"></div></div>';
+    var close = function () { o.remove(); }; o.querySelector('.award-card').addEventListener('click', close); layer.appendChild(o); setTimeout(close, 3800);
+  });
+  var modal = document.getElementById('rulesModal');
+  document.getElementById('demoRules').addEventListener('click', function () { modal.showModal(); });
+  document.getElementById('rulesClose').addEventListener('click', function () { modal.close(); });
+  modal.addEventListener('click', function (e) {
+    var box = modal.querySelector('.gp-modal-inner').getBoundingClientRect();
+    if (!(e.clientX >= box.left && e.clientX <= box.right && e.clientY >= box.top && e.clientY <= box.bottom)) modal.close();
+  });
+
+  // ---- board gallery: the same frame around different surfaces ----
+  var g = document.getElementById('gallery');
+  function figure(title, sub, inner, frame) {
+    var f = document.createElement('figure');
+    f.innerHTML = '<div class="board-stage"><div class="board-frame"' + (frame ? ' style="' + frame + '"' : '') + '><span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>' + inner + '</div></div><figcaption><b>' + title + '</b>' + sub + '</figcaption>';
+    g.appendChild(f);
+  }
+  function cells(n, size, fn) { var h = ''; for (var i = 0; i < n * n; i++) h += fn(Math.floor(i / n), i % n, i); return '<div style="display:grid;grid-template-columns:repeat(' + n + ',' + size + 'px);grid-template-rows:repeat(' + n + ',' + size + 'px)">' + h + '</div>'; }
+
+  // Tic-Tac-Toe: paper board, gem marks
+  var ttt = { 0: 'x', 1: 'o', 4: 'x', 3: 'o', 8: 'x' };
+  figure('Tic-Tac-Toe', 'Paper board, gem marks', '<div class="board-paper" style="padding:6px">' +
+    cells(3, 74, function (r, c, i) {
+      var m = ttt[i] ? '<span class="gem ' + (ttt[i] === 'o' ? 'sapphire' : '') + '" style="--size:60%"></span>' : '';
+      return '<div style="display:flex;align-items:center;justify-content:center;border-right:' + (c < 2 ? '3px solid rgba(74,53,32,.45)' : '0') + ';border-bottom:' + (r < 2 ? '3px solid rgba(74,53,32,.45)' : '0') + '">' + m + '</div>';
+    }) + '</div>');
+
+  // Connect four: wood board
+  var c4 = { '5,0': 0, '5,1': 1, '5,2': 0, '4,2': 1, '5,3': 1, '4,0': 0, '3,2': 0, '4,3': 0, '3,3': 1 };
+  var c4h = '';
+  for (var r = 0; r < 6; r++) for (var c = 0; c < 7; c++) {
+    var v = c4[r + ',' + c];
+    c4h += '<div class="c4-slot">' + (v === undefined ? '' : '<span class="gem ' + (v ? 'sapphire' : '') + '" style="--size:82%;position:absolute"></span>') + '</div>';
+  }
+  figure('Connect Four', 'Wood board, gem discs', '<div class="c4-board wood" style="--cell:40px;grid-template-columns:repeat(7,40px);grid-template-rows:repeat(6,40px)">' + c4h + '</div>');
+
+  // Chess: painted squares
+  var back = ['♜', '♞', '♝', '♛', '♚', '♝', '♞', '♜'];
+  figure('Chess', 'Lacquered squares, glyph pieces', '<div style="border-radius:8px;overflow:hidden;box-shadow:inset 0 3px 10px rgba(0,0,0,.4)">' +
+    cells(8, 36, function (r, c) {
+      var light = (r + c) % 2 === 0, p = '';
+      if (r === 0) p = '<span class="piece b" style="font-size:26px">' + back[c] + '</span>';
+      if (r === 1) p = '<span class="piece b" style="font-size:26px">♟</span>';
+      if (r === 6) p = '<span class="piece w" style="font-size:26px">♟</span>';
+      if (r === 7) p = '<span class="piece w" style="font-size:26px">' + back[c] + '</span>';
+      return '<div class="' + (light ? 'sq-light' : 'sq-dark') + '" style="display:flex;align-items:center;justify-content:center">' + p + '</div>';
+    }) + '</div>', '--frame-1:#5d4126;--frame-2:#3d2918');
+
+  // Checkers: green-and-cream painted board with glossy discs
+  figure('Checkers', 'Painted board, glossy discs', '<div style="border-radius:8px;overflow:hidden;box-shadow:inset 0 3px 10px rgba(0,0,0,.4)">' +
+    cells(8, 36, function (r, c) {
+      var dark = (r + c) % 2 === 1, p = '';
+      if (dark && r < 3) p = '<span class="checker cream"></span>';
+      if (dark && r > 4) p = '<span class="checker red"></span>';
+      return '<div class="' + (dark ? 'sq-dark green' : 'sq-light green') + '" style="display:flex;align-items:center;justify-content:center">' + p + '</div>';
+    }) + '</div>');
+
+  // Go: lacquered wood grid with stones
+  var stones = { '2,2': 'b', '2,4': 'w', '4,4': 'b', '3,3': 'w', '4,2': 'w', '5,5': 'b', '6,3': 'b', '3,5': 'b', '5,3': 'w' };
+  var goh = '<div class="board-go" style="padding:14px;border-radius:10px;position:relative"><div style="position:relative;width:288px;height:288px">';
+  for (var i = 0; i < 9; i++) {
+    goh += '<span style="position:absolute;left:0;right:0;top:' + (i * 36) + 'px;height:1.5px;background:rgba(60,35,10,.75)"></span><span style="position:absolute;top:0;bottom:0;left:' + (i * 36) + 'px;width:1.5px;background:rgba(60,35,10,.75)"></span>';
+  }
+  [[2, 2], [2, 6], [4, 4], [6, 2], [6, 6]].forEach(function (p) { goh += '<span style="position:absolute;left:' + (p[1] * 36 - 3) + 'px;top:' + (p[0] * 36 - 3) + 'px;width:7px;height:7px;border-radius:50%;background:rgba(60,35,10,.85)"></span>'; });
+  Object.keys(stones).forEach(function (k) { var rc = k.split(','); goh += '<span class="' + (stones[k] === 'b' ? 'stone-b' : 'stone-w') + '" style="position:absolute;width:32px;height:32px;left:' + (rc[1] * 36 - 16) + 'px;top:' + (rc[0] * 36 - 16) + 'px"></span>'; });
+  figure('Go', 'Lacquered wood, glass stones', goh + '</div></div>');
+
+  // Reversi: green felt, black and white discs
+  var rv = { '3,3': 'w', '3,4': 'b', '4,3': 'b', '4,4': 'w', '2,3': 'b', '5,4': 'w', '3,5': 'b', '4,2': 'w' };
+  figure('Reversi', 'Felt board, two-tone discs', '<div class="board-felt">' + cells(8, 36, function (r, c) {
+    var v = rv[r + ',' + c];
+    return '<div style="display:flex;align-items:center;justify-content:center;box-shadow:inset 0 0 0 1px rgba(0,0,0,.28)">' + (v ? '<span class="' + (v === 'b' ? 'stone-b' : 'stone-w') + '" style="width:78%;height:78%"></span>' : '') + '</div>';
+  }) + '</div>', '--frame-1:#5d4126;--frame-2:#3d2918');
+})();
+</script>
+</body>
+</html>

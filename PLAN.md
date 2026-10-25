@@ -85,6 +85,8 @@ rules implemented per `game-rules.txt` · win/draw/end detection · invalid move
 
 ## Phase 3 — UI/UX Polish & Release  (status: 0/16)
 
+> Design mock ready for review: `design/mock/homepage.html`, `game-board.html`, `design-guide.html` (open in a browser). Card hovers/animations are preserved verbatim and guarded by `node design/mock/check-motion.mjs`. Implementing it in the React app is still to do (all 16 items below unticked).
+
 Goal: make it feel like one product. Because Phase 1–2 isolate logic from rendering, this is mostly restyling components.
 
 ### Design system
