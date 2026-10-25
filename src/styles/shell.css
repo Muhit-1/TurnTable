@@ -905,8 +905,17 @@ dialog.gp-modal {
   font-size: 13px;
 }
 @media (max-width: 560px) and (max-height: 700px) {
-  .card-title { display: none; }
-  .ts-panel.left { max-height: 24dvh; }
-  .ts-panel.right { max-height: 15dvh; overflow-y: auto; }
-  .ts-center { padding: 4px; }
+  .card-title {
+    display: none;
+  }
+  .ts-panel.left {
+    max-height: 24dvh;
+  }
+  .ts-panel.right {
+    max-height: 15dvh;
+    overflow-y: auto;
+  }
+  .ts-center {
+    padding: 4px;
+  }
 }
