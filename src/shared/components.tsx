@@ -1,4 +1,4 @@
-import { type CSSProperties, type ReactNode, useEffect, useState, useSyncExternalStore } from 'react';
+import { type CSSProperties, type ReactNode, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import '../styles/fonts.css';
 import '../styles/preserved-game.css';
 import '../styles/tavern.css';
@@ -150,6 +150,29 @@ function TableTools() {
 
 export function GameShell({ id, title, children }: { id: string; title: string; children: ReactNode }) {
   const meta = getGame(id);
+  const stage = useRef<HTMLElement>(null);
+  // Fixed-size boards (Gomoku, Ludo, Mancala...) shrink to fit a narrow phone instead of scrolling sideways.
+  useEffect(() => {
+    const el = stage.current;
+    if (!el) return;
+    const fit = () => {
+      el.style.zoom = '';
+      if (window.innerWidth > 640) return;
+      const cs = getComputedStyle(el);
+      const room = el.clientWidth - Number.parseFloat(cs.paddingLeft) - Number.parseFloat(cs.paddingRight);
+      const widest = Math.max(
+        ...Array.from(el.children, (c) => Math.max(c.scrollWidth, c.getBoundingClientRect().width)),
+      );
+      if (widest > room + 1) el.style.zoom = String(room / widest);
+    };
+    fit();
+    const t = window.setTimeout(fit, 300);
+    window.addEventListener('resize', fit);
+    return () => {
+      window.clearTimeout(t);
+      window.removeEventListener('resize', fit);
+    };
+  }, []);
   useEffect(() => {
     document.body.classList.add('theme-tavern');
     return () => document.body.classList.remove('theme-tavern');
@@ -170,6 +193,7 @@ export function GameShell({ id, title, children }: { id: string; title: string; 
       {/* A click on any button gets a soft tick; moves play their own (louder) note first and win the debounce. */}
       {/* biome-ignore lint/a11y/useKeyWithClickEvents: delegated sound only, the buttons inside handle keys */}
       <main
+        ref={stage}
         className="ts-stage"
         onClick={(e) => {
           if ((e.target as HTMLElement).closest('button')) sfx.tick();

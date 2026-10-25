@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import {
+  BoardFrame,
   GameControls,
   GameShell,
   ModeToggle,
@@ -47,21 +48,23 @@ export default function Mancala() {
         {status.state === 'draw' && "It's a draw!"}
       </TurnBanner>
 
-      <div className="flex items-center gap-3 bg-amber-800 p-4 rounded-2xl">
-        <div className="w-16 h-36 rounded-full bg-amber-900 text-white flex flex-col items-center justify-center">
-          <span className="text-xs">North store</span>
-          <span className="text-2xl font-bold">{state.slots[P2_STORE]}</span>
+      <BoardFrame>
+        <div className="flex items-center gap-3 bg-amber-800 p-4 rounded-2xl">
+          <div className="w-16 h-36 rounded-full bg-amber-900 text-white flex flex-col items-center justify-center">
+            <span className="text-xs">North store</span>
+            <span className="text-2xl font-bold">{state.slots[P2_STORE]}</span>
+          </div>
+          <div className="flex flex-col gap-3">
+            {/* North's pits run right-to-left from North's point of view, so show 12..7 left to right */}
+            <div className="flex gap-3">{[12, 11, 10, 9, 8, 7].map(pit)}</div>
+            <div className="flex gap-3">{[0, 1, 2, 3, 4, 5].map(pit)}</div>
+          </div>
+          <div className="w-16 h-36 rounded-full bg-amber-900 text-white flex flex-col items-center justify-center">
+            <span className="text-xs">South store</span>
+            <span className="text-2xl font-bold">{state.slots[P1_STORE]}</span>
+          </div>
         </div>
-        <div className="flex flex-col gap-3">
-          {/* North's pits run right-to-left from North's point of view, so show 12..7 left to right */}
-          <div className="flex gap-3">{[12, 11, 10, 9, 8, 7].map(pit)}</div>
-          <div className="flex gap-3">{[0, 1, 2, 3, 4, 5].map(pit)}</div>
-        </div>
-        <div className="w-16 h-36 rounded-full bg-amber-900 text-white flex flex-col items-center justify-center">
-          <span className="text-xs">South store</span>
-          <span className="text-2xl font-bold">{state.slots[P1_STORE]}</span>
-        </div>
-      </div>
+      </BoardFrame>
 
       <GameControls
         canUndo={game.canUndo && !isCpuTurn}

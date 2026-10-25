@@ -1,5 +1,12 @@
 import { useMemo } from 'react';
-import { GameShell, ModeToggle, possessive, Scoreboard, TurnBanner } from '../../shared/components';
+import {
+  BoardFrame,
+  GameShell,
+  ModeToggle,
+  possessive,
+  Scoreboard,
+  TurnBanner,
+} from '../../shared/components';
 import type { PlayerId } from '../../shared/engine';
 import { useLevel } from '../../shared/level';
 import { useMatch } from '../../shared/useMatch';
@@ -59,51 +66,53 @@ export default function Ludo() {
         {status.state === 'won' && `${names[status.winner]} wins!`}
       </TurnBanner>
 
-      <div
-        className="grid gap-0.5 bg-amber-100 p-1 rounded border"
-        style={{ gridTemplateColumns: `repeat(${GRID}, 1.9rem)` }}
-      >
-        {Array.from({ length: 52 }, (_, k) => {
-          const [r, c] = gridCell(k);
-          const here = onTrack.get(k) ?? [];
-          return (
-            <div
-              key={`sq-${r}-${c}`}
-              className={`h-[1.9rem] border text-[9px] relative flex items-center justify-center ${k === 0 ? 'bg-rose-200' : k === 26 ? 'bg-sky-200' : 'bg-white'}`}
-              style={{ gridRow: r + 1, gridColumn: c + 1 }}
-              title={`Square ${k}`}
-            >
-              {here.length === 0 && (
-                <span className="text-neutral-300">{k === 0 ? 'R' : k === 26 ? 'B' : ''}</span>
-              )}
-              {here.map(({ p, t }) => (
-                <span
-                  key={`${p}${t}`}
-                  className={`w-5 h-5 -ml-1 first:ml-0 rounded-full border-2 text-[10px] text-white font-bold flex items-center justify-center ${COLOR[p]}`}
-                >
-                  {t + 1}
-                </span>
-              ))}
-            </div>
-          );
-        })}
+      <BoardFrame>
         <div
-          className="flex flex-col items-center justify-center gap-2 text-center"
-          style={{ gridRow: '2 / 14', gridColumn: '2 / 14' }}
+          className="grid gap-0.5 bg-amber-100 p-1 rounded border"
+          style={{ gridTemplateColumns: `repeat(${GRID}, 1.9rem)` }}
         >
-          <div className="text-5xl" aria-live="polite">
-            {state.dice ?? state.last?.roll ?? '🎲'}
-          </div>
-          <button
-            type="button"
-            className="px-5 py-2 rounded border bg-neutral-900 text-white disabled:opacity-40"
-            disabled={!humanTurn || state.dice !== null}
-            onClick={() => play({ kind: 'roll' })}
+          {Array.from({ length: 52 }, (_, k) => {
+            const [r, c] = gridCell(k);
+            const here = onTrack.get(k) ?? [];
+            return (
+              <div
+                key={`sq-${r}-${c}`}
+                className={`h-[1.9rem] border text-[9px] relative flex items-center justify-center ${k === 0 ? 'bg-rose-200' : k === 26 ? 'bg-sky-200' : 'bg-white'}`}
+                style={{ gridRow: r + 1, gridColumn: c + 1 }}
+                title={`Square ${k}`}
+              >
+                {here.length === 0 && (
+                  <span className="text-neutral-300">{k === 0 ? 'R' : k === 26 ? 'B' : ''}</span>
+                )}
+                {here.map(({ p, t }) => (
+                  <span
+                    key={`${p}${t}`}
+                    className={`w-5 h-5 -ml-1 first:ml-0 rounded-full border-2 text-[10px] text-white font-bold flex items-center justify-center ${COLOR[p]}`}
+                  >
+                    {t + 1}
+                  </span>
+                ))}
+              </div>
+            );
+          })}
+          <div
+            className="flex flex-col items-center justify-center gap-2 text-center"
+            style={{ gridRow: '2 / 14', gridColumn: '2 / 14' }}
           >
-            Roll
-          </button>
+            <div className="text-5xl" aria-live="polite">
+              {state.dice ?? state.last?.roll ?? '🎲'}
+            </div>
+            <button
+              type="button"
+              className="px-5 py-2 rounded border bg-neutral-900 text-white disabled:opacity-40"
+              disabled={!humanTurn || state.dice !== null}
+              onClick={() => play({ kind: 'roll' })}
+            >
+              Roll
+            </button>
+          </div>
         </div>
-      </div>
+      </BoardFrame>
 
       <div className="flex flex-col gap-3">
         {([1, 2] as const).map((p) => (

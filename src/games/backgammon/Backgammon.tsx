@@ -1,5 +1,12 @@
 import { useMemo, useState } from 'react';
-import { GameShell, ModeToggle, possessive, Scoreboard, TurnBanner } from '../../shared/components';
+import {
+  BoardFrame,
+  GameShell,
+  ModeToggle,
+  possessive,
+  Scoreboard,
+  TurnBanner,
+} from '../../shared/components';
 import type { PlayerId } from '../../shared/engine';
 import { useLevel } from '../../shared/level';
 import { useMatch } from '../../shared/useMatch';
@@ -123,18 +130,20 @@ export default function Backgammon() {
       </TurnBanner>
 
       <div className="max-w-full overflow-auto">
-        <div className="flex border-4 border-amber-900 bg-amber-100">
-          <div className="flex flex-col justify-between">
-            <div className="flex">{half(TOP.slice(0, 6), true)}</div>
-            <div className="flex">{half(BOTTOM.slice(0, 6), false)}</div>
+        <BoardFrame>
+          <div className="flex border-4 border-amber-900 bg-amber-100">
+            <div className="flex flex-col justify-between">
+              <div className="flex">{half(TOP.slice(0, 6), true)}</div>
+              <div className="flex">{half(BOTTOM.slice(0, 6), false)}</div>
+            </div>
+            {barCell}
+            <div className="flex flex-col justify-between">
+              <div className="flex">{half(TOP.slice(6), true)}</div>
+              <div className="flex">{half(BOTTOM.slice(6), false)}</div>
+            </div>
+            {offTray}
           </div>
-          {barCell}
-          <div className="flex flex-col justify-between">
-            <div className="flex">{half(TOP.slice(6), true)}</div>
-            <div className="flex">{half(BOTTOM.slice(6), false)}</div>
-          </div>
-          {offTray}
-        </div>
+        </BoardFrame>
       </div>
 
       <div className="flex items-center gap-3">

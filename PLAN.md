@@ -83,7 +83,7 @@ rules implemented per `game-rules.txt` · win/draw/end detection · invalid move
 
 ---
 
-## Phase 3 — UI/UX Polish & Release  (status: 3/16)
+## Phase 3 — UI/UX Polish & Release  (status: 4/16)
 
 > Design mock ready for review: `design/mock/homepage.html`, `game-board.html`, `design-guide.html` (open in a browser). Card hovers/animations are preserved verbatim and guarded by `node design/mock/check-motion.mjs`. It is now built into the app (tavern theme, preserved card motion, wooden board frames, bigger boards, sound).
 
@@ -101,7 +101,7 @@ Goal: make it feel like one product. Because Phase 1–2 isolate logic from rend
 - [x] Sound effects + mute toggle (soft "tong" per move, win chime; mute remembered)
 
 ### Quality & accessibility
-- [ ] Responsive layouts: shell, Connect Four and Chess checked on phone and 1920px; the other 24 games still to check
+- [x] Responsive layouts: every game checked at 390px (no sideways scroll; fixed-size boards shrink to fit) and the shell at 1920px
 - [ ] Keyboard navigation + visible focus on every game
 - [ ] Screen-reader labels, ARIA live region announcing moves/turn changes
 - [ ] Color-blind-safe piece colors (shape/pattern, not only color)
