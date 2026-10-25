@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { type CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { GameShell, type Mode, ModeToggle, Scoreboard, TurnBanner } from '../../shared/components';
 import type { Level } from '../../shared/level';
 import { useLevel } from '../../shared/level';
@@ -182,13 +182,23 @@ function Round({
       <div className="text-sm">
         Turns used: {state.log.length}/{MAX_QUESTIONS} ({left} left)
       </div>
+      <div className="flex flex-wrap justify-center gap-1" aria-hidden="true">
+        {Array.from({ length: MAX_QUESTIONS }, (_, i) => (
+          <i
+            // biome-ignore lint/suspicious/noArrayIndexKey: fixed counter slots
+            key={i}
+            className={i < state.log.length ? 'gem brass piece-pop' : 'gem brass opacity-25'}
+            style={{ '--size': '0.9rem' } as CSSProperties}
+          />
+        ))}
+      </div>
       {secret && !over && !computerGuesses && state.phase === 'answer' && (
         <div className="text-xs text-neutral-600">
           {answererName}'s secret: “{secret}”
         </div>
       )}
 
-      <ol className="w-full text-sm border rounded bg-white divide-y max-h-64 overflow-auto">
+      <ol className="board-paper w-full text-sm divide-y divide-amber-900/20 max-h-64 overflow-auto">
         {state.log.length === 0 && <li className="p-2 text-neutral-400">No questions yet.</li>}
         {state.log.map((e, i) => (
           // biome-ignore lint/suspicious/noArrayIndexKey: log order is the identity

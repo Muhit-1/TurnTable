@@ -403,3 +403,152 @@ fieldset.swatches {
   border-color: #7a2c18;
   text-decoration: line-through;
 }
+
+/* ---- Accessibility ---- */
+.skip-link {
+  position: absolute;
+  left: 12px;
+  top: -60px;
+  z-index: 100;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: #f6ecd6;
+  color: #2b2016;
+  font-weight: 700;
+  transition: top 0.15s ease;
+}
+.skip-link:focus {
+  top: 12px;
+}
+.ts-stage:focus {
+  outline: none;
+}
+.key-hint {
+  text-align: center;
+  margin: -6px auto 22px;
+  font: 500 12px var(--font-body);
+  color: var(--on-table-dim);
+  opacity: 0.8;
+  max-width: 720px;
+}
+.ts-stage button:focus-visible,
+.ts-stage [role="button"]:focus-visible {
+  outline: 3px solid #c05a12;
+  outline-offset: 2px;
+  z-index: 5;
+}
+button.award-card {
+  display: block;
+  font: inherit;
+  text-align: center;
+}
+.award-card .hint {
+  display: block;
+  margin-top: 12px;
+  color: var(--parchment-dim);
+  font-size: 14px;
+}
+.award-card .kicker {
+  display: block;
+  margin: 0;
+}
+.award-card .title {
+  display: block;
+}
+.award-card .medal {
+  display: flex;
+}
+
+/* Everything on the stage stops moving for people who ask for it. */
+@media (prefers-reduced-motion: reduce) {
+  .ts-stage *,
+  .ts-stage *::before,
+  .ts-stage *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  .award-card,
+  .toast {
+    animation: none !important;
+  }
+}
+
+/* ---- Dark theme: the stage becomes a dark walnut board; the light Tailwind cards inside keep dark text ---- */
+[data-theme="dark"] .ts-stage {
+  --surface: rgb(var(--walnut-rgb));
+  --ink: #ede1c8;
+  --muted: #d8cbae;
+  --line: rgba(237, 225, 200, 0.22);
+  --accent: #e2b876;
+  --accent-2: #33b8a3;
+  color: #ede1c8;
+  background: linear-gradient(180deg, rgb(var(--walnut-2-rgb)), rgb(var(--walnut-rgb)));
+  border-color: rgb(var(--brass-rgb) / 0.55);
+  box-shadow:
+    var(--shadow-deep),
+    inset 0 0 0 5px rgba(0, 0, 0, 0.2),
+    inset 0 0 0 6px rgb(var(--brass-rgb) / 0.3);
+}
+[data-theme="dark"] .ts-stage .turn-line {
+  color: #f6ecd6;
+}
+[data-theme="dark"] .ts-stage .seg {
+  background: rgba(0, 0, 0, 0.25);
+  border-color: rgba(237, 225, 200, 0.18);
+}
+[data-theme="dark"] .ts-stage .seg button {
+  color: #d8cbae;
+}
+[data-theme="dark"] .ts-stage .seg button[aria-pressed="true"] {
+  background: #e2b876;
+  color: #2b2016;
+}
+[data-theme="dark"] .ts-stage .score-chip {
+  background: rgba(0, 0, 0, 0.25);
+  border-color: rgba(237, 225, 200, 0.16);
+}
+[data-theme="dark"] .ts-stage .score-chip b {
+  color: #e2b876;
+}
+[data-theme="dark"] .ts-stage :is([class*="text-neutral"], [class*="text-slate"], [class*="text-gray"]) {
+  color: #d8cbae;
+}
+[data-theme="dark"]
+  .ts-stage
+  :is(
+    .bg-white,
+    [class*="bg-amber-"],
+    [class*="bg-neutral-"],
+    [class*="bg-sky-"],
+    table,
+    input,
+    select,
+    textarea,
+    .pcard,
+    .tile-wood
+  ) {
+  color: #2b2016;
+}
+[data-theme="dark"]
+  .ts-stage
+  :is(.bg-neutral-900, [class*="bg-neutral-8"], [class*="bg-amber-9"], [class*="bg-amber-8"]) {
+  color: #f6ecd6;
+}
+[data-theme="dark"] .ts-stage .gp-btn:disabled {
+  opacity: 0.45;
+}
+.ts-stage :is(input, select, textarea) {
+  background: #fffaf0;
+  color: #2b2016;
+  border-color: rgba(43, 32, 22, 0.35);
+}
+[data-theme="dark"]
+  .ts-stage
+  :is(.bg-white, [class*="bg-amber-"], [class*="bg-sky-"], table, .pcard, .tile-wood)
+  :is([class*="text-neutral"], [class*="text-slate"], [class*="text-gray"]) {
+  color: #5b4630;
+}
+[data-theme="dark"] .ts-stage :is(.bg-white, [class*="bg-amber-"], table) :is(.text-xs, .text-sm) {
+  color: #5b4630;
+}

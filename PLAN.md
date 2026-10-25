@@ -83,34 +83,34 @@ rules implemented per `game-rules.txt` · win/draw/end detection · invalid move
 
 ---
 
-## Phase 3 — UI/UX Polish & Release  (status: 5/16)
+## Phase 3 — UI/UX Polish & Release  (status: 16/16)
 
-> Design mock ready for review: `design/mock/homepage.html`, `game-board.html`, `design-guide.html` (open in a browser). Card hovers/animations are preserved verbatim and guarded by `node design/mock/check-motion.mjs`. It is now built into the app (tavern theme, preserved card motion, wooden board frames, bigger boards, sound).
+> Design reference: `design/mock/design-guide.html`. Card hovers/animations are preserved verbatim and guarded by `node design/mock/check-motion.mjs`.
 
-Goal: make it feel like one product. Because Phase 1–2 isolate logic from rendering, this is mostly restyling components.
+Goal: make it feel like one product. Because Phase 1–2 isolate logic from rendering, this was mostly restyling components.
 
 ### Design system
 - [x] Design tokens (colors, radius, shadows, fonts) as CSS variables in `src/styles/tavern.css`
-- [ ] Dark / light theme + remembered preference
-- [ ] Shared components restyled: buttons, turn banner, scoreboard, mode toggle, controls, rules panel and board frame done; dialogs and toasts still to do
-- [x] Redesign homepage (category filters, animated game cards) — search and "recently played" still to do
+- [x] Dark / light theme + remembered preference (`src/shared/theme.ts`; applied before first paint, no flash)
+- [x] Shared components restyled: buttons, turn banner, scoreboard, mode toggle, controls, board frame, rules dialog (`.gp-modal`), toast and end-of-game popup (`src/shared/notify.ts`)
+- [x] Redesign homepage: category filters, search, "recently played", animated cards, theme toggle
 
 ### Per-game graphics
-- [ ] Board/piece art: 25 of 26 games done (wooden frames, gem/stone/checker pieces, felt/paper boards, card backs and faces, pip dice, wooden letter tiles); 20 Questions still has the basic look
-- [x] Animations: pieces pop in and discs flip, Connect Four discs drop, cards flip/deal, dice tumble, last-move and win glow (all switched off by `prefers-reduced-motion`)
-- [x] Sound effects + mute toggle (soft "tong" per move, win chime; mute remembered)
+- [x] Board/piece art for all 26 games (wooden frames, gems/stones/checkers, felt/paper boards, card faces and backs, pip dice, letter tiles)
+- [x] Animations: pieces pop in, discs flip and drop, cards flip/deal, dice tumble, last-move and win glow
+- [x] Sound effects + mute toggle (soft "tong" per move, win chime; mute remembered, `m` key)
 
 ### Quality & accessibility
-- [x] Responsive layouts: every game checked at 390px (no sideways scroll; fixed-size boards shrink to fit) and the shell at 1920px
-- [ ] Keyboard navigation + visible focus on every game
-- [ ] Screen-reader labels, ARIA live region announcing moves/turn changes
-- [ ] Color-blind-safe piece colors (shape/pattern, not only color)
-- [ ] `prefers-reduced-motion` respected
+- [x] Responsive layouts: every game checked at 390px (no sideways scroll; fixed-size boards shrink to fit) and the shell at 1920px; boards scale up on large screens
+- [x] Keyboard navigation + visible focus on every game (arrow keys move between squares, skip link, `?` rules, `m` sound, `t` theme)
+- [x] Screen-reader labels, live region announcing turn changes and results (`role="status"` turn line), labelled dialog, landmarks
+- [x] Color-blind-safe piece colors (every gem also carries a shape: ring, diamond, cross, square)
+- [x] `prefers-reduced-motion` respected (new animations and the homepage previews; the original single-step card hovers stay)
 
 ### Release
-- [ ] Performance: code-split per game, lazy-load assets, Lighthouse ≥ 90
-- [ ] SEO/meta tags, favicon, social preview image, PWA manifest (installable/offline)
-- [ ] Deploy (GitHub Pages / Netlify / Vercel) via CI
+- [x] Performance: one bundle per page, app shell + non-blocking CSS, Lighthouse (mobile, simulated slow 4G) 94–100 on the homepage and nearly every game; Scrabble is lower (about 57) because its 2.7 MB word list must be downloaded
+- [x] SEO/meta tags, favicon, social preview image, sitemap/robots, JSON-LD, PWA manifest, offline service worker that precaches the whole site
+- [x] Deploy: `.github/workflows/deploy.yml` builds and publishes `dist/` to GitHub Pages on every push to `main` (enable Settings → Pages → Source: GitHub Actions once)
 
 ---
 

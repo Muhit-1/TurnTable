@@ -7,6 +7,8 @@ Play hot-seat on one screen, or against the computer (easy / medium / hard) in m
 - Large boards on big screens, fully responsive down to a phone.
 - Soft sound effects (a gentle "tong" per move, a chime for a win) with a mute button.
 - Undo / redo, and every game resumes where you left it.
+- Light and dark themes, keyboard play (arrow keys), screen-reader labels, colour-blind-safe pieces.
+- Installable and works offline (service worker precaches every game).
 - No accounts, no server: everything runs and saves locally in your browser.
 
 React 19 · TypeScript · Vite · Tailwind 4 · Vitest · Biome. Rules for every game: [`game-rules.txt`](game-rules.txt). Roadmap: [`PLAN.md`](PLAN.md).
@@ -61,6 +63,13 @@ verbatim copies of the original prototypes, and `node design/mock/check-motion.m
 `src/styles/tavern.css` (colours, fonts, new components) instead of editing them.
 
 Sounds are generated with the Web Audio API in `src/shared/sound.ts`; no audio files are shipped.
+
+## Deploy
+
+Pushing to `main` runs `.github/workflows/deploy.yml` (lint, typecheck, tests, build) and publishes `dist/` to GitHub Pages.
+Turn it on once in the repository: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+The site URL used for canonical links and the sitemap defaults to `https://muhit-1.github.io/TurnTable/`; override it with the `SITE_URL` environment variable when building.
+`scripts/sitePlugin.ts` generates the meta tags, sitemap, robots.txt and the offline service worker from the game registry.
 
 ## Contributing
 

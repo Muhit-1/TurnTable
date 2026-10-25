@@ -5,9 +5,12 @@ import '../styles/tavern.css';
 import '../styles/shell.css';
 import { CATEGORY_LABELS, getGame } from '../games/registry';
 import type { PlayerId } from './engine';
-import { RulesPanel } from './RulesPanel';
+import { notify } from './notify';
+import { RulesDialog } from './RulesPanel';
+import { rememberRecent } from './recent';
 import { isMuted, setMuted, sfx, subscribeMuted } from './sound';
 import { applyTable, loadTable, saveTable, TABLE_THEMES } from './tableTheme';
+import { applyTheme, currentTheme, setTheme, useTheme } from './theme';
 
 export type Mode = 'pvp' | 'vs-cpu';
 
@@ -144,9 +147,10 @@ export function GameControls({
   );
 }
 
-function TableTools() {
+function TableTools({ onRules }: { onRules: () => void }) {
   const [table, setTable] = useState(loadTable);
   const muted = useSyncExternalStore(subscribeMuted, isMuted, () => false);
+  const [theme, toggleTheme] = useTheme();
   useEffect(() => {
     applyTable(table);
   }, [table]);
@@ -170,11 +174,23 @@ function TableTools() {
           />
         ))}
       </fieldset>
+      <button type="button" className="icon-pill" aria-keyshortcuts="?" onClick={onRules}>
+        📖 Rules
+      </button>
+      <button
+        type="button"
+        className="icon-pill"
+        aria-pressed={theme === 'dark'}
+        aria-keyshortcuts="t"
+        onClick={toggleTheme}
+      >
+        {theme === 'dark' ? '🌙 Dark' : '☀️ Light'}
+      </button>
       <button
         type="button"
         className="icon-pill"
         aria-pressed={!muted}
-        aria-label={muted ? 'Turn sound on' : 'Turn sound off'}
+        aria-keyshortcuts="m"
         onClick={() => {
           setMuted(!muted);
           if (muted) sfx.tick();
@@ -186,8 +202,93 @@ function TableTools() {
   );
 }
 
+/** Toast and end-of-game popup, driven by `notify`. Neither blocks the board. */
+function Overlays() {
+  const [toast, setToast] = useState<{ id: number; message: string } | null>(null);
+  const [award, setAward] = useState<{ id: number; result: 'won' | 'draw'; text: string } | null>(null);
+  useEffect(
+    () =>
+      notify.subscribe((e) => {
+        if (e.kind === 'toast') {
+          const id = Date.now();
+          setToast({ id, message: e.message });
+          window.setTimeout(() => setToast((t) => (t?.id === id ? null : t)), 2400);
+        } else {
+          // The turn line already holds the result with the right player names ("Player 1 wins!").
+          window.setTimeout(() => {
+            const id = Date.now();
+            const text = document.querySelector('.turn-line')?.textContent?.trim() || 'Game over';
+            setAward({ id, result: e.result, text });
+            window.setTimeout(() => setAward((a) => (a?.id === id ? null : a)), 3800);
+          }, 700);
+        }
+      }),
+    [],
+  );
+  return (
+    <>
+      {toast && (
+        <div className="toast" role="status" key={toast.id}>
+          {toast.message}
+        </div>
+      )}
+      {award && (
+        <div className="overlay top" key={award.id}>
+          <button type="button" className="award-card" onClick={() => setAward(null)} aria-label="Dismiss">
+            <span className="medal" aria-hidden="true">
+              {award.result === 'won' ? '🏆' : '🤝'}
+            </span>
+            <span className="kicker">{award.result === 'won' ? 'Game over' : 'Nobody wins'}</span>
+            <span className="title">{award.text}</span>
+            <span className="hint">Press Restart to play again</span>
+            <span className="drain" aria-hidden="true" />
+          </button>
+        </div>
+      )}
+    </>
+  );
+}
+
+const ARROWS: Record<string, [number, number]> = {
+  ArrowLeft: [-1, 0],
+  ArrowRight: [1, 0],
+  ArrowUp: [0, -1],
+  ArrowDown: [0, 1],
+};
+
+/** Arrow keys move focus to the nearest enabled button in that direction, so any board can be played from the keyboard. */
+function arrowFocus(e: KeyboardEvent, root: HTMLElement): void {
+  const dir = ARROWS[e.key];
+  const from = e.target;
+  if (!dir || !(from instanceof HTMLButtonElement) || !root.contains(from)) return;
+  const center = (el: Element) => {
+    const r = el.getBoundingClientRect();
+    return [r.left + r.width / 2, r.top + r.height / 2] as const;
+  };
+  const [fx, fy] = center(from);
+  let best: HTMLElement | null = null;
+  let bestScore = Number.POSITIVE_INFINITY;
+  for (const el of root.querySelectorAll<HTMLButtonElement>('button:not(:disabled)')) {
+    if (el === from) continue;
+    const [x, y] = center(el);
+    const along = (x - fx) * dir[0] + (y - fy) * dir[1];
+    const across = Math.abs((x - fx) * dir[1]) + Math.abs((y - fy) * dir[0]);
+    if (along <= 1 || across > along * 1.5 + 8) continue;
+    const score = along + across * 2;
+    if (score < bestScore) {
+      bestScore = score;
+      best = el;
+    }
+  }
+  if (best) {
+    e.preventDefault();
+    best.focus();
+  }
+}
+
 export function GameShell({ id, title, children }: { id: string; title: string; children: ReactNode }) {
   const meta = getGame(id);
+  const [rulesOpen, setRulesOpen] = useState(false);
   const stage = useRef<HTMLElement>(null);
   // Fixed-size boards (Gomoku, Ludo, Mancala...) shrink to fit a narrow phone instead of scrolling sideways.
   useEffect(() => {
@@ -213,16 +314,34 @@ export function GameShell({ id, title, children }: { id: string; title: string; 
   }, []);
   useEffect(() => {
     document.body.classList.add('theme-tavern');
+    applyTheme();
+    rememberRecent(id);
     return () => document.body.classList.remove('theme-tavern');
+  }, [id]);
+  // Keyboard: arrows move around the board, ? opens the rules, m mutes, t flips the theme.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement;
+      if (t.closest('input, textarea, select') || e.ctrlKey || e.metaKey || e.altKey) return;
+      if (stage.current) arrowFocus(e, stage.current);
+      if (e.key === '?') setRulesOpen((o) => !o);
+      else if (e.key === 'm') setMuted(!isMuted());
+      else if (e.key === 't') setTheme(currentTheme() === 'dark' ? 'light' : 'dark');
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
   }, []);
   return (
     <div className="gp-page">
-      <nav className="gp-nav">
+      <a className="skip-link" href="#board">
+        Skip to the board
+      </a>
+      <nav className="gp-nav" aria-label="Game navigation">
         <a className="gp-back" href="../../">
           ← All games
         </a>
         <span className="gp-wordmark">TurnTable</span>
-        <TableTools />
+        <TableTools onRules={() => setRulesOpen(true)} />
       </nav>
       <header className="game-head">
         {meta && <p className="gp-eyebrow">{CATEGORY_LABELS[meta.category]}</p>}
@@ -231,15 +350,22 @@ export function GameShell({ id, title, children }: { id: string; title: string; 
       {/* A click on any button gets a soft tick; moves play their own (louder) note first and win the debounce. */}
       {/* biome-ignore lint/a11y/useKeyWithClickEvents: delegated sound only, the buttons inside handle keys */}
       <main
+        id="board"
+        tabIndex={-1}
         ref={stage}
         className="ts-stage"
+        aria-label={`${title} board and controls`}
         onClick={(e) => {
           if ((e.target as HTMLElement).closest('button')) sfx.tick();
         }}
       >
         {children}
       </main>
-      <RulesPanel gameId={id} />
+      <p className="key-hint">
+        Arrow keys move around the board · Enter or Space plays · ? rules · m sound · t theme
+      </p>
+      <RulesDialog gameId={id} open={rulesOpen} onClose={() => setRulesOpen(false)} />
+      <Overlays />
     </div>
   );
 }

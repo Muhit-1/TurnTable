@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { GameEngine, Outcome, PlayerId } from './engine';
+import { notify } from './notify';
 import { sfx } from './sound';
 import { loadJson, saveJson } from './storage';
 
@@ -70,8 +71,13 @@ export function useGame<State, Move, Line = unknown>(
   const prevEnd = useRef(endState);
   useEffect(() => {
     if (prevEnd.current === 'playing') {
-      if (endState === 'won') sfx.win();
-      else if (endState === 'draw') sfx.draw();
+      if (endState === 'won') {
+        sfx.win();
+        notify.gameOver('won');
+      } else if (endState === 'draw') {
+        sfx.draw();
+        notify.gameOver('draw');
+      }
     }
     prevEnd.current = endState;
   }, [endState]);
@@ -79,7 +85,10 @@ export function useGame<State, Move, Line = unknown>(
   const play = useCallback(
     (move: Move) => {
       const next = engine.applyMove(present, move);
-      if (next === null) return false;
+      if (next === null) {
+        notify.toast("That move isn't allowed");
+        return false;
+      }
       sfx.move(engine.currentPlayer(present));
       setHistory({ past: [...past, present], present: next, future: [] });
       return true;

@@ -16,18 +16,24 @@ import { type Dictionary, dictionaryFromText } from './dictionary';
 import { checkPlay, createScrabble, LETTER_VALUES, type Placement, PREMIUMS, SIZE } from './engine';
 
 const PREMIUM_STYLE: Record<string, string> = {
-  TW: 'bg-red-400 text-white',
-  DW: 'bg-pink-300',
-  TL: 'bg-blue-400 text-white',
-  DL: 'bg-sky-200',
+  TW: 'bg-red-700 text-white',
+  DW: 'bg-pink-300 text-neutral-900',
+  TL: 'bg-blue-700 text-white',
+  DL: 'bg-sky-200 text-neutral-900',
 };
 
 export default function Scrabble() {
   const [dict, setDict] = useState<Dictionary | null>(null);
+  const [failed, setFailed] = useState(false);
   useEffect(() => {
     let live = true;
-    // The word list is large, so it is loaded on demand as its own chunk.
-    import('./words.txt?raw').then((m) => live && setDict(dictionaryFromText(m.default)));
+    // The word list is large (2.7 MB), so it is a plain text file fetched on demand (cached by the service worker)
+    // rather than JavaScript the browser has to parse.
+    import('./words.txt?url')
+      .then((m) => fetch(m.default))
+      .then((r) => r.text())
+      .then((text) => live && setDict(dictionaryFromText(text)))
+      .catch(() => live && setFailed(true));
     return () => {
       live = false;
     };
@@ -36,8 +42,28 @@ export default function Scrabble() {
     return (
       <GameShell id="scrabble" title="Scrabble-style word building">
         <p className="text-sm text-neutral-600" role="status">
-          Loading the dictionary…
+          {failed
+            ? 'Could not load the word list. Check your connection and reload.'
+            : 'Loading the dictionary…'}
         </p>
+        <BoardFrame>
+          <div className="board-paper max-w-full overflow-hidden" aria-hidden="true">
+            <div
+              className="grid gap-px bg-amber-900/40 p-px"
+              style={{ gridTemplateColumns: `repeat(${SIZE}, 2rem)` }}
+            >
+              {PREMIUMS.map((prem, i) => (
+                <div
+                  // biome-ignore lint/suspicious/noArrayIndexKey: fixed board squares
+                  key={i}
+                  className={`w-8 h-8 text-[10px] flex items-center justify-center ${prem ? PREMIUM_STYLE[prem] : 'bg-green-100'}`}
+                >
+                  {prem}
+                </div>
+              ))}
+            </div>
+          </div>
+        </BoardFrame>
       </GameShell>
     );
   }

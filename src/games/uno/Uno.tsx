@@ -17,10 +17,10 @@ import {
 } from './engine';
 
 const BG: Record<Color, string> = {
-  red: 'bg-red-500 text-white',
+  red: 'bg-red-700 text-white',
   yellow: 'bg-yellow-400 text-neutral-900',
-  green: 'bg-green-500 text-white',
-  blue: 'bg-blue-500 text-white',
+  green: 'bg-green-700 text-white',
+  blue: 'bg-blue-700 text-white',
 };
 const label = (v: UnoCard['value']) =>
   ({ skip: '⊘', reverse: '⇄', draw2: '+2', wild: 'W', wild4: '+4' })[v as string] ?? String(v);

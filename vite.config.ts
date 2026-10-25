@@ -2,6 +2,7 @@ import { resolve } from 'node:path';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
+import { sitePlugin } from './scripts/sitePlugin.ts';
 import { games } from './src/games/registry.ts';
 
 const root = import.meta.dirname;
@@ -14,7 +15,11 @@ for (const g of games) {
 
 export default defineConfig({
   base: './',
-  plugins: [react(), tailwindcss()],
+  plugins: [
+    react(),
+    tailwindcss(),
+    sitePlugin(process.env.SITE_URL ?? 'https://muhit-1.github.io/TurnTable/'),
+  ],
   build: { rollupOptions: { input } },
   test: { environment: 'node', include: ['src/**/*.test.{ts,tsx}'] },
 });
