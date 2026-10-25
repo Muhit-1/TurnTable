@@ -1,5 +1,12 @@
 import { useMemo } from 'react';
-import { GameControls, GameShell, ModeToggle, Scoreboard, TurnBanner } from '../../shared/components';
+import {
+  BoardFrame,
+  GameControls,
+  GameShell,
+  ModeToggle,
+  Scoreboard,
+  TurnBanner,
+} from '../../shared/components';
 import { useLevel } from '../../shared/level';
 import { useMatch } from '../../shared/useMatch';
 import { chooseMove } from './ai';
@@ -66,21 +73,23 @@ export default function Quarto() {
         )}
       </div>
 
-      <div className="grid grid-cols-4 gap-1 bg-amber-700 p-2 rounded">
-        {state.board.map((piece, i) => (
-          <button
-            // biome-ignore lint/suspicious/noArrayIndexKey: fixed board squares
-            key={i}
-            type="button"
-            aria-label={`Row ${Math.floor(i / SIZE) + 1}, column ${(i % SIZE) + 1}${piece !== null ? `, ${describe(piece)}` : ''}`}
-            disabled={locked || giving || piece !== null}
-            onClick={() => play({ kind: 'place', square: i })}
-            className={`w-16 h-16 rounded bg-amber-100 flex items-center justify-center enabled:hover:bg-amber-200 ${win?.includes(i) ? 'ring-4 ring-red-500' : ''}`}
-          >
-            {piece !== null && <PieceView piece={piece} size={52} />}
-          </button>
-        ))}
-      </div>
+      <BoardFrame>
+        <div className="grid grid-cols-4 gap-1 bg-amber-700 p-2 rounded">
+          {state.board.map((piece, i) => (
+            <button
+              // biome-ignore lint/suspicious/noArrayIndexKey: fixed board squares
+              key={i}
+              type="button"
+              aria-label={`Row ${Math.floor(i / SIZE) + 1}, column ${(i % SIZE) + 1}${piece !== null ? `, ${describe(piece)}` : ''}`}
+              disabled={locked || giving || piece !== null}
+              onClick={() => play({ kind: 'place', square: i })}
+              className={`w-16 h-16 rounded bg-amber-100 flex items-center justify-center enabled:hover:bg-amber-200 ${win?.includes(i) ? 'ring-4 ring-red-500' : ''}`}
+            >
+              {piece !== null && <PieceView piece={piece} size={52} />}
+            </button>
+          ))}
+        </div>
+      </BoardFrame>
 
       <div>
         <div className="text-sm text-neutral-600 mb-1">

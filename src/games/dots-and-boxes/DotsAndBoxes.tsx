@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import {
+  BoardFrame,
   GameControls,
   GameShell,
   ModeToggle,
@@ -55,72 +56,74 @@ export default function DotsAndBoxes() {
         {status.state === 'draw' && `It's a draw, ${state.score[1]}–${state.score[2]}!`}
       </TurnBanner>
 
-      <div className="relative bg-white rounded border" style={{ width, height }}>
-        {/* boxes */}
-        {state.boxes.map((owner, i) => (
-          <div
-            // biome-ignore lint/suspicious/noArrayIndexKey: fixed positions
-            key={i}
-            className={`absolute flex items-center justify-center text-lg font-bold ${owner === 1 ? 'bg-rose-100 text-rose-600' : owner === 2 ? 'bg-sky-100 text-sky-600' : ''}`}
-            style={{
-              left: PAD + DOT / 2 + (i % cols) * CELL + 2,
-              top: PAD + DOT / 2 + Math.floor(i / cols) * CELL + 2,
-              width: CELL - 4,
-              height: CELL - 4,
-            }}
-          >
-            {owner === 1 ? 'P1' : owner === 2 ? 'P2' : ''}
-          </div>
-        ))}
-        {/* horizontal lines */}
-        {Array.from({ length: rows + 1 }, (_, r) =>
-          Array.from({ length: cols }, (_, c) => {
-            const l = hLine(state, r, c);
-            return (
-              <button
-                key={`h${l}`}
-                type="button"
-                aria-label={`Horizontal line, row ${r + 1}, column ${c + 1}${state.lines[l] ? ', drawn' : ''}`}
-                disabled={locked || state.lines[l] !== null}
-                onClick={() => play(l)}
-                className={`absolute rounded ${color(state.lines[l])}`}
-                style={{ left: PAD + DOT + c * CELL, top: PAD + r * CELL, width: CELL - DOT, height: DOT }}
-              />
-            );
-          }),
-        )}
-        {/* vertical lines */}
-        {Array.from({ length: rows }, (_, r) =>
-          Array.from({ length: cols + 1 }, (_, c) => {
-            const l = vLine(state, r, c);
-            return (
-              <button
-                key={`v${l}`}
-                type="button"
-                aria-label={`Vertical line, row ${r + 1}, column ${c + 1}${state.lines[l] ? ', drawn' : ''}`}
-                disabled={locked || state.lines[l] !== null}
-                onClick={() => play(l)}
-                className={`absolute rounded ${color(state.lines[l])}`}
-                style={{ left: PAD + c * CELL, top: PAD + DOT + r * CELL, width: DOT, height: CELL - DOT }}
-              />
-            );
-          }),
-        )}
-        {/* dots */}
-        {Array.from({ length: (rows + 1) * (cols + 1) }, (_, i) => (
-          <div
-            // biome-ignore lint/suspicious/noArrayIndexKey: fixed positions
-            key={i}
-            className="absolute rounded-full bg-neutral-800 pointer-events-none"
-            style={{
-              left: PAD + (i % (cols + 1)) * CELL,
-              top: PAD + Math.floor(i / (cols + 1)) * CELL,
-              width: DOT,
-              height: DOT,
-            }}
-          />
-        ))}
-      </div>
+      <BoardFrame>
+        <div className="relative bg-white rounded border" style={{ width, height }}>
+          {/* boxes */}
+          {state.boxes.map((owner, i) => (
+            <div
+              // biome-ignore lint/suspicious/noArrayIndexKey: fixed positions
+              key={i}
+              className={`absolute flex items-center justify-center text-lg font-bold ${owner === 1 ? 'bg-rose-100 text-rose-600' : owner === 2 ? 'bg-sky-100 text-sky-600' : ''}`}
+              style={{
+                left: PAD + DOT / 2 + (i % cols) * CELL + 2,
+                top: PAD + DOT / 2 + Math.floor(i / cols) * CELL + 2,
+                width: CELL - 4,
+                height: CELL - 4,
+              }}
+            >
+              {owner === 1 ? 'P1' : owner === 2 ? 'P2' : ''}
+            </div>
+          ))}
+          {/* horizontal lines */}
+          {Array.from({ length: rows + 1 }, (_, r) =>
+            Array.from({ length: cols }, (_, c) => {
+              const l = hLine(state, r, c);
+              return (
+                <button
+                  key={`h${l}`}
+                  type="button"
+                  aria-label={`Horizontal line, row ${r + 1}, column ${c + 1}${state.lines[l] ? ', drawn' : ''}`}
+                  disabled={locked || state.lines[l] !== null}
+                  onClick={() => play(l)}
+                  className={`absolute rounded ${color(state.lines[l])}`}
+                  style={{ left: PAD + DOT + c * CELL, top: PAD + r * CELL, width: CELL - DOT, height: DOT }}
+                />
+              );
+            }),
+          )}
+          {/* vertical lines */}
+          {Array.from({ length: rows }, (_, r) =>
+            Array.from({ length: cols + 1 }, (_, c) => {
+              const l = vLine(state, r, c);
+              return (
+                <button
+                  key={`v${l}`}
+                  type="button"
+                  aria-label={`Vertical line, row ${r + 1}, column ${c + 1}${state.lines[l] ? ', drawn' : ''}`}
+                  disabled={locked || state.lines[l] !== null}
+                  onClick={() => play(l)}
+                  className={`absolute rounded ${color(state.lines[l])}`}
+                  style={{ left: PAD + c * CELL, top: PAD + DOT + r * CELL, width: DOT, height: CELL - DOT }}
+                />
+              );
+            }),
+          )}
+          {/* dots */}
+          {Array.from({ length: (rows + 1) * (cols + 1) }, (_, i) => (
+            <div
+              // biome-ignore lint/suspicious/noArrayIndexKey: fixed positions
+              key={i}
+              className="absolute rounded-full bg-neutral-800 pointer-events-none"
+              style={{
+                left: PAD + (i % (cols + 1)) * CELL,
+                top: PAD + Math.floor(i / (cols + 1)) * CELL,
+                width: DOT,
+                height: DOT,
+              }}
+            />
+          ))}
+        </div>
+      </BoardFrame>
 
       <GameControls
         canUndo={game.canUndo && !isCpuTurn}

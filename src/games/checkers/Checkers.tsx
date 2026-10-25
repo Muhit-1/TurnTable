@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import {
+  BoardFrame,
   GameControls,
   GameShell,
   ModeToggle,
@@ -69,46 +70,48 @@ export default function Checkers() {
         {status.state === 'draw' && 'Draw — 40 moves without a capture or a man moving.'}
       </TurnBanner>
 
-      <div className="grid grid-cols-8 border-4 border-amber-900">
-        {state.cells.map((cell, i) => {
-          const r = Math.floor(i / SIZE);
-          const c = i % SIZE;
-          const dark = isDark(r, c);
-          const selected = path.includes(i);
-          const isTarget = targets.has(i);
-          return (
-            <button
-              // biome-ignore lint/suspicious/noArrayIndexKey: fixed board squares
-              key={i}
-              type="button"
-              disabled={!dark || locked}
-              aria-label={`Row ${r + 1}, column ${c + 1}${cell ? `, ${cell.owner === 1 ? 'red' : 'white'} ${cell.king ? 'king' : 'man'}` : ''}${isTarget ? ', move here' : ''}`}
-              onClick={() => click(i)}
-              className={`w-11 h-11 sm:w-12 sm:h-12 flex items-center justify-center ${dark ? 'bg-amber-800' : 'bg-amber-100'} ${
-                selected
-                  ? 'ring-4 ring-inset ring-yellow-300'
-                  : isTarget
-                    ? 'ring-4 ring-inset ring-green-400'
-                    : movable.has(i)
-                      ? 'ring-2 ring-inset ring-yellow-200'
-                      : ''
-              }`}
-            >
-              {cell && (
-                <span
-                  className={`w-9 h-9 rounded-full border-2 flex items-center justify-center text-lg ${
-                    cell.owner === 1
-                      ? 'bg-red-600 border-red-900 text-yellow-200'
-                      : 'bg-neutral-100 border-neutral-400 text-amber-600'
-                  }`}
-                >
-                  {cell.king ? '♛' : ''}
-                </span>
-              )}
-            </button>
-          );
-        })}
-      </div>
+      <BoardFrame>
+        <div className="grid grid-cols-8 border-4 border-amber-900">
+          {state.cells.map((cell, i) => {
+            const r = Math.floor(i / SIZE);
+            const c = i % SIZE;
+            const dark = isDark(r, c);
+            const selected = path.includes(i);
+            const isTarget = targets.has(i);
+            return (
+              <button
+                // biome-ignore lint/suspicious/noArrayIndexKey: fixed board squares
+                key={i}
+                type="button"
+                disabled={!dark || locked}
+                aria-label={`Row ${r + 1}, column ${c + 1}${cell ? `, ${cell.owner === 1 ? 'red' : 'white'} ${cell.king ? 'king' : 'man'}` : ''}${isTarget ? ', move here' : ''}`}
+                onClick={() => click(i)}
+                className={`w-11 h-11 sm:w-12 sm:h-12 flex items-center justify-center ${dark ? 'bg-amber-800' : 'bg-amber-100'} ${
+                  selected
+                    ? 'ring-4 ring-inset ring-yellow-300'
+                    : isTarget
+                      ? 'ring-4 ring-inset ring-green-400'
+                      : movable.has(i)
+                        ? 'ring-2 ring-inset ring-yellow-200'
+                        : ''
+                }`}
+              >
+                {cell && (
+                  <span
+                    className={`w-9 h-9 rounded-full border-2 flex items-center justify-center text-lg ${
+                      cell.owner === 1
+                        ? 'bg-red-600 border-red-900 text-yellow-200'
+                        : 'bg-neutral-100 border-neutral-400 text-amber-600'
+                    }`}
+                  >
+                    {cell.king ? '♛' : ''}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </BoardFrame>
 
       <GameControls
         canUndo={game.canUndo && !isCpuTurn}

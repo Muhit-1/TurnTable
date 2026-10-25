@@ -83,25 +83,25 @@ rules implemented per `game-rules.txt` · win/draw/end detection · invalid move
 
 ---
 
-## Phase 3 — UI/UX Polish & Release  (status: 0/16)
+## Phase 3 — UI/UX Polish & Release  (status: 3/16)
 
-> Design mock ready for review: `design/mock/homepage.html`, `game-board.html`, `design-guide.html` (open in a browser). Card hovers/animations are preserved verbatim and guarded by `node design/mock/check-motion.mjs`. Implementing it in the React app is still to do (all 16 items below unticked).
+> Design mock ready for review: `design/mock/homepage.html`, `game-board.html`, `design-guide.html` (open in a browser). Card hovers/animations are preserved verbatim and guarded by `node design/mock/check-motion.mjs`. It is now built into the app (tavern theme, preserved card motion, wooden board frames, bigger boards, sound).
 
 Goal: make it feel like one product. Because Phase 1–2 isolate logic from rendering, this is mostly restyling components.
 
 ### Design system
-- [ ] Design tokens (colors, spacing, radius, shadows, fonts) as Tailwind theme variables
+- [x] Design tokens (colors, radius, shadows, fonts) as CSS variables in `src/styles/tavern.css`
 - [ ] Dark / light theme + remembered preference
-- [ ] Shared components restyled: buttons, dialogs, turn banner, scoreboard, toasts
-- [ ] Redesign homepage (category filters, search, game cards, "recently played")
+- [ ] Shared components restyled: buttons, turn banner, scoreboard, mode toggle, controls, rules panel and board frame done; dialogs and toasts still to do
+- [x] Redesign homepage (category filters, animated game cards) — search and "recently played" still to do
 
 ### Per-game graphics
 - [ ] Board/piece art for each of the 26 games (SVG preferred, scales cleanly)
-- [ ] Animations: disc drops, piece moves, card flips, dice rolls, win-line highlight
-- [ ] Sound effects + mute toggle (off by default on first load)
+- [ ] Animations: disc drops done (Connect Four); piece moves, card flips, dice rolls, win-line highlight still to do
+- [x] Sound effects + mute toggle (soft "tong" per move, win chime; mute remembered)
 
 ### Quality & accessibility
-- [ ] Responsive layouts: phone portrait, tablet, desktop (touch-first controls)
+- [ ] Responsive layouts: shell, Connect Four and Chess checked on phone and 1920px; the other 24 games still to check
 - [ ] Keyboard navigation + visible focus on every game
 - [ ] Screen-reader labels, ARIA live region announcing moves/turn changes
 - [ ] Color-blind-safe piece colors (shape/pattern, not only color)

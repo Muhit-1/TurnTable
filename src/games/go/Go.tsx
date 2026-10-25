@@ -1,5 +1,6 @@
 import { useCallback, useMemo } from 'react';
 import {
+  BoardFrame,
   GameControls,
   GameShell,
   ModeToggle,
@@ -85,98 +86,100 @@ function Match({
         {status.state === 'draw' && 'Game over — a draw.'}
       </TurnBanner>
 
-      <div className="relative w-[min(94vw,560px)] aspect-square bg-amber-300 rounded border-2 border-amber-900">
-        <svg
-          viewBox={`0 0 ${V} ${V}`}
-          className="absolute inset-0 w-full h-full pointer-events-none"
-          aria-hidden="true"
-        >
-          {Array.from({ length: size }, (_, i) => (
-            <g key={`line-${pos(i)}`}>
-              <line
-                x1={pos(0)}
-                y1={pos(i)}
-                x2={pos(size - 1)}
-                y2={pos(i)}
-                stroke="#44210a"
-                strokeWidth="0.35"
-              />
-              <line
-                x1={pos(i)}
-                y1={pos(0)}
-                x2={pos(i)}
-                y2={pos(size - 1)}
-                stroke="#44210a"
-                strokeWidth="0.35"
-              />
-            </g>
-          ))}
-          {stars.flatMap((r) =>
-            stars.map((c) => (
-              <circle key={`star-${r}-${c}`} cx={pos(c)} cy={pos(r)} r="0.9" fill="#44210a" />
-            )),
-          )}
-          {over &&
-            [...territory].map(([p, owner]) => (
-              <rect
-                key={`t-${p}`}
-                x={pos(p % size) - 1.6}
-                y={pos(Math.floor(p / size)) - 1.6}
-                width="3.2"
-                height="3.2"
-                fill={owner === 1 ? '#171717' : '#fafafa'}
-                stroke="#44210a"
-                strokeWidth="0.2"
-              />
+      <BoardFrame>
+        <div className="relative w-[min(88vw,560px)] aspect-square bg-amber-300 rounded border-2 border-amber-900">
+          <svg
+            viewBox={`0 0 ${V} ${V}`}
+            className="absolute inset-0 w-full h-full pointer-events-none"
+            aria-hidden="true"
+          >
+            {Array.from({ length: size }, (_, i) => (
+              <g key={`line-${pos(i)}`}>
+                <line
+                  x1={pos(0)}
+                  y1={pos(i)}
+                  x2={pos(size - 1)}
+                  y2={pos(i)}
+                  stroke="#44210a"
+                  strokeWidth="0.35"
+                />
+                <line
+                  x1={pos(i)}
+                  y1={pos(0)}
+                  x2={pos(i)}
+                  y2={pos(size - 1)}
+                  stroke="#44210a"
+                  strokeWidth="0.35"
+                />
+              </g>
             ))}
-          {state.cells.map((stone, p) => {
-            const row = Math.floor(p / size);
-            const col = p % size;
-            return stone ? (
+            {stars.flatMap((r) =>
+              stars.map((c) => (
+                <circle key={`star-${r}-${c}`} cx={pos(c)} cy={pos(r)} r="0.9" fill="#44210a" />
+              )),
+            )}
+            {over &&
+              [...territory].map(([p, owner]) => (
+                <rect
+                  key={`t-${p}`}
+                  x={pos(p % size) - 1.6}
+                  y={pos(Math.floor(p / size)) - 1.6}
+                  width="3.2"
+                  height="3.2"
+                  fill={owner === 1 ? '#171717' : '#fafafa'}
+                  stroke="#44210a"
+                  strokeWidth="0.2"
+                />
+              ))}
+            {state.cells.map((stone, p) => {
+              const row = Math.floor(p / size);
+              const col = p % size;
+              return stone ? (
+                <circle
+                  key={`stone-${row}-${col}`}
+                  cx={pos(col)}
+                  cy={pos(row)}
+                  r={size === 19 ? 4.4 : 4.6}
+                  fill={stone === 1 ? '#171717' : '#fafafa'}
+                  stroke="#262626"
+                  strokeWidth="0.3"
+                />
+              ) : null;
+            })}
+            {state.last >= 0 && (
               <circle
-                key={`stone-${row}-${col}`}
-                cx={pos(col)}
-                cy={pos(row)}
-                r={size === 19 ? 4.4 : 4.6}
-                fill={stone === 1 ? '#171717' : '#fafafa'}
-                stroke="#262626"
-                strokeWidth="0.3"
+                cx={pos(state.last % size)}
+                cy={pos(Math.floor(state.last / size))}
+                r="2"
+                fill="none"
+                stroke={state.cells[state.last] === 1 ? '#fafafa' : '#171717'}
+                strokeWidth="0.6"
               />
-            ) : null;
+            )}
+          </svg>
+          {state.cells.map((stone, p) => {
+            const r = Math.floor(p / size);
+            const c = p % size;
+            const name = `Row ${r + 1}, column ${c + 1}`;
+            return (
+              <button
+                key={`pt-${r}-${c}`}
+                type="button"
+                disabled={locked || stone !== 0}
+                aria-label={`${name}${stone ? `, ${stone === 1 ? 'black' : 'white'} stone` : ''}`}
+                onClick={() => play({ kind: 'place', point: p })}
+                className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full bg-transparent enabled:hover:bg-black/15 enabled:cursor-pointer"
+                style={{
+                  left: `${(pos(c) / V) * 100}%`,
+                  top: `${(pos(r) / V) * 100}%`,
+                  width: `${(10 / V) * 100}%`,
+                  height: `${(10 / V) * 100}%`,
+                }}
+              />
+            );
           })}
-          {state.last >= 0 && (
-            <circle
-              cx={pos(state.last % size)}
-              cy={pos(Math.floor(state.last / size))}
-              r="2"
-              fill="none"
-              stroke={state.cells[state.last] === 1 ? '#fafafa' : '#171717'}
-              strokeWidth="0.6"
-            />
-          )}
-        </svg>
-        {state.cells.map((stone, p) => {
-          const r = Math.floor(p / size);
-          const c = p % size;
-          const name = `Row ${r + 1}, column ${c + 1}`;
-          return (
-            <button
-              key={`pt-${r}-${c}`}
-              type="button"
-              disabled={locked || stone !== 0}
-              aria-label={`${name}${stone ? `, ${stone === 1 ? 'black' : 'white'} stone` : ''}`}
-              onClick={() => play({ kind: 'place', point: p })}
-              className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full bg-transparent enabled:hover:bg-black/15 enabled:cursor-pointer"
-              style={{
-                left: `${(pos(c) / V) * 100}%`,
-                top: `${(pos(r) / V) * 100}%`,
-                width: `${(10 / V) * 100}%`,
-                height: `${(10 / V) * 100}%`,
-              }}
-            />
-          );
-        })}
-      </div>
+        </div>
+      </BoardFrame>
 
       <div className="text-xs text-neutral-600 text-center max-w-sm">
         Area now — {names[1]}: {area.black} · {names[2]}: {area.white} + {state.komi} komi. Dead stones must

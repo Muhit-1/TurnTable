@@ -1,40 +1,62 @@
+import { useState } from 'react';
 import { CATEGORY_LABELS, type Category, games } from '../games/registry';
+import { CARD_HTML } from './cardHtml';
 
-const categories = Object.keys(CATEGORY_LABELS) as Category[];
+type Filter = 'all' | Category;
+const filters = Object.keys(CATEGORY_LABELS) as Category[];
+const SHORT: Record<Category, string> = {
+  strategy: 'Strategy',
+  dice: 'Dice',
+  hidden: 'Hidden',
+  card: 'Cards',
+  party: 'Party',
+};
 
 export default function Home() {
+  const [filter, setFilter] = useState<Filter>('all');
+  const count = (c: Filter) => (c === 'all' ? games.length : games.filter((g) => g.category === c).length);
   return (
-    <div className="min-h-screen bg-neutral-100 py-10 px-4">
-      <div className="max-w-4xl mx-auto flex flex-col gap-8">
-        <header>
-          <h1 className="text-4xl font-bold">TurnTable</h1>
-          <p className="text-neutral-600">{games.length} two-player games, one device.</p>
-        </header>
-        {categories.map((cat) => (
-          <section key={cat}>
-            <h2 className="text-lg font-semibold mb-3">{CATEGORY_LABELS[cat]}</h2>
-            <ul className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {games
-                .filter((g) => g.category === cat)
-                .map((g) => (
-                  <li key={g.id}>
-                    {g.ready ? (
-                      <a
-                        href={`allgames/${g.id}/`}
-                        className="block rounded border bg-white p-4 hover:bg-neutral-50 font-medium"
-                      >
-                        {g.title}
-                      </a>
-                    ) : (
-                      <span className="block rounded border border-dashed p-4 text-neutral-400">
-                        {g.title} <small>(soon)</small>
-                      </span>
-                    )}
-                  </li>
-                ))}
-            </ul>
-          </section>
+    <div className="page">
+      <div className="head">
+        <h1 className="wordmark">TurnTable</h1>
+        <p className="tagline">{games.length} two-player games, one shared screen.</p>
+      </div>
+
+      <nav className="filters" aria-label="Filter games by category">
+        {(['all', ...filters] as Filter[]).map((f) => (
+          <button key={f} type="button" aria-pressed={filter === f} onClick={() => setFilter(f)}>
+            {f === 'all' ? 'All' : SHORT[f]} <span className="count">{count(f)}</span>
+          </button>
         ))}
+      </nav>
+
+      <div className="grid">
+        {games.map((g, i) => {
+          const visible = filter === 'all' || g.category === filter;
+          const cls = 'icd-card';
+          // The inner markup (previews, panel, number) is generated from the approved mock.
+          const inner = { __html: CARD_HTML[i] ?? '' };
+          return g.ready ? (
+            <a
+              key={g.id}
+              className={cls}
+              href={`allgames/${g.id}/`}
+              hidden={!visible}
+              aria-label={`Play ${g.title}`}
+              // biome-ignore lint/security/noDangerouslySetInnerHtml: static, build-time markup
+              dangerouslySetInnerHTML={inner}
+            />
+          ) : (
+            <div
+              key={g.id}
+              className={cls}
+              hidden={!visible}
+              aria-disabled="true"
+              // biome-ignore lint/security/noDangerouslySetInnerHtml: static, build-time markup
+              dangerouslySetInnerHTML={inner}
+            />
+          );
+        })}
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import {
+  BoardFrame,
   GameControls,
   GameShell,
   ModeToggle,
@@ -99,64 +100,66 @@ export default function NineMensMorris() {
         {status.state === 'draw' && 'Draw — 100 plies without a mill.'}
       </TurnBanner>
 
-      <div className="relative w-[min(92vw,420px)] aspect-square bg-amber-100 rounded border">
-        <svg
-          viewBox="0 0 300 300"
-          className="absolute inset-0 w-full h-full pointer-events-none"
-          aria-hidden="true"
-        >
-          {lines.map(([a, b]) => {
-            const [x1, y1] = coords(a);
-            const [x2, y2] = coords(b);
-            return (
-              <line key={`${a}-${b}`} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#78350f" strokeWidth="3" />
-            );
-          })}
+      <BoardFrame>
+        <div className="relative w-[min(86vw,420px)] aspect-square bg-amber-100 rounded border">
+          <svg
+            viewBox="0 0 300 300"
+            className="absolute inset-0 w-full h-full pointer-events-none"
+            aria-hidden="true"
+          >
+            {lines.map(([a, b]) => {
+              const [x1, y1] = coords(a);
+              const [x2, y2] = coords(b);
+              return (
+                <line key={`${a}-${b}`} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#78350f" strokeWidth="3" />
+              );
+            })}
+            {state.points.map((piece, i) => {
+              const [x, y] = coords(i);
+              const selected = from === i;
+              const hot =
+                !locked &&
+                (removeTargets.has(i) ||
+                  placeTargets.has(i) ||
+                  targets.has(i) ||
+                  (sliding && from === null && movable.has(i)));
+              return (
+                <circle
+                  key={`p${x}-${y}`}
+                  cx={x}
+                  cy={y}
+                  r={piece ? 13 : 7}
+                  fill={piece === 1 ? '#fafafa' : piece === 2 ? '#171717' : '#78350f'}
+                  stroke={
+                    selected
+                      ? '#facc15'
+                      : removeTargets.has(i) && !locked
+                        ? '#dc2626'
+                        : hot
+                          ? '#22c55e'
+                          : '#44403c'
+                  }
+                  strokeWidth={selected || hot ? 4 : 2}
+                />
+              );
+            })}
+          </svg>
           {state.points.map((piece, i) => {
             const [x, y] = coords(i);
-            const selected = from === i;
-            const hot =
-              !locked &&
-              (removeTargets.has(i) ||
-                placeTargets.has(i) ||
-                targets.has(i) ||
-                (sliding && from === null && movable.has(i)));
             return (
-              <circle
-                key={`p${x}-${y}`}
-                cx={x}
-                cy={y}
-                r={piece ? 13 : 7}
-                fill={piece === 1 ? '#fafafa' : piece === 2 ? '#171717' : '#78350f'}
-                stroke={
-                  selected
-                    ? '#facc15'
-                    : removeTargets.has(i) && !locked
-                      ? '#dc2626'
-                      : hot
-                        ? '#22c55e'
-                        : '#44403c'
-                }
-                strokeWidth={selected || hot ? 4 : 2}
+              <button
+                key={`b${x}-${y}`}
+                type="button"
+                disabled={locked}
+                aria-label={`Point ${i + 1}${piece ? `, ${piece === 1 ? 'white' : 'black'} piece` : ', empty'}`}
+                onClick={() => click(i)}
+                className="absolute w-8 h-8 rounded-full -translate-x-1/2 -translate-y-1/2 bg-transparent enabled:cursor-pointer"
+                style={{ left: `${(x / 300) * 100}%`, top: `${(y / 300) * 100}%` }}
               />
             );
           })}
-        </svg>
-        {state.points.map((piece, i) => {
-          const [x, y] = coords(i);
-          return (
-            <button
-              key={`b${x}-${y}`}
-              type="button"
-              disabled={locked}
-              aria-label={`Point ${i + 1}${piece ? `, ${piece === 1 ? 'white' : 'black'} piece` : ', empty'}`}
-              onClick={() => click(i)}
-              className="absolute w-8 h-8 rounded-full -translate-x-1/2 -translate-y-1/2 bg-transparent enabled:cursor-pointer"
-              style={{ left: `${(x / 300) * 100}%`, top: `${(y / 300) * 100}%` }}
-            />
-          );
-        })}
-      </div>
+        </div>
+      </BoardFrame>
 
       <GameControls
         canUndo={game.canUndo && !isCpuTurn}

@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import {
+  BoardFrame,
   GameControls,
   GameShell,
   ModeToggle,
@@ -36,23 +37,25 @@ export default function TicTacToe() {
         {status.state === 'draw' && "It's a draw!"}
       </TurnBanner>
 
-      <div className="grid grid-cols-3 gap-2">
-        {state.cells.map((cell, i) => (
-          <button
-            // biome-ignore lint/suspicious/noArrayIndexKey: fixed grid positions
-            key={i}
-            type="button"
-            aria-label={`Cell ${i + 1}${cell ? `, ${cell === 1 ? 'X' : 'O'}` : ''}`}
-            disabled={isCpuTurn || !game.legalMoves.includes(i)}
-            onClick={() => play(i)}
-            className={`w-24 h-24 text-5xl font-bold rounded border bg-white disabled:cursor-not-allowed ${
-              winLine?.includes(i) ? 'ring-4 ring-amber-400' : ''
-            }`}
-          >
-            {cell === 1 ? 'X' : cell === 2 ? 'O' : ''}
-          </button>
-        ))}
-      </div>
+      <BoardFrame>
+        <div className="grid grid-cols-3 gap-2">
+          {state.cells.map((cell, i) => (
+            <button
+              // biome-ignore lint/suspicious/noArrayIndexKey: fixed grid positions
+              key={i}
+              type="button"
+              aria-label={`Cell ${i + 1}${cell ? `, ${cell === 1 ? 'X' : 'O'}` : ''}`}
+              disabled={isCpuTurn || !game.legalMoves.includes(i)}
+              onClick={() => play(i)}
+              className={`w-24 h-24 text-5xl font-bold rounded border bg-white disabled:cursor-not-allowed ${
+                winLine?.includes(i) ? 'ring-4 ring-amber-400' : ''
+              }`}
+            >
+              {cell === 1 ? 'X' : cell === 2 ? 'O' : ''}
+            </button>
+          ))}
+        </div>
+      </BoardFrame>
 
       <GameControls
         canUndo={game.canUndo && !isCpuTurn}

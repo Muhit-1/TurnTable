@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import {
+  BoardFrame,
   GameControls,
   GameShell,
   ModeToggle,
@@ -38,30 +39,32 @@ export default function Reversi() {
         {status.state === 'draw' && `It's a draw, ${discs[1]}–${discs[2]}!`}
       </TurnBanner>
 
-      <div className="grid grid-cols-8 gap-0.5 bg-green-900 p-1 rounded">
-        {state.cells.map((cell, i) => {
-          const legal = !isCpuTurn && legalMoves.includes(i);
-          return (
-            <button
-              // biome-ignore lint/suspicious/noArrayIndexKey: fixed grid positions
-              key={i}
-              type="button"
-              aria-label={`Row ${Math.floor(i / SIZE) + 1}, column ${(i % SIZE) + 1}${cell ? `, ${cell === 1 ? 'dark' : 'light'}` : legal ? ', legal move' : ''}`}
-              disabled={!legal}
-              onClick={() => play(i)}
-              className="w-10 h-10 bg-green-700 flex items-center justify-center disabled:cursor-default"
-            >
-              {cell ? (
-                <span
-                  className={`block w-8 h-8 rounded-full ${cell === 1 ? 'bg-neutral-900' : 'bg-white'}`}
-                />
-              ) : legal ? (
-                <span className="block w-2 h-2 rounded-full bg-green-300" />
-              ) : null}
-            </button>
-          );
-        })}
-      </div>
+      <BoardFrame>
+        <div className="grid grid-cols-8 gap-0.5 bg-green-900 p-1 rounded">
+          {state.cells.map((cell, i) => {
+            const legal = !isCpuTurn && legalMoves.includes(i);
+            return (
+              <button
+                // biome-ignore lint/suspicious/noArrayIndexKey: fixed grid positions
+                key={i}
+                type="button"
+                aria-label={`Row ${Math.floor(i / SIZE) + 1}, column ${(i % SIZE) + 1}${cell ? `, ${cell === 1 ? 'dark' : 'light'}` : legal ? ', legal move' : ''}`}
+                disabled={!legal}
+                onClick={() => play(i)}
+                className="w-10 h-10 bg-green-700 flex items-center justify-center disabled:cursor-default"
+              >
+                {cell ? (
+                  <span
+                    className={`block w-8 h-8 rounded-full ${cell === 1 ? 'bg-neutral-900' : 'bg-white'}`}
+                  />
+                ) : legal ? (
+                  <span className="block w-2 h-2 rounded-full bg-green-300" />
+                ) : null}
+              </button>
+            );
+          })}
+        </div>
+      </BoardFrame>
 
       <GameControls
         canUndo={game.canUndo && !isCpuTurn}

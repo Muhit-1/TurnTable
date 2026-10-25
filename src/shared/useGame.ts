@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { GameEngine, Outcome, PlayerId } from './engine';
+import { sfx } from './sound';
 import { loadJson, saveJson } from './storage';
 
 interface History<State> {
@@ -64,10 +65,22 @@ export function useGame<State, Move, Line = unknown>(
     if (persistKey) saveJson(`${persistKey}:state`, present);
   }, [persistKey, present]);
 
+  // Sound: a win or draw chime when a game ends during this visit (not when a finished game is resumed).
+  const endState = engine.getStatus(present).state;
+  const prevEnd = useRef(endState);
+  useEffect(() => {
+    if (prevEnd.current === 'playing') {
+      if (endState === 'won') sfx.win();
+      else if (endState === 'draw') sfx.draw();
+    }
+    prevEnd.current = endState;
+  }, [endState]);
+
   const play = useCallback(
     (move: Move) => {
       const next = engine.applyMove(present, move);
       if (next === null) return false;
+      sfx.move(engine.currentPlayer(present));
       setHistory({ past: [...past, present], present: next, future: [] });
       return true;
     },
@@ -87,7 +100,13 @@ export function useGame<State, Move, Line = unknown>(
     });
   }, []);
 
-  const undo = useCallback((steps = 1) => rewind(() => steps), [rewind]);
+  const undo = useCallback(
+    (steps = 1) => {
+      sfx.undo();
+      rewind(() => steps);
+    },
+    [rewind],
+  );
 
   const undoWhile = useCallback(
     (keepGoing: (state: State) => boolean) =>

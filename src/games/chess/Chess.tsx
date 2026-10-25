@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import {
+  BoardFrame,
   GameControls,
   GameShell,
   ModeToggle,
@@ -138,44 +139,46 @@ export default function Chess() {
         ))}
         {diff < 0 && <span className="ml-1 text-xs">+{-diff}</span>}
       </div>
-      <div className="grid grid-cols-8 border-4 border-amber-900 select-none">
-        {order.map((i) => {
-          const piece = state.cells[i];
-          const light = (rowOf(i) + (i & 7)) % 2 === 0;
-          const isTarget = targets.has(i);
-          const isLast = lastMove && (lastMove.from === i || lastMove.to === i);
-          return (
-            <button
-              key={i}
-              type="button"
-              disabled={locked}
-              aria-label={`${squareName(i)}${piece ? `, ${colorOf(piece) === 1 ? 'white' : 'black'} ${PIECE_NAME[typeOf(piece)]}` : ''}${isTarget ? ', legal move' : ''}`}
-              onClick={() => click(i)}
-              className={`relative w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center text-3xl sm:text-4xl leading-none ${light ? 'bg-amber-100' : 'bg-amber-700'} ${
-                selected === i ? 'ring-4 ring-inset ring-yellow-400' : ''
-              } ${isLast ? 'bg-yellow-200' : ''} ${checkedKing === i ? 'bg-red-400' : ''}`}
-            >
-              {piece !== EMPTY && (
-                <span
-                  className={colorOf(piece) === 1 ? 'text-white' : 'text-neutral-900'}
-                  style={
-                    colorOf(piece) === 1
-                      ? { textShadow: '0 0 2px #000, 0 0 2px #000, 0 0 3px #000' }
-                      : undefined
-                  }
-                >
-                  {GLYPH[typeOf(piece)]}
-                </span>
-              )}
-              {isTarget && (
-                <span
-                  className={`absolute rounded-full ${piece !== EMPTY ? 'inset-1 ring-4 ring-green-500/70' : 'w-3 h-3 bg-green-600/60'}`}
-                />
-              )}
-            </button>
-          );
-        })}
-      </div>
+      <BoardFrame>
+        <div className="grid grid-cols-8 border-4 border-amber-900 select-none">
+          {order.map((i) => {
+            const piece = state.cells[i];
+            const light = (rowOf(i) + (i & 7)) % 2 === 0;
+            const isTarget = targets.has(i);
+            const isLast = lastMove && (lastMove.from === i || lastMove.to === i);
+            return (
+              <button
+                key={i}
+                type="button"
+                disabled={locked}
+                aria-label={`${squareName(i)}${piece ? `, ${colorOf(piece) === 1 ? 'white' : 'black'} ${PIECE_NAME[typeOf(piece)]}` : ''}${isTarget ? ', legal move' : ''}`}
+                onClick={() => click(i)}
+                className={`relative w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center text-3xl sm:text-4xl leading-none ${light ? 'bg-amber-100' : 'bg-amber-700'} ${
+                  selected === i ? 'ring-4 ring-inset ring-yellow-400' : ''
+                } ${isLast ? 'bg-yellow-200' : ''} ${checkedKing === i ? 'bg-red-400' : ''}`}
+              >
+                {piece !== EMPTY && (
+                  <span
+                    className={colorOf(piece) === 1 ? 'text-white' : 'text-neutral-900'}
+                    style={
+                      colorOf(piece) === 1
+                        ? { textShadow: '0 0 2px #000, 0 0 2px #000, 0 0 3px #000' }
+                        : undefined
+                    }
+                  >
+                    {GLYPH[typeOf(piece)]}
+                  </span>
+                )}
+                {isTarget && (
+                  <span
+                    className={`absolute rounded-full ${piece !== EMPTY ? 'inset-1 ring-4 ring-green-500/70' : 'w-3 h-3 bg-green-600/60'}`}
+                  />
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </BoardFrame>
       <div className="text-sm h-5" title="Captured pieces">
         {lostByWhite.map((t, i) => (
           // biome-ignore lint/suspicious/noArrayIndexKey: display-only list

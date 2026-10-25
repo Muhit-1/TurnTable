@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import {
+  BoardFrame,
   GameControls,
   GameShell,
   ModeToggle,
@@ -33,30 +34,32 @@ export default function Gomoku() {
         {status.state === 'draw' && "It's a draw!"}
       </TurnBanner>
 
-      <div
-        className="grid bg-amber-200 p-2 rounded max-w-full overflow-auto"
-        style={{ gridTemplateColumns: `repeat(${SIZE}, 2rem)` }}
-      >
-        {state.cells.map((cell, i) => (
-          <button
-            // biome-ignore lint/suspicious/noArrayIndexKey: fixed grid positions
-            key={i}
-            type="button"
-            aria-label={`Row ${Math.floor(i / SIZE) + 1}, column ${(i % SIZE) + 1}${cell ? `, ${cell === 1 ? 'black' : 'white'}` : ''}`}
-            disabled={isCpuTurn || cell !== null || status.state !== 'playing'}
-            onClick={() => play(i)}
-            className="w-8 h-8 border border-amber-700/40 flex items-center justify-center disabled:cursor-default"
-          >
-            {cell && (
-              <span
-                className={`block w-6 h-6 rounded-full border ${cell === 1 ? 'bg-neutral-900 border-neutral-900' : 'bg-white border-neutral-500'} ${
-                  win?.includes(i) ? 'ring-2 ring-red-500' : state.last === i ? 'ring-2 ring-blue-400' : ''
-                }`}
-              />
-            )}
-          </button>
-        ))}
-      </div>
+      <BoardFrame>
+        <div
+          className="grid bg-amber-200 p-2 rounded max-w-full overflow-auto"
+          style={{ gridTemplateColumns: `repeat(${SIZE}, 2rem)` }}
+        >
+          {state.cells.map((cell, i) => (
+            <button
+              // biome-ignore lint/suspicious/noArrayIndexKey: fixed grid positions
+              key={i}
+              type="button"
+              aria-label={`Row ${Math.floor(i / SIZE) + 1}, column ${(i % SIZE) + 1}${cell ? `, ${cell === 1 ? 'black' : 'white'}` : ''}`}
+              disabled={isCpuTurn || cell !== null || status.state !== 'playing'}
+              onClick={() => play(i)}
+              className="w-8 h-8 border border-amber-700/40 flex items-center justify-center disabled:cursor-default"
+            >
+              {cell && (
+                <span
+                  className={`block w-6 h-6 rounded-full border ${cell === 1 ? 'bg-neutral-900 border-neutral-900' : 'bg-white border-neutral-500'} ${
+                    win?.includes(i) ? 'ring-2 ring-red-500' : state.last === i ? 'ring-2 ring-blue-400' : ''
+                  }`}
+                />
+              )}
+            </button>
+          ))}
+        </div>
+      </BoardFrame>
 
       <GameControls
         canUndo={game.canUndo && !isCpuTurn}

@@ -1,7 +1,15 @@
 # TurnTable
 
-Browser-based collection of 26 two-player games (hot-seat on one device, with a computer opponent where it makes sense).
-React 19 · TypeScript · Vite · Tailwind 4. Rules for every game: [`game-rules.txt`](game-rules.txt). Roadmap: [`PLAN.md`](PLAN.md).
+26 two-player games in the browser: chess, checkers, Go, Connect Four, Backgammon, Yahtzee, Battleship and more.
+Play hot-seat on one screen, or against the computer (easy / medium / hard) in most games.
+
+- Warm "tavern table" look: wooden board frames, gem pieces, 8 table colours to choose from.
+- Large boards on big screens, fully responsive down to a phone.
+- Soft sound effects (a gentle "tong" per move, a chime for a win) with a mute button.
+- Undo / redo, and every game resumes where you left it.
+- No accounts, no server: everything runs and saves locally in your browser.
+
+React 19 · TypeScript · Vite · Tailwind 4 · Vitest · Biome. Rules for every game: [`game-rules.txt`](game-rules.txt). Roadmap: [`PLAN.md`](PLAN.md).
 
 ## Run
 
@@ -22,7 +30,7 @@ allgames/<id>/index.html   one HTML entry per game (loads src/games/<id>/main.ts
 src/games/registry.ts      single source of truth: id, title, category, rules text, video, ready flag
 src/games/<id>/            types.ts · logic.ts · engine.ts · ai.ts? · <Game>.tsx · main.tsx · *.test.ts
 src/shared/                GameEngine interface, useGame hook (undo/redo), shared UI, RulesPanel
-design/                    static visual prototypes kept as reference for the UI-polish phase
+design/                    prototypes and the design mock + guide (open design/mock/design-guide.html)
 ```
 
 `vite.config.ts` builds the homepage plus every registry entry with `ready: true`; there is nothing to register by hand.
@@ -44,3 +52,21 @@ Saving and difficulty: pass `persistId: '<id>'` to `useMatch` to save/resume the
 
 Games that don't fit the strict two-player alternating-turn engine (dice, hidden info, cards) can extend it
 in Phase 2; keep their rules in `logic.ts` and unit-tested all the same.
+
+## Design
+
+The look is documented in [`design/mock/design-guide.html`](design/mock/design-guide.html) (colours, type, components, motion, board look).
+The homepage card hover and preview animations are deliberately fixed: `src/home/preserved-hub.css` and `src/styles/preserved-game.css` are
+verbatim copies of the original prototypes, and `node design/mock/check-motion.mjs` fails if they drift. Re-theme through
+`src/styles/tavern.css` (colours, fonts, new components) instead of editing them.
+
+Sounds are generated with the Web Audio API in `src/shared/sound.ts`; no audio files are shipped.
+
+## Contributing
+
+1. Branch from `main`, make a change, then run `npm run lint && npm run typecheck && npm test && npm run build`.
+2. Keep game rules in pure `logic.ts` files with unit tests; keep UI in the game's `.tsx`.
+
+## Licence
+
+Source code: ISC (see `package.json`). Bundled fonts (Fraunces, Karla, JetBrains Mono, Fredoka) are under the SIL Open Font License 1.1.
