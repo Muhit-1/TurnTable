@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { getGame } from '../games/registry';
+import { IconClose, IconPlay } from './icons';
 
 /** How-to-play dialog (the preserved `.gp-modal` look) with the rules and the video link for a game, read from the registry. */
 export function RulesDialog({
@@ -44,7 +45,7 @@ export function RulesDialog({
             How to play {g.title}
           </h2>
           <button type="button" className="gp-modal-close" aria-label="Close rules" onClick={onClose}>
-            ✕
+            <IconClose />
           </button>
         </div>
         <dl className="gp-rules">
@@ -57,7 +58,7 @@ export function RulesDialog({
         </dl>
         <div className="gp-video">
           <a className="gp-video-link" href={g.videoUrl} target="_blank" rel="noreferrer">
-            ▶ {g.videoTitle}
+            <IconPlay /> {g.videoTitle}
           </a>
         </div>
       </div>

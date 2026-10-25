@@ -9,6 +9,7 @@ import {
   TurnBanner,
 } from '../../shared/components';
 import type { PlayerId } from '../../shared/engine';
+import { IconDice } from '../../shared/icons';
 import { useLevel } from '../../shared/level';
 import { useMatch } from '../../shared/useMatch';
 import { chooseMove } from './ai';
@@ -108,7 +109,7 @@ export default function Ludo() {
                   rollKey={JSON.stringify(state.last)}
                 />
               ) : (
-                '🎲'
+                <IconDice />
               )}
             </div>
             <button

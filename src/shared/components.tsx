@@ -14,12 +14,23 @@ import '../styles/preserved-game.css';
 import '../styles/tavern.css';
 import '../styles/shell.css';
 import type { PlayerId } from './engine';
+import {
+  IconEqual,
+  IconHelp,
+  IconHome,
+  IconMenu,
+  IconRedo,
+  IconRestart,
+  IconTrophy,
+  IconUndo,
+  IconVolume,
+  IconVolumeOff,
+} from './icons';
 import { notify } from './notify';
 import { RulesDialog } from './RulesPanel';
 import { rememberRecent } from './recent';
 import { isMuted, setMuted, sfx, subscribeMuted } from './sound';
 import { applyTable, loadTable, saveTable, TABLE_THEMES } from './tableTheme';
-import { applyTheme, currentTheme, setTheme, useTheme } from './theme';
 
 export type Mode = 'pvp' | 'vs-cpu';
 
@@ -143,33 +154,51 @@ export function GameControls({
 }) {
   return (
     <div className="gp-actions">
-      <button type="button" className="gp-btn" disabled={!canUndo} onClick={onUndo}>
-        ↶ Undo
+      <button type="button" className="gp-btn" disabled={!canUndo} onClick={onUndo} aria-label="Undo">
+        <IconUndo /> Undo
       </button>
       <button type="button" className="gp-btn" disabled={!canRedo} onClick={onRedo}>
-        ↷ Redo
+        <IconRedo /> Redo
       </button>
       <button type="button" className="gp-btn" onClick={onRestart}>
-        ⟲ Restart
+        <IconRestart /> Restart
       </button>
     </div>
   );
 }
 
-function TableTools({ onRules }: { onRules: () => void }) {
+function TopTools({ onRules }: { onRules: () => void }) {
   const [table, setTable] = useState(loadTable);
   const muted = useSyncExternalStore(subscribeMuted, isMuted, () => false);
-  const [theme, toggleTheme] = useTheme();
+  const menu = useRef<HTMLDetailsElement>(null);
   useEffect(() => {
     applyTable(table);
   }, [table]);
+  // close the menu on an outside click or Escape
+  useEffect(() => {
+    const close = (e: Event) => {
+      const m = menu.current;
+      if (
+        m?.open &&
+        (e.type === 'keydown' ? (e as KeyboardEvent).key === 'Escape' : !m.contains(e.target as Node))
+      )
+        m.open = false;
+    };
+    document.addEventListener('pointerdown', close);
+    document.addEventListener('keydown', close);
+    return () => {
+      document.removeEventListener('pointerdown', close);
+      document.removeEventListener('keydown', close);
+    };
+  }, []);
   return (
     <div className="table-tools">
-      <details className="menu">
-        <summary className="icon-pill" title="Table colour">
-          🎨 <span className="lbl">Table</span>
+      <details className="menu" ref={menu}>
+        <summary className="icon-pill" aria-label="Menu" title="Menu">
+          <IconMenu />
         </summary>
         <div className="menu-pop">
+          <p className="menu-label">Table colour</p>
           <fieldset className="swatches">
             <legend className="sr-only">Table colour</legend>
             {TABLE_THEMES.map((t) => (
@@ -188,39 +217,32 @@ function TableTools({ onRules }: { onRules: () => void }) {
               />
             ))}
           </fieldset>
+          <button
+            type="button"
+            className="menu-row"
+            aria-pressed={!muted}
+            aria-keyshortcuts="m"
+            onClick={() => {
+              setMuted(!muted);
+              if (muted) sfx.tick();
+            }}
+          >
+            {muted ? <IconVolumeOff /> : <IconVolume />} {muted ? 'Sound off' : 'Sound on'}
+          </button>
+          <a className="menu-row" href="../../">
+            <IconHome /> All games
+          </a>
         </div>
       </details>
       <button
         type="button"
-        className="icon-pill"
+        className="icon-pill round"
         aria-keyshortcuts="?"
+        aria-label="How to play"
         title="How to play (?)"
         onClick={onRules}
       >
-        📖 <span className="lbl">Rules</span>
-      </button>
-      <button
-        type="button"
-        className="icon-pill"
-        aria-pressed={theme === 'dark'}
-        aria-keyshortcuts="t"
-        title="Light or dark (t)"
-        onClick={toggleTheme}
-      >
-        {theme === 'dark' ? '🌙' : '☀️'} <span className="lbl">{theme === 'dark' ? 'Dark' : 'Light'}</span>
-      </button>
-      <button
-        type="button"
-        className="icon-pill"
-        aria-pressed={!muted}
-        aria-keyshortcuts="m"
-        title="Sound (m)"
-        onClick={() => {
-          setMuted(!muted);
-          if (muted) sfx.tick();
-        }}
-      >
-        {muted ? '🔇' : '🔊'} <span className="lbl">{muted ? 'Sound off' : 'Sound on'}</span>
+        <IconHelp />
       </button>
     </div>
   );
@@ -260,7 +282,7 @@ function Overlays() {
         <div className="overlay top" key={award.id}>
           <button type="button" className="award-card" onClick={() => setAward(null)} aria-label="Dismiss">
             <span className="medal" aria-hidden="true">
-              {award.result === 'won' ? '🏆' : '🤝'}
+              {award.result === 'won' ? <IconTrophy /> : <IconEqual />}
             </span>
             <span className="kicker">{award.result === 'won' ? 'Game over' : 'Nobody wins'}</span>
             <span className="title">{award.text}</span>
@@ -327,8 +349,13 @@ function useFit(slot: RefObject<HTMLElement | null>, el: RefObject<HTMLElement |
       const natural = target.firstElementChild?.getBoundingClientRect();
       if (!natural || natural.width === 0 || natural.height === 0) return;
       const room = box.getBoundingClientRect();
-      const scale = Math.min(room.width / natural.width, room.height / natural.height);
-      target.style.zoom = String(Math.max(0.3, Math.min(4.5, scale)));
+      const cs = getComputedStyle(box);
+      const w = room.width - Number.parseFloat(cs.paddingLeft) - Number.parseFloat(cs.paddingRight);
+      const h = room.height - Number.parseFloat(cs.paddingTop) - Number.parseFloat(cs.paddingBottom);
+      // Leave a margin around the board and never let it grow past a comfortable size.
+      const fill = Math.min(w / natural.width, h / natural.height) * 0.92;
+      const cap = 780 / Math.max(natural.width, natural.height);
+      target.style.zoom = String(Math.max(0.3, Math.min(fill, cap)));
     };
     const schedule = () => {
       if (!raf) raf = requestAnimationFrame(fit);
@@ -359,15 +386,16 @@ export function GameShell({ id, title, children }: { id: string; title: string; 
   const at = items.findIndex((c) => isValidElement(c) && c.type === BoardFrame);
   const before = at < 0 ? [] : items.slice(0, at);
   const board = at < 0 ? null : items[at];
-  const after = at < 0 ? items : items.slice(at + 1);
+  const rest = at < 0 ? items : items.slice(at + 1);
+  const controls = rest.filter((c) => isValidElement(c) && c.type === GameControls);
+  const after = rest.filter((c) => !controls.includes(c));
   useFit(slot, fit, at < 0);
   useEffect(() => {
     document.body.classList.add('theme-tavern');
-    applyTheme();
     rememberRecent(id);
     return () => document.body.classList.remove('theme-tavern');
   }, [id]);
-  // Keyboard: arrows move around the board, ? opens the rules, m mutes, t flips the theme.
+  // Keyboard: arrows move around the board, ? opens the rules, m mutes.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const t = e.target as HTMLElement;
@@ -375,7 +403,6 @@ export function GameShell({ id, title, children }: { id: string; title: string; 
       if (stage.current) arrowFocus(e, stage.current);
       if (e.key === '?') setRulesOpen((o) => !o);
       else if (e.key === 'm') setMuted(!isMuted());
-      else if (e.key === 't') setTheme(currentTheme() === 'dark' ? 'light' : 'dark');
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -386,12 +413,10 @@ export function GameShell({ id, title, children }: { id: string; title: string; 
         Skip to the board
       </a>
       <nav className="gp-nav" aria-label="Game navigation">
-        <a className="gp-back" href="../../" title="All games">
-          ← <span className="lbl">All games</span>
+        <a className="gp-wordmark" href="../../" title="All games">
+          TurnTable
         </a>
-        <h1 className="game-title">{title}</h1>
-        <span className="gp-wordmark">TurnTable</span>
-        <TableTools onRules={() => setRulesOpen(true)} />
+        <TopTools onRules={() => setRulesOpen(true)} />
       </nav>
       {/* A click on any button gets a soft tick; moves play their own (louder) note first and win the debounce. */}
       {/* biome-ignore lint/a11y/useKeyWithClickEvents: delegated sound only, the buttons inside handle keys */}
@@ -409,7 +434,13 @@ export function GameShell({ id, title, children }: { id: string; title: string; 
           <div className="ts-panel">{items}</div>
         ) : (
           <>
-            <div className={`ts-panel left${before.length ? '' : ' empty'}`}>{before}</div>
+            <div className="ts-left">
+              <div className="ts-panel left">
+                <h1 className="card-title">{title}</h1>
+                {before}
+              </div>
+              {controls.length > 0 && <div className="ts-panel controls">{controls}</div>}
+            </div>
             <div className="ts-center" ref={slot}>
               <div className="ts-fit" ref={fit}>
                 {board}

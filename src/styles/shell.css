@@ -520,82 +520,10 @@ button.award-card {
 }
 
 /* ---- Dark theme: the stage becomes a dark walnut board; the light Tailwind cards inside keep dark text ---- */
-[data-theme="dark"] .ts-stage {
-  --surface: rgb(var(--walnut-rgb));
-  --ink: #ede1c8;
-  --muted: #d8cbae;
-  --line: rgba(237, 225, 200, 0.22);
-  --accent: #e2b876;
-  --accent-2: #33b8a3;
-  color: #ede1c8;
-  background: linear-gradient(180deg, rgb(var(--walnut-2-rgb)), rgb(var(--walnut-rgb)));
-  border-color: rgb(var(--brass-rgb) / 0.55);
-  box-shadow:
-    var(--shadow-deep),
-    inset 0 0 0 5px rgba(0, 0, 0, 0.2),
-    inset 0 0 0 6px rgb(var(--brass-rgb) / 0.3);
-}
-[data-theme="dark"] .ts-stage .turn-line {
-  color: #f6ecd6;
-}
-[data-theme="dark"] .ts-stage .seg {
-  background: rgba(0, 0, 0, 0.25);
-  border-color: rgba(237, 225, 200, 0.18);
-}
-[data-theme="dark"] .ts-stage .seg button {
-  color: #d8cbae;
-}
-[data-theme="dark"] .ts-stage .seg button[aria-pressed="true"] {
-  background: #e2b876;
-  color: #2b2016;
-}
-[data-theme="dark"] .ts-stage .score-chip {
-  background: rgba(0, 0, 0, 0.25);
-  border-color: rgba(237, 225, 200, 0.16);
-}
-[data-theme="dark"] .ts-stage .score-chip b {
-  color: #e2b876;
-}
-[data-theme="dark"] .ts-stage :is([class*="text-neutral"], [class*="text-slate"], [class*="text-gray"]) {
-  color: #d8cbae;
-}
-[data-theme="dark"]
-  .ts-stage
-  :is(
-    .bg-white,
-    [class*="bg-amber-"],
-    [class*="bg-neutral-"],
-    [class*="bg-sky-"],
-    table,
-    input,
-    select,
-    textarea,
-    .pcard,
-    .tile-wood
-  ) {
-  color: #2b2016;
-}
-[data-theme="dark"]
-  .ts-stage
-  :is(.bg-neutral-900, [class*="bg-neutral-8"], [class*="bg-amber-9"], [class*="bg-amber-8"]) {
-  color: #f6ecd6;
-}
-[data-theme="dark"] .ts-stage .gp-btn:disabled {
-  opacity: 0.45;
-}
 .ts-stage :is(input, select, textarea) {
   background: #fffaf0;
   color: #2b2016;
   border-color: rgba(43, 32, 22, 0.35);
-}
-[data-theme="dark"]
-  .ts-stage
-  :is(.bg-white, [class*="bg-amber-"], [class*="bg-sky-"], table, .pcard, .tile-wood)
-  :is([class*="text-neutral"], [class*="text-slate"], [class*="text-gray"]) {
-  color: #5b4630;
-}
-[data-theme="dark"] .ts-stage :is(.bg-white, [class*="bg-amber-"], table) :is(.text-xs, .text-sm) {
-  color: #5b4630;
 }
 
 /* ---- Top-bar tools ---- */
@@ -664,20 +592,6 @@ button.award-card {
 }
 
 /* the stage is no longer one big parchment slab in dark mode: only the side panels are */
-[data-theme="dark"] .ts-stage {
-  background: none;
-  border: 0;
-  box-shadow: none;
-}
-[data-theme="dark"] .ts-panel {
-  color: #ede1c8;
-  background: linear-gradient(180deg, rgb(var(--walnut-2-rgb)), rgb(var(--walnut-rgb)));
-  border-color: rgb(var(--brass-rgb) / 0.55);
-  box-shadow:
-    var(--shadow-card),
-    inset 0 0 0 4px rgba(0, 0, 0, 0.2),
-    inset 0 0 0 5px rgb(var(--brass-rgb) / 0.3);
-}
 
 @supports not (height: 100dvh) {
   .gp-page {
@@ -793,4 +707,206 @@ button.award-card {
   .ts-panel.empty {
     display: none;
   }
+}
+
+/* ============ Layout v3: matches the Canva reference (TurnTable left, menu + rules right, score card and controls on the left, board in the middle) ============ */
+.gp-page {
+  padding: 10px clamp(12px, 2.2vw, 36px) 14px;
+}
+.gp-nav {
+  padding: 0 0 10px;
+  justify-content: space-between;
+}
+.gp-nav .gp-wordmark {
+  margin: 0;
+  font-size: 24px;
+  color: var(--on-table);
+  text-decoration: none;
+}
+.table-tools {
+  margin-left: auto;
+}
+.icon-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 40px;
+  height: 40px;
+  padding: 0 14px;
+}
+.icon-pill.round {
+  width: 40px;
+  padding: 0;
+  border-radius: 50%;
+}
+.icon-pill svg {
+  width: 20px;
+  height: 20px;
+}
+.gp-btn svg {
+  width: 16px;
+  height: 16px;
+}
+.menu > summary {
+  list-style: none;
+}
+.menu-pop {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 190px;
+}
+.menu-label {
+  margin: 0;
+  font: 700 11px var(--font-body);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--brass-soft);
+}
+.menu-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: 10px;
+  border: 0;
+  background: rgb(var(--charred-oak-rgb) / 0.55);
+  color: var(--parchment);
+  font: 600 14px var(--font-body);
+  cursor: pointer;
+  text-decoration: none;
+  text-align: left;
+}
+.menu-row:hover {
+  background: rgb(var(--charred-oak-rgb) / 0.85);
+}
+
+.ts-stage {
+  grid-template-columns: minmax(200px, 250px) minmax(0, 1fr) minmax(200px, 250px);
+  gap: clamp(10px, 2vw, 28px);
+}
+.ts-left {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-self: start;
+  min-height: 0;
+}
+.ts-panel {
+  overflow: hidden;
+  scrollbar-width: none;
+  min-width: 0;
+  align-self: stretch;
+}
+.ts-panel::-webkit-scrollbar {
+  display: none;
+}
+.ts-panel.right {
+  align-self: start;
+  max-height: 100%;
+  overflow-y: auto;
+}
+.ts-panel.controls {
+  padding: 10px;
+}
+.card-title {
+  margin: 0;
+  width: 100%;
+  text-align: center;
+  font: italic 600 22px / 1.1 var(--font-display);
+  color: #2b2016;
+}
+.ts-center {
+  padding: clamp(16px, 3vw, 48px);
+  overflow: hidden;
+}
+.ts-stage.single .ts-panel {
+  align-self: center;
+}
+
+/* the rules pop-up is centred in the window (Tailwind's reset removes the browser's default centring) */
+dialog.gp-modal {
+  margin: auto;
+  position: fixed;
+  inset: 0;
+  max-height: min(86vh, 720px);
+  width: min(480px, calc(100vw - 32px));
+  height: fit-content;
+}
+.gp-modal-close svg {
+  width: 16px;
+  height: 16px;
+}
+.gp-video-link svg {
+  width: 14px;
+  height: 14px;
+}
+
+@media (max-width: 900px) and (orientation: portrait), (max-width: 560px) {
+  .ts-stage {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr) auto auto;
+    gap: 6px;
+  }
+  .ts-left {
+    display: contents;
+  }
+  .ts-panel.left {
+    order: 1;
+  }
+  .ts-center {
+    order: 2;
+    padding: 8px;
+  }
+  .ts-panel.controls {
+    order: 3;
+  }
+  .ts-panel.right {
+    order: 4;
+  }
+  .card-title {
+    font-size: 16px;
+    width: auto;
+  }
+  .gp-nav .gp-wordmark {
+    display: inline;
+    font-size: 20px;
+  }
+}
+@media (orientation: landscape) and (max-height: 560px) {
+  .ts-stage {
+    grid-template-columns: minmax(150px, 200px) minmax(0, 1fr) minmax(150px, 200px);
+  }
+  .gp-nav .gp-wordmark {
+    display: inline;
+    font-size: 18px;
+  }
+  .gp-nav {
+    padding-bottom: 4px;
+  }
+  .card-title {
+    font-size: 16px;
+  }
+}
+@media (min-width: 1500px) and (min-height: 800px) {
+  .ts-stage {
+    grid-template-columns: minmax(230px, 290px) minmax(0, 1fr) minmax(230px, 290px);
+  }
+}
+@media (min-width: 1900px) and (min-height: 1000px) {
+  .ts-stage {
+    grid-template-columns: minmax(260px, 340px) minmax(0, 1fr) minmax(260px, 340px);
+  }
+}
+.seg button {
+  white-space: nowrap;
+  padding: 6px 11px;
+  font-size: 13px;
+}
+@media (max-width: 560px) and (max-height: 700px) {
+  .card-title { display: none; }
+  .ts-panel.left { max-height: 24dvh; }
+  .ts-panel.right { max-height: 15dvh; overflow-y: auto; }
+  .ts-center { padding: 4px; }
 }

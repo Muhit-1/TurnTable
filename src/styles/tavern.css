@@ -1700,26 +1700,6 @@ body.theme-tavern {
 }
 
 /* ---- Dark homepage ---- */
-[data-theme="dark"] body.theme-hub {
-  color: var(--parchment);
-  background:
-    radial-gradient(1100px 700px at 12% -10%, rgba(201, 144, 63, 0.17), transparent 55%),
-    radial-gradient(900px 600px at 100% 10%, rgba(181, 80, 46, 0.13), transparent 50%), #2b2016;
-  background-attachment: fixed;
-}
-[data-theme="dark"] .theme-hub .wordmark {
-  color: var(--brass-soft);
-}
-[data-theme="dark"] .theme-hub .tagline {
-  color: var(--parchment-dim);
-}
-[data-theme="dark"] .theme-hub .filters {
-  background: rgba(43, 32, 22, 0.78);
-  border-bottom-color: rgba(237, 225, 200, 0.14);
-}
-[data-theme="dark"] .theme-hub .filters .count {
-  color: inherit;
-}
 .theme-hub .hub-tools {
   display: flex;
   justify-content: center;
@@ -1735,15 +1715,6 @@ body.theme-tavern {
   border: 2px solid var(--ink, #2b2016);
   background: #fff;
   color: #2b2016;
-}
-.theme-hub .hub-pill {
-  font: 700 13px var(--font-body);
-  padding: 9px 16px;
-  border-radius: 999px;
-  border: 2px solid #2b2016;
-  background: #fff;
-  color: #2b2016;
-  cursor: pointer;
 }
 .theme-hub .recent {
   max-width: 1400px;

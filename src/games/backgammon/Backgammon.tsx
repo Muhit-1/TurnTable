@@ -9,6 +9,7 @@ import {
   TurnBanner,
 } from '../../shared/components';
 import type { PlayerId } from '../../shared/engine';
+import { IconDice } from '../../shared/icons';
 import { useLevel } from '../../shared/level';
 import { useMatch } from '../../shared/useMatch';
 import { chooseMove } from './ai';
@@ -162,7 +163,7 @@ export default function Backgammon() {
           disabled={!humanTurn || !needsRoll}
           onClick={() => play({ kind: 'roll' })}
         >
-          🎲 Roll
+          <IconDice /> Roll
         </button>
       </div>
       <div className="text-xs text-neutral-600">

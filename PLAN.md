@@ -91,7 +91,7 @@ Goal: make it feel like one product. Because Phase 1–2 isolate logic from rend
 
 ### Design system
 - [x] Design tokens (colors, radius, shadows, fonts) as CSS variables in `src/styles/tavern.css`
-- [x] Dark / light theme + remembered preference (`src/shared/theme.ts`; applied before first paint, no flash)
+- [x] Table colours (8 wood tones) re-tint the whole page; the separate light/dark switch was removed as redundant
 - [x] Shared components restyled: buttons, turn banner, scoreboard, mode toggle, controls, board frame, rules dialog (`.gp-modal`), toast and end-of-game popup (`src/shared/notify.ts`)
 - [x] Redesign homepage: category filters, search, "recently played", animated cards, theme toggle
 

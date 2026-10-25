@@ -8,6 +8,7 @@ import {
   Scoreboard,
   TurnBanner,
 } from '../../shared/components';
+import { IconDice } from '../../shared/icons';
 import { useLevel } from '../../shared/level';
 import { useMatch } from '../../shared/useMatch';
 import { chooseMove } from './ai';
@@ -136,7 +137,7 @@ export default function Yahtzee() {
             disabled={!humanTurn || state.rollsLeft === 0}
             onClick={() => play({ kind: 'roll' })}
           >
-            🎲 Roll ({state.rollsLeft} left)
+            <IconDice /> Roll ({state.rollsLeft} left)
           </button>
         </div>
       </BoardFrame>

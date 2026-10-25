@@ -1,7 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { CATEGORY_LABELS, type Category, games, getGame } from '../games/registry';
 import { recentGames } from '../shared/recent';
-import { applyTheme, useTheme } from '../shared/theme';
 import { CARD_HTML } from './cardHtml';
 
 type Filter = 'all' | Category;
@@ -20,9 +19,7 @@ const SHORT: Record<Category, string> = {
 export default function Home() {
   const [filter, setFilter] = useState<Filter>('all');
   const [query, setQuery] = useState('');
-  const [theme, toggleTheme] = useTheme();
   const [recent] = useState(recentGames);
-  useEffect(() => applyTheme(), []);
   const q = query.trim().toLowerCase();
   const count = (c: Filter) => (c === 'all' ? games.length : games.filter((g) => g.category === c).length);
   return (
@@ -41,9 +38,6 @@ export default function Home() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
-        <button type="button" className="hub-pill" aria-pressed={theme === 'dark'} onClick={toggleTheme}>
-          {theme === 'dark' ? '🌙 Dark' : '☀️ Light'}
-        </button>
       </div>
 
       {recent.length > 0 && !q && (

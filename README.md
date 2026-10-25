@@ -7,7 +7,7 @@ Play hot-seat on one screen, or against the computer (easy / medium / hard) in m
 - Large boards on big screens, fully responsive down to a phone.
 - Soft sound effects (a gentle "tong" per move, a chime for a win) with a mute button.
 - Undo / redo, and every game resumes where you left it.
-- Light and dark themes, keyboard play (arrow keys), screen-reader labels, colour-blind-safe pieces.
+- Table colours, keyboard play (arrow keys), screen-reader labels, colour-blind-safe pieces.
 - Installable and works offline (service worker precaches every game).
 - No accounts, no server: everything runs and saves locally in your browser.
 

@@ -26,7 +26,7 @@ export function depthFor(level: Level, depths: Record<Level, number>): number {
 
 export function LevelPicker({ level, onChange }: { level: Level; onChange: (l: Level) => void }) {
   return (
-    <div className="flex items-center gap-2 text-sm">
+    <div className="flex flex-wrap items-center justify-center gap-2 text-sm">
       Difficulty
       {LEVEL_NAMES.map((l) => (
         <button

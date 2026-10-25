@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react';
 import { BoardFrame, Die, GameShell, possessive, Scoreboard, TurnBanner } from '../../shared/components';
+import { IconDice } from '../../shared/icons';
 import { useMatch } from '../../shared/useMatch';
 import { FINAL, LADDERS, SNAKES, snakesEngine } from './engine';
 
@@ -76,7 +77,7 @@ export default function SnakesAndLadders() {
         disabled={status.state !== 'playing'}
         onClick={() => game.play('roll')}
       >
-        🎲 Roll the die
+        <IconDice /> Roll the die
       </button>
       <button type="button" className="px-4 py-2 rounded border bg-white" onClick={game.reset}>
         New game
