@@ -130,22 +130,20 @@ export default function Backgammon() {
         {status.state === 'won' && `${names[status.winner]} bears off all ${CHECKERS} checkers and wins!`}
       </TurnBanner>
 
-      <div className="max-w-full overflow-auto">
-        <BoardFrame>
-          <div className="flex border-4 border-amber-900 bg-amber-100">
-            <div className="flex flex-col justify-between">
-              <div className="flex">{half(TOP.slice(0, 6), true)}</div>
-              <div className="flex">{half(BOTTOM.slice(0, 6), false)}</div>
-            </div>
-            {barCell}
-            <div className="flex flex-col justify-between">
-              <div className="flex">{half(TOP.slice(6), true)}</div>
-              <div className="flex">{half(BOTTOM.slice(6), false)}</div>
-            </div>
-            {offTray}
+      <BoardFrame>
+        <div className="flex border-4 border-amber-900 bg-amber-100">
+          <div className="flex flex-col justify-between">
+            <div className="flex">{half(TOP.slice(0, 6), true)}</div>
+            <div className="flex">{half(BOTTOM.slice(0, 6), false)}</div>
           </div>
-        </BoardFrame>
-      </div>
+          {barCell}
+          <div className="flex flex-col justify-between">
+            <div className="flex">{half(TOP.slice(6), true)}</div>
+            <div className="flex">{half(BOTTOM.slice(6), false)}</div>
+          </div>
+          {offTray}
+        </div>
+      </BoardFrame>
 
       <div className="flex items-center gap-3">
         <div className="flex gap-2 text-3xl" aria-live="polite">

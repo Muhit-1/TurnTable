@@ -1,5 +1,12 @@
 import { useMemo } from 'react';
-import { GameShell, ModeToggle, possessive, Scoreboard, TurnBanner } from '../../shared/components';
+import {
+  BoardFrame,
+  GameShell,
+  ModeToggle,
+  possessive,
+  Scoreboard,
+  TurnBanner,
+} from '../../shared/components';
 import { type Card, cardLabel, rankLabel, SUIT_SYMBOL } from '../../shared/deck';
 import type { PlayerId } from '../../shared/engine';
 import { useLevel } from '../../shared/level';
@@ -59,34 +66,39 @@ export default function GoFish() {
         {state.books[opponent].length > 0 && ` Books: ${state.books[opponent].map(rankLabel).join(' ')}`}
       </div>
 
-      <PassGate player={viewer} name={names[viewer]} enabled={pvp && !over}>
-        <div className="flex flex-col items-center gap-3">
-          <div className="text-sm font-medium">
-            {possessive(names[viewer])} hand
-            {state.books[viewer].length > 0 && ` — books: ${state.books[viewer].map(rankLabel).join(' ')}`}
-          </div>
-          <div className="flex flex-wrap justify-center gap-1 max-w-md">
-            {hand.map((c) => (
-              <CardFace key={`${c.rank}${c.suit}`} card={c} />
-            ))}
-          </div>
-          {canAsk && (
-            <div className="flex flex-wrap justify-center gap-2 max-w-md">
-              <span className="text-sm w-full text-center">Ask {names[opponent]} for:</span>
-              {ranksHeld(state.hands[viewer]).map((r) => (
-                <button
-                  key={r}
-                  type="button"
-                  className="px-3 py-2 rounded border bg-amber-100 hover:bg-amber-200"
-                  onClick={() => play({ kind: 'ask', rank: r })}
-                >
-                  {rankLabel(r)}s ({countRank(state.hands[viewer], r)})
-                </button>
-              ))}
+      <BoardFrame>
+        <div className="board-paper flex flex-col items-center gap-3 p-5">
+          <PassGate player={viewer} name={names[viewer]} enabled={pvp && !over}>
+            <div className="flex flex-col items-center gap-3">
+              <div className="text-sm font-medium">
+                {possessive(names[viewer])} hand
+                {state.books[viewer].length > 0 &&
+                  ` — books: ${state.books[viewer].map(rankLabel).join(' ')}`}
+              </div>
+              <div className="flex flex-wrap justify-center gap-1 max-w-md">
+                {hand.map((c) => (
+                  <CardFace key={`${c.rank}${c.suit}`} card={c} />
+                ))}
+              </div>
+              {canAsk && (
+                <div className="flex flex-wrap justify-center gap-2 max-w-md">
+                  <span className="text-sm w-full text-center">Ask {names[opponent]} for:</span>
+                  {ranksHeld(state.hands[viewer]).map((r) => (
+                    <button
+                      key={r}
+                      type="button"
+                      className="px-3 py-2 rounded border bg-amber-100 hover:bg-amber-200"
+                      onClick={() => play({ kind: 'ask', rank: r })}
+                    >
+                      {rankLabel(r)}s ({countRank(state.hands[viewer], r)})
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
-          )}
+          </PassGate>
         </div>
-      </PassGate>
+      </BoardFrame>
 
       <p className="text-xs text-neutral-500 max-w-sm text-center">
         Suit symbols: {Object.values(SUIT_SYMBOL).join(' ')} — a book is four cards of one rank.

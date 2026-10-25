@@ -29,7 +29,7 @@ function Grid({ title, cell }: { title: string; cell: (i: number) => ReactNode }
   return (
     <div>
       <div className="text-sm font-medium text-center mb-1">{title}</div>
-      <BoardFrame frame={['#35506b', '#1f3347']}>
+      <div>
         <div
           className="grid gap-px rounded-lg bg-sky-900 p-px overflow-hidden"
           style={{ gridTemplateColumns: `repeat(${SIZE}, 2rem)` }}
@@ -38,7 +38,7 @@ function Grid({ title, cell }: { title: string; cell: (i: number) => ReactNode }
             <div key={`${COLS[i % SIZE]}${Math.floor(i / SIZE) + 1}`}>{cell(i)}</div>
           ))}
         </div>
-      </BoardFrame>
+      </div>
     </div>
   );
 }
@@ -133,38 +133,41 @@ export default function Battleship() {
         {status.state === 'won' && `${names[status.winner]} sinks the whole fleet and wins!`}
       </TurnBanner>
 
-      <PassGate player={viewer} name={names[viewer]} enabled={pvp && !over}>
-        <div className="flex flex-col items-center gap-3">
-          {placing && canAct && (
-            <div className="flex gap-2 items-center">
-              <button
-                type="button"
-                className="px-3 py-1 rounded border bg-white"
-                onClick={() => setHorizontal((h) => !h)}
-              >
-                Direction: {horizontal ? 'horizontal →' : 'vertical ↓'}
-              </button>
-              <button
-                type="button"
-                className="px-3 py-1 rounded border bg-white"
-                onClick={() => play({ kind: 'randomize' })}
-              >
-                Place the rest randomly
-              </button>
+      <BoardFrame frame={['#35506b', '#1f3347']}>
+        <PassGate player={viewer} name={names[viewer]} enabled={pvp && !over}>
+          <div className="flex flex-col items-center gap-3">
+            {placing && canAct && (
+              <div className="flex gap-2 items-center">
+                <button
+                  type="button"
+                  className="px-3 py-1 rounded border bg-white"
+                  onClick={() => setHorizontal((h) => !h)}
+                >
+                  Direction: {horizontal ? 'horizontal →' : 'vertical ↓'}
+                </button>
+                <button
+                  type="button"
+                  className="px-3 py-1 rounded border bg-white"
+                  onClick={() => play({ kind: 'randomize' })}
+                >
+                  Place the rest randomly
+                </button>
+              </div>
+            )}
+            <div className="flex flex-wrap justify-center gap-4">
+              <Grid title={`${possessive(names[viewer])} fleet`} cell={ownCell} />
+              {!placing && <Grid title="Enemy waters" cell={enemyCell} />}
             </div>
-          )}
-          <div className="flex flex-wrap justify-center gap-4">
-            <Grid title={`${possessive(names[viewer])} fleet`} cell={ownCell} />
-            {!placing && <Grid title="Enemy waters" cell={enemyCell} />}
+            {!placing && (
+              <div className="text-xs text-neutral-600">
+                Enemy ships sunk:{' '}
+                {sunkOnEnemy.length ? sunkOnEnemy.map((s) => s.name).join(', ') : 'none yet'} (
+                {sunkOnEnemy.length}/{FLEET.length})
+              </div>
+            )}
           </div>
-          {!placing && (
-            <div className="text-xs text-neutral-600">
-              Enemy ships sunk: {sunkOnEnemy.length ? sunkOnEnemy.map((s) => s.name).join(', ') : 'none yet'}{' '}
-              ({sunkOnEnemy.length}/{FLEET.length})
-            </div>
-          )}
-        </div>
-      </PassGate>
+        </PassGate>
+      </BoardFrame>
 
       {over && !pvp && (
         <div className="text-xs text-neutral-600">

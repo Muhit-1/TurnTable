@@ -1,5 +1,12 @@
 import { type CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { GameShell, type Mode, ModeToggle, Scoreboard, TurnBanner } from '../../shared/components';
+import {
+  BoardFrame,
+  GameShell,
+  type Mode,
+  ModeToggle,
+  Scoreboard,
+  TurnBanner,
+} from '../../shared/components';
 import type { Level } from '../../shared/level';
 import { useLevel } from '../../shared/level';
 import { chooseMove } from './ai';
@@ -33,33 +40,37 @@ export default function TwentyQuestions() {
       <ModeToggle mode={mode} onChange={changeMode} />
       {mode === 'vs-cpu' && levelPicker}
       <Scoreboard names={names} scores={scores} />
-      {started === null ? (
-        <Setup
-          mode={mode}
-          answerer={names[answerer]}
-          guesser={names[guesser]}
-          onStart={(secret) => setStarted({ secret })}
-        />
-      ) : (
-        <Round
-          key={round}
-          secret={started.secret}
-          computerGuesses={mode === 'vs-cpu'}
-          level={level}
-          guesserName={names[guesser]}
-          answererName={names[answerer]}
-          onFinished={(guesserWon) =>
-            setScores((s) => ({
-              ...s,
-              [guesserWon ? guesser : answerer]: s[guesserWon ? guesser : answerer] + 1,
-            }))
-          }
-          onNext={() => {
-            setRound((r) => r + 1);
-            setStarted(null);
-          }}
-        />
-      )}
+      <BoardFrame>
+        <div className="board-paper flex flex-col items-center gap-3 p-5">
+          {started === null ? (
+            <Setup
+              mode={mode}
+              answerer={names[answerer]}
+              guesser={names[guesser]}
+              onStart={(secret) => setStarted({ secret })}
+            />
+          ) : (
+            <Round
+              key={round}
+              secret={started.secret}
+              computerGuesses={mode === 'vs-cpu'}
+              level={level}
+              guesserName={names[guesser]}
+              answererName={names[answerer]}
+              onFinished={(guesserWon) =>
+                setScores((s) => ({
+                  ...s,
+                  [guesserWon ? guesser : answerer]: s[guesserWon ? guesser : answerer] + 1,
+                }))
+              }
+              onNext={() => {
+                setRound((r) => r + 1);
+                setStarted(null);
+              }}
+            />
+          )}
+        </div>
+      </BoardFrame>
     </GameShell>
   );
 }

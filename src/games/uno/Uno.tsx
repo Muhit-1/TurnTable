@@ -1,5 +1,12 @@
 import { useMemo, useState } from 'react';
-import { GameShell, ModeToggle, possessive, Scoreboard, TurnBanner } from '../../shared/components';
+import {
+  BoardFrame,
+  GameShell,
+  ModeToggle,
+  possessive,
+  Scoreboard,
+  TurnBanner,
+} from '../../shared/components';
 import type { PlayerId } from '../../shared/engine';
 import { useLevel } from '../../shared/level';
 import { PassGate } from '../../shared/PassGate';
@@ -92,64 +99,68 @@ export default function Uno() {
         </div>
       </div>
 
-      <PassGate player={viewer} name={names[viewer]} enabled={pvp && !over}>
-        <div className="flex flex-col items-center gap-3">
-          <div className="text-sm font-medium">
-            {possessive(names[viewer])} hand ({state.hands[viewer].length})
-          </div>
-          <div className="flex flex-wrap justify-center gap-1 max-w-lg">
-            {state.hands[viewer].map((c, i) => (
-              <Face
-                // biome-ignore lint/suspicious/noArrayIndexKey: hand positions are the move indexes
-                key={i}
-                card={c}
-                active={playable.has(i)}
-                onClick={playable.has(i) ? () => clickCard(i) : undefined}
-              />
-            ))}
-          </div>
-          {wildAt !== null && canAct && (
-            <div className="flex gap-2 items-center">
-              Choose a colour:
-              {COLORS.map((color) => (
+      <BoardFrame>
+        <div className="board-paper flex flex-col items-center gap-3 p-5">
+          <PassGate player={viewer} name={names[viewer]} enabled={pvp && !over}>
+            <div className="flex flex-col items-center gap-3">
+              <div className="text-sm font-medium">
+                {possessive(names[viewer])} hand ({state.hands[viewer].length})
+              </div>
+              <div className="flex flex-wrap justify-center gap-1 max-w-lg">
+                {state.hands[viewer].map((c, i) => (
+                  <Face
+                    // biome-ignore lint/suspicious/noArrayIndexKey: hand positions are the move indexes
+                    key={i}
+                    card={c}
+                    active={playable.has(i)}
+                    onClick={playable.has(i) ? () => clickCard(i) : undefined}
+                  />
+                ))}
+              </div>
+              {wildAt !== null && canAct && (
+                <div className="flex gap-2 items-center">
+                  Choose a colour:
+                  {COLORS.map((color) => (
+                    <button
+                      key={color}
+                      type="button"
+                      className={`px-3 py-1 rounded ${BG[color]}`}
+                      onClick={() => {
+                        play({ kind: 'play', index: wildAt, color });
+                        setWildAt(null);
+                      }}
+                    >
+                      {color}
+                    </button>
+                  ))}
+                </div>
+              )}
+              <div className="flex gap-2">
                 <button
-                  key={color}
                   type="button"
-                  className={`px-3 py-1 rounded ${BG[color]}`}
-                  onClick={() => {
-                    play({ kind: 'play', index: wildAt, color });
-                    setWildAt(null);
-                  }}
+                  className="px-4 py-2 rounded border bg-neutral-900 text-white disabled:opacity-40"
+                  disabled={!mustDraw}
+                  onClick={() => play({ kind: 'draw' })}
                 >
-                  {color}
+                  Draw a card
                 </button>
-              ))}
+                {canAct && state.drawn !== null && (
+                  <button
+                    type="button"
+                    className="px-4 py-2 rounded border bg-white"
+                    onClick={() => play({ kind: 'pass' })}
+                  >
+                    Keep it (end turn)
+                  </button>
+                )}
+              </div>
+              {canAct && !mustDraw && state.drawn === null && playable.size > 0 && (
+                <p className="text-xs text-neutral-500">Play a highlighted card.</p>
+              )}
             </div>
-          )}
-          <div className="flex gap-2">
-            <button
-              type="button"
-              className="px-4 py-2 rounded border bg-neutral-900 text-white disabled:opacity-40"
-              disabled={!mustDraw}
-              onClick={() => play({ kind: 'draw' })}
-            >
-              Draw a card
-            </button>
-            {canAct && state.drawn !== null && (
-              <button
-                type="button"
-                className="px-4 py-2 rounded border bg-white"
-                onClick={() => play({ kind: 'pass' })}
-              >
-                Keep it (end turn)
-              </button>
-            )}
-          </div>
-          {canAct && !mustDraw && state.drawn === null && playable.size > 0 && (
-            <p className="text-xs text-neutral-500">Play a highlighted card.</p>
-          )}
+          </PassGate>
         </div>
-      </PassGate>
+      </BoardFrame>
       <button type="button" className="px-4 py-2 rounded border bg-white" onClick={game.reset}>
         New game
       </button>

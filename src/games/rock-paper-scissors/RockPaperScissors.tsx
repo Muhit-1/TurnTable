@@ -1,5 +1,12 @@
 import { useMemo } from 'react';
-import { GameControls, GameShell, ModeToggle, Scoreboard, TurnBanner } from '../../shared/components';
+import {
+  BoardFrame,
+  GameControls,
+  GameShell,
+  ModeToggle,
+  Scoreboard,
+  TurnBanner,
+} from '../../shared/components';
 import { usePersistentState } from '../../shared/storage';
 import { useMatch } from '../../shared/useMatch';
 import { createRps, THROWS, type Throw } from './engine';
@@ -55,32 +62,36 @@ function Match({
         {status.state === 'won' && `${names[status.winner]} wins the match!`}
       </TurnBanner>
 
-      <div className="flex gap-3">
-        {THROWS.map((t) => (
-          <button
-            key={t}
-            type="button"
-            aria-label={t}
-            disabled={status.state !== 'playing' || isCpuTurn}
-            onClick={() => play(t)}
-            className="pcard w-24 h-28 text-5xl enabled:hover:-translate-y-1 transition-transform disabled:opacity-40"
-          >
-            {EMOJI[t]}
-          </button>
-        ))}
-      </div>
+      <BoardFrame>
+        <div className="board-paper flex flex-col items-center gap-3 p-5">
+          <div className="flex gap-3">
+            {THROWS.map((t) => (
+              <button
+                key={t}
+                type="button"
+                aria-label={t}
+                disabled={status.state !== 'playing' || isCpuTurn}
+                onClick={() => play(t)}
+                className="pcard w-24 h-28 text-5xl enabled:hover:-translate-y-1 transition-transform disabled:opacity-40"
+              >
+                {EMOJI[t]}
+              </button>
+            ))}
+          </div>
 
-      {last && (
-        <div className="text-center" role="status">
-          <div className="text-4xl" key={`${last.p1}${last.p2}${state.rounds.length}`}>
-            <span className="dice-tumble inline-block">{EMOJI[last.p1]}</span> vs{' '}
-            <span className="dice-tumble inline-block">{EMOJI[last.p2]}</span>
-          </div>
-          <div className="text-sm text-neutral-600">
-            {last.winner ? `${names[last.winner]} wins the round` : 'Tie — replay'}
-          </div>
+          {last && (
+            <div className="text-center" role="status">
+              <div className="text-4xl" key={`${last.p1}${last.p2}${state.rounds.length}`}>
+                <span className="dice-tumble inline-block">{EMOJI[last.p1]}</span> vs{' '}
+                <span className="dice-tumble inline-block">{EMOJI[last.p2]}</span>
+              </div>
+              <div className="text-sm text-neutral-600">
+                {last.winner ? `${names[last.winner]} wins the round` : 'Tie — replay'}
+              </div>
+            </div>
+          )}
         </div>
-      )}
+      </BoardFrame>
 
       <GameControls
         canUndo={game.canUndo && !isCpuTurn}

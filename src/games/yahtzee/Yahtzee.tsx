@@ -1,5 +1,13 @@
 import { type CSSProperties, useMemo } from 'react';
-import { Die, GameShell, ModeToggle, possessive, Scoreboard, TurnBanner } from '../../shared/components';
+import {
+  BoardFrame,
+  Die,
+  GameShell,
+  ModeToggle,
+  possessive,
+  Scoreboard,
+  TurnBanner,
+} from '../../shared/components';
 import { useLevel } from '../../shared/level';
 import { useMatch } from '../../shared/useMatch';
 import { chooseMove } from './ai';
@@ -93,39 +101,45 @@ export default function Yahtzee() {
         {status.state === 'draw' && "It's a draw!"}
       </TurnBanner>
 
-      <div className="flex gap-2">
-        {state.dice.map((d, i) => (
+      <BoardFrame>
+        <div className="board-paper flex flex-col items-center gap-3 p-5">
+          <div className="flex gap-2">
+            {state.dice.map((d, i) => (
+              <button
+                // biome-ignore lint/suspicious/noArrayIndexKey: fixed dice slots
+                key={i}
+                type="button"
+                aria-label={
+                  d ? `Die ${i + 1}: ${d}${state.held[i] ? ', kept' : ''}` : `Die ${i + 1}: not rolled`
+                }
+                aria-pressed={state.held[i]}
+                disabled={!humanTurn || !rolled || state.rollsLeft === 0}
+                onClick={() => play({ kind: 'hold', index: i })}
+                className="rounded-xl bg-transparent p-1 disabled:cursor-default"
+              >
+                {d ? (
+                  <Die
+                    value={d}
+                    size="3.6rem"
+                    held={state.held[i]}
+                    rollKey={state.held[i] ? 'held' : state.rollsLeft}
+                  />
+                ) : (
+                  <span className="die-face" style={{ '--d': '3.6rem', opacity: 0.35 } as CSSProperties} />
+                )}
+              </button>
+            ))}
+          </div>
           <button
-            // biome-ignore lint/suspicious/noArrayIndexKey: fixed dice slots
-            key={i}
             type="button"
-            aria-label={d ? `Die ${i + 1}: ${d}${state.held[i] ? ', kept' : ''}` : `Die ${i + 1}: not rolled`}
-            aria-pressed={state.held[i]}
-            disabled={!humanTurn || !rolled || state.rollsLeft === 0}
-            onClick={() => play({ kind: 'hold', index: i })}
-            className="rounded-xl bg-transparent p-1 disabled:cursor-default"
+            className="px-6 py-3 rounded border bg-neutral-900 text-white disabled:opacity-40"
+            disabled={!humanTurn || state.rollsLeft === 0}
+            onClick={() => play({ kind: 'roll' })}
           >
-            {d ? (
-              <Die
-                value={d}
-                size="3.6rem"
-                held={state.held[i]}
-                rollKey={state.held[i] ? 'held' : state.rollsLeft}
-              />
-            ) : (
-              <span className="die-face" style={{ '--d': '3.6rem', opacity: 0.35 } as CSSProperties} />
-            )}
+            🎲 Roll ({state.rollsLeft} left)
           </button>
-        ))}
-      </div>
-      <button
-        type="button"
-        className="px-6 py-3 rounded border bg-neutral-900 text-white disabled:opacity-40"
-        disabled={!humanTurn || state.rollsLeft === 0}
-        onClick={() => play({ kind: 'roll' })}
-      >
-        🎲 Roll ({state.rollsLeft} left)
-      </button>
+        </div>
+      </BoardFrame>
 
       <table className="text-sm border bg-white rounded">
         <thead>

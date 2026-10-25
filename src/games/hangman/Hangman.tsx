@@ -1,5 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { GameShell, type Mode, ModeToggle, Scoreboard, TurnBanner } from '../../shared/components';
+import {
+  BoardFrame,
+  GameShell,
+  type Mode,
+  ModeToggle,
+  Scoreboard,
+  TurnBanner,
+} from '../../shared/components';
 import { nextInt, randomSeed } from '../../shared/rng';
 import { createHangman, masked, normaliseSecret } from './engine';
 import { WORDS } from './words';
@@ -51,26 +58,30 @@ export default function Hangman() {
     <GameShell id="hangman" title="Hangman">
       <ModeToggle mode={mode} onChange={changeMode} />
       <Scoreboard names={names} scores={scores} />
-      {secret === null ? (
-        <Setup mode={mode} setterName={names[setter]} guesserName={names[guesser]} onSecret={setSecret} />
-      ) : (
-        <Round
-          key={`${round}-${secret}`}
-          secret={secret}
-          guesserName={names[guesser]}
-          setterName={names[setter]}
-          onFinished={(guesserWon) =>
-            setScores((s) => ({
-              ...s,
-              [guesserWon ? guesser : setter]: s[guesserWon ? guesser : setter] + 1,
-            }))
-          }
-          onNext={() => {
-            setRound((r) => r + 1);
-            setSecret(null);
-          }}
-        />
-      )}
+      <BoardFrame>
+        <div className="board-paper flex flex-col items-center gap-3 p-5">
+          {secret === null ? (
+            <Setup mode={mode} setterName={names[setter]} guesserName={names[guesser]} onSecret={setSecret} />
+          ) : (
+            <Round
+              key={`${round}-${secret}`}
+              secret={secret}
+              guesserName={names[guesser]}
+              setterName={names[setter]}
+              onFinished={(guesserWon) =>
+                setScores((s) => ({
+                  ...s,
+                  [guesserWon ? guesser : setter]: s[guesserWon ? guesser : setter] + 1,
+                }))
+              }
+              onNext={() => {
+                setRound((r) => r + 1);
+                setSecret(null);
+              }}
+            />
+          )}
+        </div>
+      </BoardFrame>
     </GameShell>
   );
 }

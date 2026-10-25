@@ -1,28 +1,39 @@
-/* Game page shell: the parchment "stage" every game sits on, plus the shared controls.
-   Card/button hover and animation rules are NOT here: they come from preserved-game.css untouched. */
+/* Game page shell. One screen, no page scroll: a slim top bar, then a three-part stage (left panel | board | right panel)
+   where the board is scaled to fill whatever room is left. Card/button hover and animation rules are NOT here:
+   they come from preserved-game.css untouched. */
 
 .gp-page {
-  max-width: 1500px;
-  padding: 0 16px 80px;
+  max-width: none;
+  margin: 0;
+  padding: 6px 10px 10px;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 .gp-nav {
-  flex-wrap: wrap;
-  gap: 10px 16px;
-  padding: 16px 2px;
-  margin-bottom: 20px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 2px 0 8px;
+  margin: 0;
+  border-bottom: 0;
 }
-.gp-nav .gp-wordmark {
-  margin-right: auto;
-  margin-left: 10px;
+.gp-nav .game-title {
+  font: italic 600 clamp(20px, 2.4vw, 30px) / 1.05 var(--font-display);
+  color: var(--on-table);
+  margin: 0 auto 0 2px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.game-head {
-  margin-bottom: 18px;
-}
-.gp-title {
-  font-size: clamp(34px, 5vw, 56px);
+.gp-nav .gp-back {
+  white-space: nowrap;
 }
 
-/* ---- Stage: the light board surface. Restores the dark-on-light colour variables for everything inside. ---- */
+/* ---- Stage: left panel | board | right panel. Restores the dark-on-light colour variables for everything inside. ---- */
 .ts-stage {
   --surface: #fffaf0;
   --ink: #2b2016;
@@ -31,22 +42,50 @@
   --accent: #c9903f;
   --accent-2: #2a8a78;
   color: #2b2016;
-  position: relative;
-  margin: 0 auto 22px;
-  width: 100%;
-  max-width: 980px;
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(190px, 250px) minmax(0, 1fr) minmax(210px, 290px);
+  grid-template-rows: minmax(0, 1fr);
+  gap: 10px;
+}
+.ts-stage.single {
+  grid-template-columns: minmax(0, 1fr);
+}
+.ts-panel {
+  min-height: 0;
+  max-height: 100%;
+  overflow-y: auto;
+  align-self: start;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
-  padding: 28px 18px 32px;
+  gap: 10px;
+  padding: 14px 12px;
   background: linear-gradient(180deg, #f6ead0, #e9d7b1);
   border: 1px solid rgb(var(--brass-rgb) / 0.7);
-  border-radius: 24px;
+  border-radius: 18px;
   box-shadow:
-    var(--shadow-deep),
-    inset 0 0 0 5px rgba(255, 255, 255, 0.35),
-    inset 0 0 0 6px rgb(var(--brass-rgb) / 0.35);
+    var(--shadow-card),
+    inset 0 0 0 4px rgba(255, 255, 255, 0.35),
+    inset 0 0 0 5px rgb(var(--brass-rgb) / 0.3);
+}
+.ts-stage.single .ts-panel {
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+  align-self: center;
+}
+.ts-center {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: auto;
+}
+.ts-fit {
+  flex: none;
 }
 .ts-stage button {
   font-family: var(--font-body);
@@ -55,35 +94,49 @@
   outline: 3px solid #c9903f;
   outline-offset: 2px;
 }
+.ts-panel > .turn-line {
+  min-height: 0;
+  font-size: 16px;
+}
+.ts-panel .gp-actions {
+  margin: 0;
+  gap: 8px;
+}
+.ts-panel .gp-btn {
+  padding: 8px 14px;
+  font-size: 13px;
+}
 
-/* Make boards bigger on big screens (zoom scales the board, its cells and text together). */
-@media (min-width: 1100px) {
-  .ts-stage {
-    zoom: 1.3;
-  }
-}
-@media (min-width: 1500px) {
-  .ts-stage {
-    zoom: 1.55;
-  }
-}
-@media (min-width: 1900px) {
-  .ts-stage {
-    zoom: 1.85;
-  }
-}
-@media (min-width: 1100px) and (max-height: 760px) {
-  .ts-stage {
-    zoom: 1.05;
-  }
-}
-@media (max-width: 640px) {
-  .ts-stage {
-    padding: 20px 8px 24px;
-    border-radius: 18px;
-  }
+@media (max-width: 900px) and (orientation: portrait), (max-width: 560px) {
   .gp-page {
-    padding: 0 8px 60px;
+    padding: 4px 6px 8px;
+  }
+  .ts-stage {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    gap: 6px;
+  }
+  .ts-panel {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-self: stretch;
+    gap: 6px 10px;
+    padding: 8px 10px;
+    border-radius: 14px;
+  }
+  .ts-panel.left {
+    max-height: 36dvh;
+  }
+  .ts-panel.right {
+    max-height: 26dvh;
+  }
+  .ts-stage.single .ts-panel {
+    align-self: start;
+  }
+  .gp-nav .gp-wordmark,
+  .icon-pill .lbl {
+    display: none;
   }
 }
 
@@ -423,14 +476,6 @@ fieldset.swatches {
 .ts-stage:focus {
   outline: none;
 }
-.key-hint {
-  text-align: center;
-  margin: -6px auto 22px;
-  font: 500 12px var(--font-body);
-  color: var(--on-table-dim);
-  opacity: 0.8;
-  max-width: 720px;
-}
 .ts-stage button:focus-visible,
 .ts-stage [role="button"]:focus-visible {
   outline: 3px solid #c05a12;
@@ -551,4 +596,201 @@ button.award-card {
 }
 [data-theme="dark"] .ts-stage :is(.bg-white, [class*="bg-amber-"], table) :is(.text-xs, .text-sm) {
   color: #5b4630;
+}
+
+/* ---- Top-bar tools ---- */
+.table-tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+}
+.icon-pill {
+  padding: 8px 12px;
+}
+.menu {
+  position: relative;
+}
+.menu > summary {
+  list-style: none;
+  cursor: pointer;
+}
+.menu > summary::-webkit-details-marker {
+  display: none;
+}
+.menu .menu-pop {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  z-index: 60;
+  padding: 12px;
+  border-radius: 14px;
+  background: rgb(var(--walnut-rgb));
+  border: 1px solid var(--brass);
+  box-shadow: var(--shadow-deep);
+  width: max-content;
+  max-width: 90vw;
+}
+.menu .swatches {
+  display: grid;
+  grid-template-columns: repeat(4, 34px);
+  gap: 8px;
+}
+.menu .swatch {
+  width: 34px;
+  height: 34px;
+}
+.activity {
+  width: 100%;
+  font-size: 13px;
+}
+.activity ol {
+  margin: 6px 0 0;
+  padding-left: 1.4em;
+  max-height: 38vh;
+  overflow-y: auto;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  columns: 2;
+  column-gap: 14px;
+}
+.activity li {
+  break-inside: avoid;
+  padding: 1px 0;
+}
+.activity summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+
+/* the stage is no longer one big parchment slab in dark mode: only the side panels are */
+[data-theme="dark"] .ts-stage {
+  background: none;
+  border: 0;
+  box-shadow: none;
+}
+[data-theme="dark"] .ts-panel {
+  color: #ede1c8;
+  background: linear-gradient(180deg, rgb(var(--walnut-2-rgb)), rgb(var(--walnut-rgb)));
+  border-color: rgb(var(--brass-rgb) / 0.55);
+  box-shadow:
+    var(--shadow-card),
+    inset 0 0 0 4px rgba(0, 0, 0, 0.2),
+    inset 0 0 0 5px rgb(var(--brass-rgb) / 0.3);
+}
+
+@supports not (height: 100dvh) {
+  .gp-page {
+    height: 100vh;
+  }
+}
+
+/* Compact controls when the panels stack above and below the board (phones). */
+@media (max-width: 900px) and (orientation: portrait), (max-width: 560px) {
+  .ts-panel .seg {
+    padding: 2px;
+  }
+  .ts-panel .seg button {
+    padding: 5px 10px;
+    font-size: 12px;
+  }
+  .score-chip {
+    padding: 3px 10px 3px 7px;
+    font-size: 12px;
+  }
+  .score-chip .gem {
+    --size: 14px;
+  }
+  .turn-line {
+    font-size: 14px;
+    min-height: 0;
+  }
+  .ts-panel .gp-btn {
+    padding: 6px 11px;
+    font-size: 12px;
+  }
+  .ts-panel .text-sm {
+    font-size: 12px;
+  }
+  .gp-nav {
+    padding-bottom: 4px;
+    gap: 6px;
+  }
+  .icon-pill {
+    padding: 6px 9px;
+  }
+  .ts-panel.left {
+    max-height: 30dvh;
+  }
+  .ts-panel.right {
+    max-height: 22dvh;
+  }
+}
+/* Landscape phones and short windows: keep three columns, just slimmer, so the board gets the full height. */
+@media (orientation: landscape) and (max-height: 560px) {
+  .ts-stage {
+    grid-template-columns: minmax(130px, 190px) minmax(0, 1fr) minmax(140px, 210px);
+    grid-template-rows: minmax(0, 1fr);
+  }
+  .ts-panel {
+    padding: 8px;
+    gap: 6px;
+  }
+  .ts-panel .seg button {
+    padding: 5px 8px;
+    font-size: 12px;
+  }
+  .score-chip {
+    font-size: 12px;
+    padding: 3px 8px 3px 6px;
+  }
+  .turn-line {
+    font-size: 13px;
+  }
+  .gp-nav {
+    padding-bottom: 3px;
+  }
+  .gp-nav .game-title {
+    font-size: 18px;
+  }
+  .gp-nav .gp-wordmark {
+    display: none;
+  }
+}
+
+/* Scorecards and other tables in the side panel stay on one line per row. */
+.ts-panel table {
+  width: 100%;
+  font-size: 12px;
+}
+.ts-panel table :is(th, td) {
+  white-space: nowrap;
+  padding: 3px 6px;
+}
+
+/* On big screens the panels grow with the board so the text stays comfortable to read. */
+@media (min-width: 1500px) and (min-height: 800px) {
+  .ts-panel {
+    zoom: 1.2;
+  }
+  .ts-stage {
+    grid-template-columns: minmax(230px, 300px) minmax(0, 1fr) minmax(250px, 340px);
+  }
+}
+@media (min-width: 1900px) and (min-height: 1000px) {
+  .ts-panel {
+    zoom: 1.4;
+  }
+  .ts-stage {
+    grid-template-columns: minmax(260px, 350px) minmax(0, 1fr) minmax(280px, 400px);
+  }
+}
+
+.ts-panel.empty {
+  visibility: hidden;
+}
+@media (max-width: 900px) and (orientation: portrait), (max-width: 560px) {
+  .ts-panel.empty {
+    display: none;
+  }
 }

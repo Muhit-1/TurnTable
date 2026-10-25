@@ -1,4 +1,4 @@
-import { GameShell, Scoreboard, TurnBanner } from '../../shared/components';
+import { BoardFrame, GameShell, Scoreboard, TurnBanner } from '../../shared/components';
 import { type Card, cardLabel, SUIT_SYMBOL } from '../../shared/deck';
 import { useMatch } from '../../shared/useMatch';
 import { warEngine } from './engine';
@@ -40,26 +40,30 @@ export default function War() {
         {status.state === 'draw' && "Stalemate after too many flips — it's a draw."}
       </TurnBanner>
 
-      <div className="flex gap-10 items-center min-h-28">
-        {last ? (
-          <>
-            <CardView key={`a${state.flips}`} card={last.c1} />
-            <span className="font-semibold text-amber-900/70">vs</span>
-            <CardView key={`b${state.flips}`} card={last.c2} />
-          </>
-        ) : (
-          <span className="text-neutral-500">Two piles of 26 cards, face down.</span>
-        )}
-      </div>
+      <BoardFrame>
+        <div className="board-paper flex flex-col items-center gap-3 p-5">
+          <div className="flex gap-10 items-center min-h-28">
+            {last ? (
+              <>
+                <CardView key={`a${state.flips}`} card={last.c1} />
+                <span className="font-semibold text-amber-900/70">vs</span>
+                <CardView key={`b${state.flips}`} card={last.c2} />
+              </>
+            ) : (
+              <span className="text-neutral-500">Two piles of 26 cards, face down.</span>
+            )}
+          </div>
 
-      <button
-        type="button"
-        className="px-6 py-3 rounded border bg-neutral-900 text-white disabled:opacity-40"
-        disabled={status.state !== 'playing'}
-        onClick={() => game.play('flip')}
-      >
-        Flip
-      </button>
+          <button
+            type="button"
+            className="px-6 py-3 rounded border bg-neutral-900 text-white disabled:opacity-40"
+            disabled={status.state !== 'playing'}
+            onClick={() => game.play('flip')}
+          >
+            Flip
+          </button>
+        </div>
+      </BoardFrame>
       <button type="button" className="px-4 py-2 rounded border bg-white" onClick={game.reset}>
         New game
       </button>

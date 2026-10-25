@@ -1,9 +1,18 @@
-import { type CSSProperties, type ReactNode, useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import {
+  Children,
+  type CSSProperties,
+  isValidElement,
+  type ReactNode,
+  type RefObject,
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from 'react';
 import '../styles/fonts.css';
 import '../styles/preserved-game.css';
 import '../styles/tavern.css';
 import '../styles/shell.css';
-import { CATEGORY_LABELS, getGame } from '../games/registry';
 import type { PlayerId } from './engine';
 import { notify } from './notify';
 import { RulesDialog } from './RulesPanel';
@@ -156,47 +165,62 @@ function TableTools({ onRules }: { onRules: () => void }) {
   }, [table]);
   return (
     <div className="table-tools">
-      <fieldset className="swatches">
-        <legend className="sr-only">Table colour</legend>
-        {TABLE_THEMES.map((t) => (
-          <button
-            key={t.id}
-            type="button"
-            className="swatch"
-            title={t.name}
-            aria-label={t.name}
-            aria-pressed={t.id === table}
-            style={{ background: t.hex }}
-            onClick={() => {
-              saveTable(t.id);
-              setTable(t.id);
-            }}
-          />
-        ))}
-      </fieldset>
-      <button type="button" className="icon-pill" aria-keyshortcuts="?" onClick={onRules}>
-        📖 Rules
+      <details className="menu">
+        <summary className="icon-pill" title="Table colour">
+          🎨 <span className="lbl">Table</span>
+        </summary>
+        <div className="menu-pop">
+          <fieldset className="swatches">
+            <legend className="sr-only">Table colour</legend>
+            {TABLE_THEMES.map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                className="swatch"
+                title={t.name}
+                aria-label={t.name}
+                aria-pressed={t.id === table}
+                style={{ background: t.hex }}
+                onClick={() => {
+                  saveTable(t.id);
+                  setTable(t.id);
+                }}
+              />
+            ))}
+          </fieldset>
+        </div>
+      </details>
+      <button
+        type="button"
+        className="icon-pill"
+        aria-keyshortcuts="?"
+        title="How to play (?)"
+        onClick={onRules}
+      >
+        📖 <span className="lbl">Rules</span>
       </button>
       <button
         type="button"
         className="icon-pill"
         aria-pressed={theme === 'dark'}
         aria-keyshortcuts="t"
+        title="Light or dark (t)"
         onClick={toggleTheme}
       >
-        {theme === 'dark' ? '🌙 Dark' : '☀️ Light'}
+        {theme === 'dark' ? '🌙' : '☀️'} <span className="lbl">{theme === 'dark' ? 'Dark' : 'Light'}</span>
       </button>
       <button
         type="button"
         className="icon-pill"
         aria-pressed={!muted}
         aria-keyshortcuts="m"
+        title="Sound (m)"
         onClick={() => {
           setMuted(!muted);
           if (muted) sfx.tick();
         }}
       >
-        {muted ? '🔇 Sound off' : '🔊 Sound on'}
+        {muted ? '🔇' : '🔊'} <span className="lbl">{muted ? 'Sound off' : 'Sound on'}</span>
       </button>
     </div>
   );
@@ -286,32 +310,57 @@ function arrowFocus(e: KeyboardEvent, root: HTMLElement): void {
   }
 }
 
-export function GameShell({ id, title, children }: { id: string; title: string; children: ReactNode }) {
-  const meta = getGame(id);
-  const [rulesOpen, setRulesOpen] = useState(false);
-  const stage = useRef<HTMLElement>(null);
-  // Fixed-size boards (Gomoku, Ludo, Mancala...) shrink to fit a narrow phone instead of scrolling sideways.
+/**
+ * Scales `el` (zoom) so the board fills the room it has, never causing the page to scroll.
+ * `slot` is the grid cell that holds it; its size does not depend on the board.
+ */
+function useFit(slot: RefObject<HTMLElement | null>, el: RefObject<HTMLElement | null>, single: boolean) {
+  // biome-ignore lint/correctness/useExhaustiveDependencies: `single` changes which elements exist, so the observers must be set up again
   useEffect(() => {
-    const el = stage.current;
-    if (!el) return;
+    const box = slot.current;
+    const target = el.current;
+    if (!box || !target) return;
+    let raf = 0;
     const fit = () => {
-      el.style.zoom = '';
-      if (window.innerWidth > 640) return;
-      const cs = getComputedStyle(el);
-      const room = el.clientWidth - Number.parseFloat(cs.paddingLeft) - Number.parseFloat(cs.paddingRight);
-      const widest = Math.max(
-        ...Array.from(el.children, (c) => Math.max(c.scrollWidth, c.getBoundingClientRect().width)),
-      );
-      if (widest > room + 1) el.style.zoom = String(room / widest);
+      raf = 0;
+      target.style.zoom = '1';
+      const natural = target.firstElementChild?.getBoundingClientRect();
+      if (!natural || natural.width === 0 || natural.height === 0) return;
+      const room = box.getBoundingClientRect();
+      const scale = Math.min(room.width / natural.width, room.height / natural.height);
+      target.style.zoom = String(Math.max(0.3, Math.min(4.5, scale)));
+    };
+    const schedule = () => {
+      if (!raf) raf = requestAnimationFrame(fit);
     };
     fit();
-    const t = window.setTimeout(fit, 300);
-    window.addEventListener('resize', fit);
+    const ro = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(schedule);
+    ro?.observe(box);
+    const mo = new MutationObserver(schedule);
+    mo.observe(target, { childList: true, subtree: true });
+    window.addEventListener('resize', schedule);
+    document.fonts?.ready.then(schedule);
     return () => {
-      window.clearTimeout(t);
-      window.removeEventListener('resize', fit);
+      ro?.disconnect();
+      mo.disconnect();
+      window.removeEventListener('resize', schedule);
+      if (raf) cancelAnimationFrame(raf);
     };
-  }, []);
+  }, [slot, el, single]);
+}
+
+export function GameShell({ id, title, children }: { id: string; title: string; children: ReactNode }) {
+  const [rulesOpen, setRulesOpen] = useState(false);
+  const stage = useRef<HTMLElement>(null);
+  const slot = useRef<HTMLDivElement>(null);
+  const fit = useRef<HTMLDivElement>(null);
+  // The first BoardFrame is the board. What comes before it goes in the left panel, what comes after in the right one.
+  const items = Children.toArray(children);
+  const at = items.findIndex((c) => isValidElement(c) && c.type === BoardFrame);
+  const before = at < 0 ? [] : items.slice(0, at);
+  const board = at < 0 ? null : items[at];
+  const after = at < 0 ? items : items.slice(at + 1);
+  useFit(slot, fit, at < 0);
   useEffect(() => {
     document.body.classList.add('theme-tavern');
     applyTheme();
@@ -337,36 +386,60 @@ export function GameShell({ id, title, children }: { id: string; title: string; 
         Skip to the board
       </a>
       <nav className="gp-nav" aria-label="Game navigation">
-        <a className="gp-back" href="../../">
-          ← All games
+        <a className="gp-back" href="../../" title="All games">
+          ← <span className="lbl">All games</span>
         </a>
+        <h1 className="game-title">{title}</h1>
         <span className="gp-wordmark">TurnTable</span>
         <TableTools onRules={() => setRulesOpen(true)} />
       </nav>
-      <header className="game-head">
-        {meta && <p className="gp-eyebrow">{CATEGORY_LABELS[meta.category]}</p>}
-        <h1 className="gp-title">{title}</h1>
-      </header>
       {/* A click on any button gets a soft tick; moves play their own (louder) note first and win the debounce. */}
       {/* biome-ignore lint/a11y/useKeyWithClickEvents: delegated sound only, the buttons inside handle keys */}
       <main
         id="board"
         tabIndex={-1}
         ref={stage}
-        className="ts-stage"
+        className={`ts-stage${at < 0 ? ' single' : ''}`}
         aria-label={`${title} board and controls`}
         onClick={(e) => {
           if ((e.target as HTMLElement).closest('button')) sfx.tick();
         }}
       >
-        {children}
+        {at < 0 ? (
+          <div className="ts-panel">{items}</div>
+        ) : (
+          <>
+            <div className={`ts-panel left${before.length ? '' : ' empty'}`}>{before}</div>
+            <div className="ts-center" ref={slot}>
+              <div className="ts-fit" ref={fit}>
+                {board}
+              </div>
+            </div>
+            <div className={`ts-panel right${after.length ? '' : ' empty'}`}>{after}</div>
+          </>
+        )}
       </main>
-      <p className="key-hint">
-        Arrow keys move around the board · Enter or Space plays · ? rules · m sound · t theme
-      </p>
       <RulesDialog gameId={id} open={rulesOpen} onClose={() => setRulesOpen(false)} />
       <Overlays />
     </div>
+  );
+}
+
+/** A collapsible list of the moves played so far (newest last). Pass already-formatted lines. */
+export function ActivityLog({ lines, title = 'Moves' }: { lines: string[]; title?: string }) {
+  if (lines.length === 0) return null;
+  return (
+    <details className="activity" open>
+      <summary>
+        {title} ({lines.length})
+      </summary>
+      <ol>
+        {lines.map((l, i) => (
+          // biome-ignore lint/suspicious/noArrayIndexKey: a move list is positional
+          <li key={i}>{l}</li>
+        ))}
+      </ol>
+    </details>
   );
 }
 
