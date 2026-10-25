@@ -9,7 +9,7 @@ body {
   background: #fbf6ea; font-family: 'Space Grotesk', sans-serif; color: #171712;
   -webkit-font-smoothing: antialiased;
 }
-a { color: inherit; text-decoration: none; }  
+a { color: inherit; text-decoration: none; }
 :focus-visible { outline: 3px solid #171712; outline-offset: 3px; }
 
 :root {
