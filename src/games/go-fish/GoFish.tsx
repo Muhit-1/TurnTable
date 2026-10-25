@@ -1,12 +1,12 @@
+import { useMemo } from 'react';
 import { GameShell, ModeToggle, possessive, Scoreboard, TurnBanner } from '../../shared/components';
 import { type Card, cardLabel, rankLabel, SUIT_SYMBOL } from '../../shared/deck';
 import type { PlayerId } from '../../shared/engine';
+import { useLevel } from '../../shared/level';
 import { PassGate } from '../../shared/PassGate';
 import { useMatch } from '../../shared/useMatch';
-import { getBestMove } from './ai';
+import { chooseMove } from './ai';
 import { countRank, type GoFishState, goFishEngine, ranksHeld } from './engine';
-
-const pickMove = (s: GoFishState) => getBestMove(s);
 
 function CardFace({ card }: { card: Card }) {
   const red = card.suit === 'hearts' || card.suit === 'diamonds';
@@ -22,7 +22,9 @@ function CardFace({ card }: { card: Card }) {
 }
 
 export default function GoFish() {
-  const m = useMatch(goFishEngine, { pickMove, delayMs: 900 });
+  const [level, levelPicker] = useLevel('go-fish');
+  const pickMove = useMemo(() => (s: GoFishState) => chooseMove(s, level), [level]);
+  const m = useMatch(goFishEngine, { pickMove, delayMs: 900, persistId: 'go-fish' });
   const { game, isCpuTurn } = m;
   const { state, status, player, play } = game;
   const names = m.names('Player 1', 'Player 2');
@@ -38,6 +40,7 @@ export default function GoFish() {
   return (
     <GameShell id="go-fish" title="Go Fish">
       <ModeToggle mode={m.mode} onChange={m.changeMode} />
+      {m.mode === 'vs-cpu' && levelPicker}
       <Scoreboard names={names} scores={m.scores} />
       <div className="text-sm font-medium">
         Books — {names[1]}: {state.books[1].length} · {names[2]}: {state.books[2].length} · Ocean:{' '}

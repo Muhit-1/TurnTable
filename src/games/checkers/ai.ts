@@ -1,4 +1,5 @@
 import type { PlayerId } from '../../shared/engine';
+import { type Level, maybeRandom } from '../../shared/level';
 import { type Cell, type CheckersState, checkersEngine, SIZE } from './engine';
 
 function evaluate(cells: Cell[], me: PlayerId): number {
@@ -51,4 +52,10 @@ export function getBestMove(s: CheckersState, depth = 6): number[] {
     }
   }
   return best;
+}
+
+const DEPTH: Record<Level, number> = { easy: 2, medium: 4, hard: 6 };
+
+export function chooseMove(s: CheckersState, level: Level, random: () => number = Math.random): number[] {
+  return maybeRandom(level, getBestMove(s, DEPTH[level]), checkersEngine.legalMoves(s), random);
 }

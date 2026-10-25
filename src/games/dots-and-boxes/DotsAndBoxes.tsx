@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import {
   GameControls,
   GameShell,
@@ -6,17 +7,19 @@ import {
   Scoreboard,
   TurnBanner,
 } from '../../shared/components';
+import { useLevel } from '../../shared/level';
 import { useMatch } from '../../shared/useMatch';
-import { getBestMove } from './ai';
+import { chooseMove } from './ai';
 import { type DotsState, dotsEngine, hLine, vLine } from './engine';
 
-const pickMove = (s: DotsState) => getBestMove(s);
 const CELL = 64; // px between dots
 const PAD = 16;
 const DOT = 10;
 
 export default function DotsAndBoxes() {
-  const m = useMatch(dotsEngine, { pickMove, delayMs: 450 });
+  const [level, levelPicker] = useLevel('dots-and-boxes');
+  const pickMove = useMemo(() => (s: DotsState) => chooseMove(s, level), [level]);
+  const m = useMatch(dotsEngine, { pickMove, delayMs: 450, persistId: 'dots-and-boxes' });
   const { game, isCpuTurn } = m;
   const { state, status, player, play } = game;
   const names = m.names('Player 1', 'Player 2');
@@ -31,6 +34,7 @@ export default function DotsAndBoxes() {
   return (
     <GameShell id="dots-and-boxes" title="Dots and Boxes">
       <ModeToggle mode={m.mode} onChange={m.changeMode} />
+      {m.mode === 'vs-cpu' && levelPicker}
       <Scoreboard names={names} scores={m.scores} />
       <div className="text-sm font-medium">
         Boxes —{' '}

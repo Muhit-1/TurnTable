@@ -1,6 +1,7 @@
-import { type ReactNode, useState } from 'react';
+import { type ReactNode, useMemo, useState } from 'react';
 import { GameShell, ModeToggle, possessive, Scoreboard, TurnBanner } from '../../shared/components';
 import type { PlayerId } from '../../shared/engine';
+import { useLevel } from '../../shared/level';
 import { PassGate } from '../../shared/PassGate';
 import { useMatch } from '../../shared/useMatch';
 import { getBestMove } from './ai';
@@ -15,7 +16,6 @@ import {
   sunkShips,
 } from './engine';
 
-const pickMove = (s: BattleshipState) => getBestMove(s);
 const COLS = 'ABCDEFGHIJ';
 
 function Grid({ title, cell }: { title: string; cell: (i: number) => ReactNode }) {
@@ -34,7 +34,9 @@ function Grid({ title, cell }: { title: string; cell: (i: number) => ReactNode }
 const coord = (i: number) => `${COLS[i % SIZE]}${Math.floor(i / SIZE) + 1}`;
 
 export default function Battleship() {
-  const m = useMatch(battleshipEngine, { pickMove, delayMs: 700 });
+  const [level, levelPicker] = useLevel('battleship');
+  const pickMove = useMemo(() => (s: BattleshipState) => getBestMove(s, level), [level]);
+  const m = useMatch(battleshipEngine, { pickMove, delayMs: 700, persistId: 'battleship' });
   const { game, isCpuTurn } = m;
   const { state, status, player, play } = game;
   const names = m.names('Player 1', 'Player 2');
@@ -97,6 +99,7 @@ export default function Battleship() {
   return (
     <GameShell id="battleship" title="Battleship">
       <ModeToggle mode={m.mode} onChange={m.changeMode} />
+      {m.mode === 'vs-cpu' && levelPicker}
       <Scoreboard names={names} scores={m.scores} />
       <TurnBanner>
         {last &&

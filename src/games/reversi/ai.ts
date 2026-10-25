@@ -1,4 +1,5 @@
 import type { PlayerId } from '../../shared/engine';
+import { type Level, maybeRandom } from '../../shared/level';
 import { type Cell, flipsFor, movesFor, type ReversiState, reversiEngine, SIZE } from './engine';
 
 // Corners are gold, squares next to corners are poison, edges are decent.
@@ -67,4 +68,10 @@ export function getBestMove(s: ReversiState, depth = 4): number {
     }
   }
   return best;
+}
+
+const DEPTH: Record<Level, number> = { easy: 1, medium: 3, hard: 5 };
+
+export function chooseMove(s: ReversiState, level: Level, random: () => number = Math.random): number {
+  return maybeRandom(level, getBestMove(s, DEPTH[level]), reversiEngine.legalMoves(s), random);
 }

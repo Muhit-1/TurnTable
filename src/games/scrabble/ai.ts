@@ -180,3 +180,25 @@ export function getBestMove(s: ScrabbleState, dict: Dictionary): ScrabbleMove {
   }
   return { kind: 'pass' };
 }
+
+/**
+ * Hard plays the highest-scoring word; medium picks randomly among the five best; easy among all valid plays.
+ * Falls back to exchanging or passing when there is no play.
+ */
+export function chooseMove(
+  s: ScrabbleState,
+  dict: Dictionary,
+  level: 'easy' | 'medium' | 'hard',
+  random: () => number = Math.random,
+): ScrabbleMove {
+  if (level === 'hard') return getBestMove(s, dict);
+  const scored: { placements: Placement[]; total: number }[] = [];
+  for (const placements of generatePlays(s, dict)) {
+    const check = checkPlay(s.board, dict, placements);
+    if (check.ok) scored.push({ placements, total: check.total });
+  }
+  if (scored.length === 0) return getBestMove(s, dict);
+  scored.sort((a, b) => b.total - a.total);
+  const pool = level === 'medium' ? scored.slice(0, 5) : scored;
+  return { kind: 'play', placements: pool[Math.floor(random() * pool.length)].placements };
+}

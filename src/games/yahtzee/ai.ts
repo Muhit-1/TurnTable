@@ -1,3 +1,4 @@
+import type { Level } from '../../shared/level';
 import {
   type Category,
   DICE,
@@ -84,4 +85,13 @@ export function getBestMove(s: YahtzeeState): YahtzeeMove {
     if (!want.every(Boolean)) return { kind: 'roll' };
   }
   return { kind: 'score', category: bestCategory(s) };
+}
+
+/** Easy plays out one roll per turn, medium two, hard all three (and always keeps sensible dice). */
+const MAX_ROLLS: Record<Level, number> = { easy: 1, medium: 2, hard: ROLLS_PER_TURN };
+
+export function chooseMove(s: YahtzeeState, level: Level): YahtzeeMove {
+  const rolled = ROLLS_PER_TURN - s.rollsLeft;
+  if (rolled > 0 && rolled >= MAX_ROLLS[level]) return { kind: 'score', category: bestCategory(s) };
+  return getBestMove(s);
 }

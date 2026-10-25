@@ -1,17 +1,19 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { GameShell, ModeToggle, possessive, Scoreboard, TurnBanner } from '../../shared/components';
 import type { PlayerId } from '../../shared/engine';
+import { useLevel } from '../../shared/level';
 import { useMatch } from '../../shared/useMatch';
-import { getBestMove } from './ai';
+import { chooseMove } from './ai';
 import { BAR, type BgState, backgammonEngine, CHECKERS, countAt, OFF, pipCount } from './engine';
 
-const pickMove = (s: BgState) => getBestMove(s);
 const TOP = [12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
 const BOTTOM = [11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0];
 const SHOWN = 5; // checkers drawn before collapsing into a count
 
 export default function Backgammon() {
-  const m = useMatch(backgammonEngine, { pickMove, delayMs: 650 });
+  const [level, levelPicker] = useLevel('backgammon');
+  const pickMove = useMemo(() => (s: BgState) => chooseMove(s, level), [level]);
+  const m = useMatch(backgammonEngine, { pickMove, delayMs: 650, persistId: 'backgammon' });
   const { game, isCpuTurn } = m;
   const { state, status, player, play, legalMoves } = game;
   const names = m.names('White (Player 1)', 'Black (Player 2)');
@@ -105,6 +107,7 @@ export default function Backgammon() {
           m.changeMode(x);
         }}
       />
+      {m.mode === 'vs-cpu' && levelPicker}
       <Scoreboard names={names} scores={m.scores} />
       <TurnBanner>
         {state.last &&

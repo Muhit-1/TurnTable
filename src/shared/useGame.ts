@@ -1,5 +1,6 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { GameEngine, Outcome, PlayerId } from './engine';
+import { loadJson, saveJson } from './storage';
 
 interface History<State> {
   past: State[];
@@ -22,16 +23,46 @@ export interface UseGame<State, Move, Line> {
   reset: () => void;
 }
 
-/** Binds a GameEngine to React state, with undo/redo history. */
+export interface UseGameOptions {
+  /**
+   * Save the current position under this key in localStorage and resume it on the next visit.
+   * Only the current position is saved (not the undo history).
+   */
+  persistKey?: string;
+}
+
+/** A saved position is only used if the engine can make sense of it. */
+function restore<State, Move, Line>(
+  engine: GameEngine<State, Move, Line>,
+  key: string | undefined,
+): State | null {
+  if (!key) return null;
+  const saved = loadJson<State>(`${key}:state`);
+  if (saved === null || typeof saved !== 'object') return null;
+  try {
+    const player = engine.currentPlayer(saved);
+    engine.getStatus(saved);
+    return player === 1 || player === 2 ? saved : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Binds a GameEngine to React state, with undo/redo history and optional save/resume. */
 export function useGame<State, Move, Line = unknown>(
   engine: GameEngine<State, Move, Line>,
+  { persistKey }: UseGameOptions = {},
 ): UseGame<State, Move, Line> {
   const [history, setHistory] = useState<History<State>>(() => ({
     past: [],
-    present: engine.initialState(),
+    present: restore(engine, persistKey) ?? engine.initialState(),
     future: [],
   }));
   const { past, present, future } = history;
+
+  useEffect(() => {
+    if (persistKey) saveJson(`${persistKey}:state`, present);
+  }, [persistKey, present]);
 
   const play = useCallback(
     (move: Move) => {

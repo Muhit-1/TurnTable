@@ -1,4 +1,5 @@
 import type { PlayerId } from '../../shared/engine';
+import { type Level, maybeRandom } from '../../shared/level';
 import { applyStep, type BgMove, type BgState, backgammonEngine, countAt, POINTS, pipCount } from './engine';
 
 /** Heuristic value of a position for `me`: race lead, hits, safe points and exposed blots. */
@@ -30,4 +31,15 @@ export function getBestMove(s: BgState): BgMove {
     }
   }
   return best;
+}
+
+export function chooseMove(s: BgState, level: Level, random: () => number = Math.random): BgMove {
+  const best = getBestMove(s);
+  if (best.kind !== 'move') return best;
+  return maybeRandom(
+    level,
+    best,
+    backgammonEngine.legalMoves(s).filter((m) => m.kind === 'move'),
+    random,
+  );
 }

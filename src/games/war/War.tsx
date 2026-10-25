@@ -18,7 +18,7 @@ function CardView({ card }: { card: Card }) {
 }
 
 export default function War() {
-  const m = useMatch(warEngine);
+  const m = useMatch(warEngine, { persistId: 'war' });
   const { game } = m;
   const { state, status } = game;
   const names = m.names('Player 1', 'Player 2');

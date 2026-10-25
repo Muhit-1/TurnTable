@@ -1,10 +1,11 @@
+import { useMemo } from 'react';
 import { GameShell, ModeToggle, possessive, Scoreboard, TurnBanner } from '../../shared/components';
 import type { PlayerId } from '../../shared/engine';
+import { useLevel } from '../../shared/level';
 import { useMatch } from '../../shared/useMatch';
-import { getBestMove } from './ai';
+import { chooseMove } from './ai';
 import { HOME, LAST_TRACK, type LudoState, ludoEngine, movableTokens, trackSquare } from './engine';
 
-const pickMove = (s: LudoState) => getBestMove(s);
 const GRID = 14;
 
 /** Perimeter of a 14x14 grid, clockwise from the top-left corner: 4 sides x 13 squares = 52 track squares. */
@@ -25,7 +26,9 @@ function describe(p: number): string {
 }
 
 export default function Ludo() {
-  const m = useMatch(ludoEngine, { pickMove, delayMs: 650 });
+  const [level, levelPicker] = useLevel('ludo');
+  const pickMove = useMemo(() => (s: LudoState) => chooseMove(s, level), [level]);
+  const m = useMatch(ludoEngine, { pickMove, delayMs: 650, persistId: 'ludo' });
   const { game, isCpuTurn } = m;
   const { state, status, player, play } = game;
   const names = m.names('Red (Player 1)', 'Blue (Player 2)');
@@ -43,6 +46,7 @@ export default function Ludo() {
   return (
     <GameShell id="ludo" title="Ludo">
       <ModeToggle mode={m.mode} onChange={m.changeMode} />
+      {m.mode === 'vs-cpu' && levelPicker}
       <Scoreboard names={names} scores={m.scores} />
       <TurnBanner>
         {state.last && `${names[state.last.player]} rolled ${state.last.roll}: ${state.last.note}. `}

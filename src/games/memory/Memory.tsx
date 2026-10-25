@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import {
   GameControls,
   GameShell,
@@ -7,8 +7,10 @@ import {
   Scoreboard,
   TurnBanner,
 } from '../../shared/components';
+import { useLevel } from '../../shared/level';
+import { usePersistentState } from '../../shared/storage';
 import { useMatch } from '../../shared/useMatch';
-import { getBestMove } from './ai';
+import { chooseMove } from './ai';
 import { createMemory, type MemoryState, needsResolve } from './engine';
 
 const SYMBOLS = [
@@ -32,10 +34,9 @@ const SYMBOLS = [
   '🫐',
 ];
 const MISMATCH_MS = 1000;
-const pickMove = (s: MemoryState) => getBestMove(s);
 
 export default function Memory() {
-  const [pairs, setPairs] = useState(8);
+  const [pairs, setPairs] = usePersistentState('memory:pairs', 8);
   const engine = useMemo(() => createMemory(pairs), [pairs]);
   return <Match key={pairs} engine={engine} pairs={pairs} onPairs={setPairs} />;
 }
@@ -49,7 +50,9 @@ function Match({
   pairs: number;
   onPairs: (n: number) => void;
 }) {
-  const m = useMatch(engine, { pickMove, delayMs: 650 });
+  const [level, levelPicker] = useLevel('memory');
+  const pickMove = useMemo(() => (s: MemoryState) => chooseMove(s, level), [level]);
+  const m = useMatch(engine, { pickMove, delayMs: 650, persistId: `memory:${pairs}` });
   const { game, isCpuTurn } = m;
   const { state, status, player, play } = game;
   const names = m.names('Player 1', 'Player 2');
@@ -67,6 +70,7 @@ function Match({
   return (
     <GameShell id="memory" title="Memory">
       <ModeToggle mode={m.mode} onChange={m.changeMode} />
+      {m.mode === 'vs-cpu' && levelPicker}
       <div className="flex gap-2 items-center text-sm">
         Pairs
         {[6, 8, 12].map((n) => (

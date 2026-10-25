@@ -1,4 +1,5 @@
-import { availablePieces, type QuartoMove, type QuartoState, winningSquares } from './engine';
+import { type Level, maybeRandom } from '../../shared/level';
+import { availablePieces, type QuartoMove, type QuartoState, quartoEngine, winningSquares } from './engine';
 
 /**
  * Place: win if possible, otherwise play where it leaves the opponent the fewest winning gifts.
@@ -30,4 +31,8 @@ export function getBestMove(s: QuartoState): QuartoMove {
     }
   }
   return { kind: 'place', square: best };
+}
+
+export function chooseMove(s: QuartoState, level: Level, random: () => number = Math.random): QuartoMove {
+  return maybeRandom(level, getBestMove(s), quartoEngine.legalMoves(s), random);
 }

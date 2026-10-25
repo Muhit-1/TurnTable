@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { GameControls, GameShell, ModeToggle, Scoreboard, TurnBanner } from '../../shared/components';
+import { usePersistentState } from '../../shared/storage';
 import { useMatch } from '../../shared/useMatch';
 import { createRps, THROWS, type Throw } from './engine';
 
@@ -7,7 +8,7 @@ const EMOJI: Record<Throw, string> = { rock: '✊', paper: '✋', scissors: '✌
 const pickMove = (): Throw => THROWS[Math.floor(Math.random() * THROWS.length)];
 
 export default function RockPaperScissors() {
-  const [bestOf, setBestOf] = useState(3);
+  const [bestOf, setBestOf] = usePersistentState('rock-paper-scissors:bestOf', 3);
   const engine = useMemo(() => createRps(bestOf), [bestOf]);
   return <Match key={bestOf} engine={engine} bestOf={bestOf} onBestOf={setBestOf} />;
 }
@@ -22,7 +23,7 @@ function Match({
   onBestOf: (n: number) => void;
 }) {
   // In vs-computer mode the computer (player 2) throws immediately after the human.
-  const m = useMatch(engine, { pickMove, delayMs: 300 });
+  const m = useMatch(engine, { pickMove, delayMs: 300, persistId: `rock-paper-scissors:${bestOf}` });
   const { game, isCpuTurn } = m;
   const { state, status, player, play } = game;
   const names = m.names('Player 1', 'Player 2');

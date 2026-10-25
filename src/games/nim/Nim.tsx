@@ -1,13 +1,13 @@
 import { useMemo, useState } from 'react';
 import { GameControls, GameShell, ModeToggle, Scoreboard, TurnBanner } from '../../shared/components';
+import { useLevel } from '../../shared/level';
+import { usePersistentState } from '../../shared/storage';
 import { useMatch } from '../../shared/useMatch';
-import { getBestMove } from './ai';
+import { chooseMove } from './ai';
 import { createNim, type NimState } from './engine';
 
-const pickMove = (s: NimState) => getBestMove(s);
-
 export default function Nim() {
-  const [misere, setMisere] = useState(false);
+  const [misere, setMisere] = usePersistentState('nim:misere', false);
   const engine = useMemo(() => createNim([3, 5, 7], misere), [misere]);
   // Remount the match when the variant changes so history/scores reset cleanly.
   return <NimMatch key={String(misere)} engine={engine} misere={misere} onVariant={setMisere} />;
@@ -22,7 +22,9 @@ function NimMatch({
   misere: boolean;
   onVariant: (m: boolean) => void;
 }) {
-  const m = useMatch(engine, { pickMove });
+  const [level, levelPicker] = useLevel('nim');
+  const pickMove = useMemo(() => (s: NimState) => chooseMove(s, level), [level]);
+  const m = useMatch(engine, { pickMove, persistId: `nim:${misere}` });
   const { game, isCpuTurn } = m;
   const { state, status, player, play } = game;
   const [selected, setSelected] = useState<{ pile: number; count: number } | null>(null);
@@ -41,6 +43,7 @@ function NimMatch({
   return (
     <GameShell id="nim" title="Nim">
       <ModeToggle mode={m.mode} onChange={m.changeMode} />
+      {m.mode === 'vs-cpu' && levelPicker}
       <label className="flex items-center gap-2 text-sm">
         <input type="checkbox" checked={misere} onChange={(e) => onVariant(e.target.checked)} />
         Misère (taking the last object loses)

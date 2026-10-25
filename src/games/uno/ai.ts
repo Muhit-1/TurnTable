@@ -1,3 +1,4 @@
+import { type Level, maybeRandom } from '../../shared/level';
 import { COLORS, type Color, isWild, type UnoMove, type UnoState, unoEngine } from './engine';
 
 /** Play coloured cards first (action cards early), save wilds for when stuck, and pick the colour held most. */
@@ -29,4 +30,16 @@ export function getBestMove(s: UnoState): UnoMove {
     }
   }
   return best;
+}
+
+/** Weaker levels sometimes play a random playable card (drawing and passing are never random). */
+export function chooseMove(s: UnoState, level: Level, random: () => number = Math.random): UnoMove {
+  const best = getBestMove(s);
+  if (best.kind !== 'play') return best;
+  return maybeRandom(
+    level,
+    best,
+    unoEngine.legalMoves(s).filter((m) => m.kind === 'play'),
+    random,
+  );
 }

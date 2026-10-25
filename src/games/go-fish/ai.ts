@@ -1,4 +1,5 @@
-import { countRank, type GoFishMove, type GoFishState, ranksHeld } from './engine';
+import { type Level, maybeRandom } from '../../shared/level';
+import { countRank, type GoFishMove, type GoFishState, goFishEngine, ranksHeld } from './engine';
 
 /** Ask for the rank the opponent has shown interest in, else the rank held most often. */
 export function getBestMove(s: GoFishState): GoFishMove {
@@ -10,4 +11,8 @@ export function getBestMove(s: GoFishState): GoFishMove {
   let best = pool[0];
   for (const r of pool) if (countRank(s.hands[me], r) > countRank(s.hands[me], best)) best = r;
   return { kind: 'ask', rank: best };
+}
+
+export function chooseMove(s: GoFishState, level: Level, random: () => number = Math.random): GoFishMove {
+  return maybeRandom(level, getBestMove(s), goFishEngine.legalMoves(s), random);
 }

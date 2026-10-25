@@ -10,7 +10,7 @@ const DESCRIBE = {
 };
 
 export default function SnakesAndLadders() {
-  const m = useMatch(snakesEngine);
+  const m = useMatch(snakesEngine, { persistId: 'snakes-and-ladders' });
   const { game } = m;
   const { state, status, player } = game;
   const names = m.names('Player 1', 'Player 2');

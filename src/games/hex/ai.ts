@@ -1,5 +1,6 @@
 import type { PlayerId } from '../../shared/engine';
-import { type Cell, type HexState, neighbours, SIZE } from './engine';
+import { type Level, maybeRandom } from '../../shared/level';
+import { type Cell, type HexState, hexEngine, neighbours, SIZE } from './engine';
 
 /** Fewest empty cells `p` still needs to fill to connect its sides (0-1 BFS; own stones are free, opponent blocks). */
 export function distance(cells: Cell[], p: PlayerId): number {
@@ -55,4 +56,8 @@ export function getBestMove(s: HexState): number {
     }
   }
   return best;
+}
+
+export function chooseMove(s: HexState, level: Level, random: () => number = Math.random): number {
+  return maybeRandom(level, getBestMove(s), hexEngine.legalMoves(s), random);
 }

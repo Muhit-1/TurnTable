@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { GameShell, ModeToggle, possessive, Scoreboard, TurnBanner } from '../../shared/components';
 import type { PlayerId } from '../../shared/engine';
+import { useLevel } from '../../shared/level';
 import { PassGate } from '../../shared/PassGate';
 import { useMatch } from '../../shared/useMatch';
-import { getBestMove } from './ai';
+import { chooseMove } from './ai';
 import { type Dictionary, dictionaryFromText } from './dictionary';
 import { checkPlay, createScrabble, LETTER_VALUES, type Placement, PREMIUMS, SIZE } from './engine';
 
@@ -42,8 +43,12 @@ interface Pending extends Placement {
 
 function Match({ dict }: { dict: Dictionary }) {
   const engine = useMemo(() => createScrabble(dict), [dict]);
-  const pickMove = useMemo(() => (s: Parameters<typeof getBestMove>[0]) => getBestMove(s, dict), [dict]);
-  const m = useMatch(engine, { pickMove, delayMs: 700 });
+  const [level, levelPicker] = useLevel('scrabble');
+  const pickMove = useMemo(
+    () => (s: Parameters<typeof chooseMove>[0]) => chooseMove(s, dict, level),
+    [dict, level],
+  );
+  const m = useMatch(engine, { pickMove, delayMs: 700, persistId: 'scrabble' });
   const { game, isCpuTurn } = m;
   const { state, status, player, play } = game;
   const names = m.names('Player 1', 'Player 2');
@@ -104,6 +109,7 @@ function Match({ dict }: { dict: Dictionary }) {
   return (
     <GameShell id="scrabble" title="Scrabble-style word building">
       <ModeToggle mode={m.mode} onChange={m.changeMode} />
+      {m.mode === 'vs-cpu' && levelPicker}
       <Scoreboard names={names} scores={m.scores} />
       <div className="text-sm font-medium">
         Points — {names[1]}: {state.scores[1]} · {names[2]}: {state.scores[2]} · Tiles in bag:{' '}

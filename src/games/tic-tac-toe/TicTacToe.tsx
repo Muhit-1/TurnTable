@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import {
   GameControls,
   GameShell,
@@ -6,16 +7,17 @@ import {
   Scoreboard,
   TurnBanner,
 } from '../../shared/components';
+import { useLevel } from '../../shared/level';
 import { useMatch } from '../../shared/useMatch';
-import { getBestMove } from './ai';
+import { chooseMove } from './ai';
 import { type TttState, tttEngine } from './engine';
 
 const AI_DELAY_MS = 400;
 
-const pickMove = (state: TttState) => getBestMove(state);
-
 export default function TicTacToe() {
-  const m = useMatch(tttEngine, { pickMove, delayMs: AI_DELAY_MS });
+  const [level, levelPicker] = useLevel('tic-tac-toe');
+  const pickMove = useMemo(() => (s: TttState) => chooseMove(s, level), [level]);
+  const m = useMatch(tttEngine, { pickMove, delayMs: AI_DELAY_MS, persistId: 'tic-tac-toe' });
   const { game, mode, isCpuTurn } = m;
   const { state, status, player, play, reset } = game;
   const names = m.names('Player 1 (X)', 'Player 2 (O)');
@@ -25,6 +27,7 @@ export default function TicTacToe() {
   return (
     <GameShell id="tic-tac-toe" title="Tic-Tac-Toe">
       <ModeToggle mode={mode} onChange={m.changeMode} />
+      {m.mode === 'vs-cpu' && levelPicker}
       <Scoreboard names={names} scores={m.scores} />
       <TurnBanner>
         {status.state === 'playing' &&

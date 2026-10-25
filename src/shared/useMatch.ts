@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Mode } from './components';
 import type { GameEngine, PlayerId } from './engine';
+import { loadJson, saveJson } from './storage';
 import { type UseGame, useGame } from './useGame';
 
 interface Options<State, Move> {
@@ -9,6 +10,8 @@ interface Options<State, Move> {
   pickMove?: (state: State) => Move | Promise<Move>;
   cpu?: PlayerId;
   delayMs?: number;
+  /** Save and resume this match (position, mode and scores) under this id. Include any variant in the id. */
+  persistId?: string;
 }
 
 export interface UseMatch<State, Move, Line> {
@@ -25,11 +28,19 @@ export interface UseMatch<State, Move, Line> {
 /** Wraps useGame with pvp / vs-computer mode, a computer-move effect, and a per-session scoreboard. */
 export function useMatch<State, Move, Line = unknown>(
   engine: GameEngine<State, Move, Line>,
-  { pickMove, cpu = 2, delayMs = 450 }: Options<State, Move> = {},
+  { pickMove, cpu = 2, delayMs = 450, persistId }: Options<State, Move> = {},
 ): UseMatch<State, Move, Line> {
-  const game = useGame(engine);
-  const [mode, setMode] = useState<Mode>('pvp');
-  const [scores, setScores] = useState<Record<PlayerId, number>>({ 1: 0, 2: 0 });
+  const game = useGame(engine, { persistKey: persistId });
+  const meta = persistId ? loadJson<{ mode?: unknown; scores?: unknown }>(`${persistId}:meta`) : null;
+  const [mode, setMode] = useState<Mode>(() => (meta?.mode === 'vs-cpu' ? 'vs-cpu' : 'pvp'));
+  const [scores, setScores] = useState<Record<PlayerId, number>>(() => {
+    const s = meta?.scores as Record<PlayerId, number> | undefined;
+    return s && Number.isFinite(s[1]) && Number.isFinite(s[2]) ? { 1: s[1], 2: s[2] } : { 1: 0, 2: 0 };
+  });
+
+  useEffect(() => {
+    if (persistId) saveJson(`${persistId}:meta`, { mode, scores });
+  }, [persistId, mode, scores]);
   const { state, status, player, play, reset } = game;
 
   const isCpuTurn = !!pickMove && mode === 'vs-cpu' && player === cpu && status.state === 'playing';
@@ -48,8 +59,9 @@ export function useMatch<State, Move, Line = unknown>(
   }, [isCpuTurn, pickMove, state, play, delayMs]);
 
   // Count each finished position once; redo restores the same state object, so it is not re-counted.
-  const scored = useRef<unknown>(null);
+  // A resumed finished game was already counted when it ended, so it must not be counted again.
   const winner = status.state === 'won' ? status.winner : null;
+  const scored = useRef<unknown>(winner ? state : null);
   useEffect(() => {
     if (!winner || scored.current === state) return;
     scored.current = state;

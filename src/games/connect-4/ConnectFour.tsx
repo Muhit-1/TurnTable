@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   GameControls,
   GameShell,
@@ -7,14 +7,14 @@ import {
   Scoreboard,
   TurnBanner,
 } from '../../shared/components';
+import { useLevel } from '../../shared/level';
 import { useMatch } from '../../shared/useMatch';
-import { getBestMove } from './ai';
+import { chooseMove } from './ai';
 import { type C4State, connect4Engine } from './engine';
 import type { Line, Player } from './types';
 
 const CPU: Player = 2;
 const AI_DELAY_MS = 500;
-const pickMove = (state: C4State) => getBestMove(state.board, CPU);
 
 function isWinningCell(line: Line | undefined, row: number, col: number): boolean {
   return !!line?.some(([r, c]) => r === row && c === col);
@@ -22,7 +22,9 @@ function isWinningCell(line: Line | undefined, row: number, col: number): boolea
 
 export default function ConnectFour() {
   const [hoverCol, setHoverCol] = useState<number | null>(null);
-  const m = useMatch(connect4Engine, { pickMove, delayMs: AI_DELAY_MS });
+  const [level, levelPicker] = useLevel('connect-4');
+  const pickMove = useMemo(() => (s: C4State) => chooseMove(s.board, CPU, level), [level]);
+  const m = useMatch(connect4Engine, { pickMove, delayMs: AI_DELAY_MS, persistId: 'connect-4' });
   const { game, mode, isCpuTurn } = m;
   const { state, status, player, play, reset } = game;
   const names = m.names('Player 1', 'Player 2');
@@ -32,6 +34,7 @@ export default function ConnectFour() {
   return (
     <GameShell id="connect-4" title="Connect Four">
       <ModeToggle mode={mode} onChange={m.changeMode} />
+      {m.mode === 'vs-cpu' && levelPicker}
       <Scoreboard names={names} scores={m.scores} />
       <TurnBanner>
         {status.state === 'playing' &&

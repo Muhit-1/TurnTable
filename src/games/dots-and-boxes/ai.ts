@@ -1,3 +1,4 @@
+import { type Level, maybeRandom } from '../../shared/level';
 import { boxesOfLine, createDots, type DotsState, sidesDrawn } from './engine';
 
 /** How many boxes the opponent could grab greedily right after `line` is drawn. */
@@ -43,4 +44,9 @@ export function getBestMove(s: DotsState): number {
     }
   }
   return best;
+}
+
+export function chooseMove(s: DotsState, level: Level, random: () => number = Math.random): number {
+  const engine = createDots(s.rows, s.cols);
+  return maybeRandom(level, getBestMove(s), engine.legalMoves(s), random);
 }

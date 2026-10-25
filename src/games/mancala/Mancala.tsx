@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import {
   GameControls,
   GameShell,
@@ -6,14 +7,15 @@ import {
   Scoreboard,
   TurnBanner,
 } from '../../shared/components';
+import { useLevel } from '../../shared/level';
 import { useMatch } from '../../shared/useMatch';
-import { getBestMove } from './ai';
+import { chooseMove } from './ai';
 import { type MancalaState, mancalaEngine, P1_STORE, P2_STORE } from './engine';
 
-const pickMove = (s: MancalaState) => getBestMove(s, 8);
-
 export default function Mancala() {
-  const m = useMatch(mancalaEngine, { pickMove, delayMs: 600 });
+  const [level, levelPicker] = useLevel('mancala');
+  const pickMove = useMemo(() => (s: MancalaState) => chooseMove(s, level), [level]);
+  const m = useMatch(mancalaEngine, { pickMove, delayMs: 600, persistId: 'mancala' });
   const { game, isCpuTurn } = m;
   const { state, status, player, play, legalMoves } = game;
   const names = m.names('South (Player 1)', 'North (Player 2)');
@@ -34,6 +36,7 @@ export default function Mancala() {
   return (
     <GameShell id="mancala" title="Mancala (Kalah)">
       <ModeToggle mode={m.mode} onChange={m.changeMode} />
+      {m.mode === 'vs-cpu' && levelPicker}
       <Scoreboard names={names} scores={m.scores} />
       <TurnBanner>
         {state.extraTurn && status.state === 'playing' && `${names[player]} lands in the store: go again. `}

@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import {
   GameControls,
   GameShell,
@@ -7,8 +7,9 @@ import {
   Scoreboard,
   TurnBanner,
 } from '../../shared/components';
+import { useLevel } from '../../shared/level';
+import { usePersistentState } from '../../shared/storage';
 import { useMatch } from '../../shared/useMatch';
-import { LEVELS, type Level } from './ai';
 import { areaScore, createGo, type GoMove, type GoState, margin } from './engine';
 import { pickGoMove } from './workerClient';
 
@@ -16,7 +17,7 @@ const SIZES = [9, 13, 19] as const;
 const STAR: Record<number, number[]> = { 9: [2, 4, 6], 13: [3, 6, 9], 19: [3, 9, 15] };
 
 export default function Go() {
-  const [size, setSize] = useState<number>(9);
+  const [size, setSize] = usePersistentState<number>('go:size', 9);
   const engine = useMemo(() => createGo(size), [size]);
   // Remount when the board size changes so history and scores start fresh.
   return <Match key={size} engine={engine} size={size} onSize={setSize} />;
@@ -31,9 +32,9 @@ function Match({
   size: number;
   onSize: (n: number) => void;
 }) {
-  const [level, setLevel] = useState<Level>('medium');
+  const [level, levelPicker] = useLevel('go');
   const pickMove = useCallback((s: GoState): Promise<GoMove> => pickGoMove(s, level), [level]);
-  const m = useMatch(engine, { pickMove, delayMs: 300 });
+  const m = useMatch(engine, { pickMove, delayMs: 300, persistId: `go:${size}` });
   const { game, isCpuTurn } = m;
   const { state, status, player, play } = game;
   const names = m.names('Black', 'White');
@@ -71,22 +72,8 @@ function Match({
             {n}×{n}
           </button>
         ))}
-        {m.mode === 'vs-cpu' && (
-          <>
-            <span className="ml-2">Difficulty</span>
-            {(Object.keys(LEVELS) as Level[]).map((l) => (
-              <button
-                key={l}
-                type="button"
-                className={`px-3 py-1 rounded border capitalize ${l === level ? 'bg-neutral-900 text-white' : 'bg-white'}`}
-                onClick={() => setLevel(l)}
-              >
-                {l}
-              </button>
-            ))}
-          </>
-        )}
       </div>
+      {m.mode === 'vs-cpu' && levelPicker}
       <Scoreboard names={names} scores={m.scores} />
       <div className="text-sm font-medium">
         Captured — {names[1]}: {state.captures[1]} · {names[2]}: {state.captures[2]}

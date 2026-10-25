@@ -37,7 +37,10 @@ design/                    static visual prototypes kept as reference for the UI
    - `<Game>.tsx`: use `useMatch(engine, { pickMove })` (pvp / vs-computer, scores, undo) and the shared components (`GameShell`, `TurnBanner`, `GameControls`, ...).
    - `engine.test.ts` covering legal/illegal moves, win, draw, no moves after game over.
 3. `scripts/scaffold-entry.sh <id> <ComponentName> "<Title>"` creates `allgames/<id>/index.html` and `src/games/<id>/main.tsx`.
-4. Set `ready: true` in the registry. Run `npm run lint && npm run typecheck && npm test && npm run build`.
+4. Add the game to `src/games/harness.ts` (engine, optional `choose(state, level)` for the computer, and a complete-game playthrough) — `npm test` fails until every registered game has an entry.
+5. Set `ready: true` in the registry. Run `npm run lint && npm run typecheck && npm test && npm run build`.
+
+Saving and difficulty: pass `persistId: '<id>'` to `useMatch` to save/resume the match (position, mode, scores), and use `useLevel('<id>')` for a remembered easy/medium/hard picker. Variants (board size, rules) belong in the `persistId` so each has its own save.
 
 Games that don't fit the strict two-player alternating-turn engine (dice, hidden info, cards) can extend it
 in Phase 2; keep their rules in `logic.ts` and unit-tested all the same.

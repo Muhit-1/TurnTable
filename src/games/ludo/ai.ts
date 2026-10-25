@@ -1,8 +1,10 @@
+import { type Level, maybeRandom } from '../../shared/level';
 import {
   HOME,
   LAST_TRACK,
   type LudoMove,
   type LudoState,
+  ludoEngine,
   movableTokens,
   SAFE_SQUARES,
   trackSquare,
@@ -41,4 +43,12 @@ export function getBestMove(s: LudoState): LudoMove {
     }
   }
   return { kind: 'move', token: best };
+}
+
+/** Weaker levels sometimes move a random token instead of the best one. */
+export function chooseMove(s: LudoState, level: Level, random: () => number = Math.random): LudoMove {
+  const best = getBestMove(s);
+  if (best.kind !== 'move') return best;
+  const options = ludoEngine.legalMoves(s).filter((m) => m.kind === 'move');
+  return maybeRandom(level, best, options, random);
 }

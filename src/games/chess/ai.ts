@@ -1,3 +1,4 @@
+import type { Level } from '../../shared/level';
 import {
   BISHOP,
   type ChessMove,
@@ -17,7 +18,7 @@ import {
   typeOf,
 } from './engine';
 
-export type Level = 'easy' | 'medium' | 'hard';
+export type { Level };
 export interface SearchOptions {
   maxDepth: number;
   timeMs: number;

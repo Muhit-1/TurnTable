@@ -1,5 +1,6 @@
 import type { PlayerId } from '../../shared/engine';
-import { type Cell, type GomokuState, SIZE } from './engine';
+import { type Level, maybeRandom } from '../../shared/level';
+import { type Cell, type GomokuState, gomokuEngine, SIZE } from './engine';
 
 const DIRS: [number, number][] = [
   [0, 1],
@@ -72,4 +73,8 @@ export function getBestMove(s: GomokuState): number {
     }
   }
   return best;
+}
+
+export function chooseMove(s: GomokuState, level: Level, random: () => number = Math.random): number {
+  return maybeRandom(level, getBestMove(s), gomokuEngine.legalMoves(s), random);
 }

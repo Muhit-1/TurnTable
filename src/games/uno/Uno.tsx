@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { GameShell, ModeToggle, possessive, Scoreboard, TurnBanner } from '../../shared/components';
 import type { PlayerId } from '../../shared/engine';
+import { useLevel } from '../../shared/level';
 import { PassGate } from '../../shared/PassGate';
 import { useMatch } from '../../shared/useMatch';
-import { getBestMove } from './ai';
+import { chooseMove } from './ai';
 import {
   COLORS,
   type Color,
@@ -15,7 +16,6 @@ import {
   unoEngine,
 } from './engine';
 
-const pickMove = (s: UnoState) => getBestMove(s);
 const BG: Record<Color, string> = {
   red: 'bg-red-500 text-white',
   yellow: 'bg-yellow-400 text-neutral-900',
@@ -40,7 +40,9 @@ function Face({ card, active, onClick }: { card: UnoCard; active?: boolean; onCl
 }
 
 export default function Uno() {
-  const m = useMatch(unoEngine, { pickMove, delayMs: 900 });
+  const [level, levelPicker] = useLevel('uno');
+  const pickMove = useMemo(() => (s: UnoState) => chooseMove(s, level), [level]);
+  const m = useMatch(unoEngine, { pickMove, delayMs: 900, persistId: 'uno' });
   const { game, isCpuTurn } = m;
   const { state, status, player, play } = game;
   const names = m.names('Player 1', 'Player 2');
@@ -70,6 +72,7 @@ export default function Uno() {
           m.changeMode(x);
         }}
       />
+      {m.mode === 'vs-cpu' && levelPicker}
       <Scoreboard names={names} scores={m.scores} />
       <TurnBanner>
         {state.last && `${state.last} `}

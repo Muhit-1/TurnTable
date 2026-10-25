@@ -1,6 +1,8 @@
+import { useMemo } from 'react';
 import { GameShell, ModeToggle, possessive, Scoreboard, TurnBanner } from '../../shared/components';
+import { useLevel } from '../../shared/level';
 import { useMatch } from '../../shared/useMatch';
-import { getBestMove } from './ai';
+import { chooseMove } from './ai';
 import {
   CATEGORIES,
   type Category,
@@ -32,10 +34,11 @@ const LABEL: Record<Category, string> = {
   chance: 'Chance',
 };
 const FACE = ['', '⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
-const pickMove = (s: YahtzeeState) => getBestMove(s);
 
 export default function Yahtzee() {
-  const m = useMatch(yahtzeeEngine, { pickMove, delayMs: 550 });
+  const [level, levelPicker] = useLevel('yahtzee');
+  const pickMove = useMemo(() => (s: YahtzeeState) => chooseMove(s, level), [level]);
+  const m = useMatch(yahtzeeEngine, { pickMove, delayMs: 550, persistId: 'yahtzee' });
   const { game, isCpuTurn } = m;
   const { state, status, player, play } = game;
   const names = m.names('Player 1', 'Player 2');
@@ -75,6 +78,7 @@ export default function Yahtzee() {
   return (
     <GameShell id="yahtzee" title="Yahtzee">
       <ModeToggle mode={m.mode} onChange={m.changeMode} />
+      {m.mode === 'vs-cpu' && levelPicker}
       <Scoreboard names={names} scores={m.scores} />
       <TurnBanner>
         {status.state === 'playing' &&

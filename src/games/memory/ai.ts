@@ -1,3 +1,4 @@
+import type { Level } from '../../shared/level';
 import { type MemoryMove, type MemoryState, needsResolve } from './engine';
 
 /** How many of the most recent reveals the computer "remembers". */
@@ -29,4 +30,11 @@ export function getBestMove(s: MemoryState, span = MEMORY_SPAN): MemoryMove {
   const pool = unknown.length ? unknown : open;
   // Spread picks around the board using how many cards have been revealed so far.
   return pool[(s.reveals.length * 7) % pool.length];
+}
+
+/** How many recent reveals the computer remembers at each level. */
+const SPAN: Record<Level, number> = { easy: 2, medium: 5, hard: MEMORY_SPAN };
+
+export function chooseMove(s: MemoryState, level: Level): MemoryMove {
+  return getBestMove(s, SPAN[level]);
 }

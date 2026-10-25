@@ -1,3 +1,4 @@
+import type { Level } from '../../shared/level';
 import { nextInt } from '../../shared/rng';
 import { type BattleshipMove, type BattleshipState, isSunk, SIZE, shipAt } from './engine';
 
@@ -15,7 +16,7 @@ const nb = (i: number): number[] => {
 };
 
 /** Placement is random; firing hunts on a checkerboard and, after a hit, works along the line of hits. */
-export function getBestMove(s: BattleshipState): BattleshipMove {
+export function getBestMove(s: BattleshipState, level: Level = 'hard'): BattleshipMove {
   if (s.phase === 'place') return { kind: 'randomize' };
   const me = s.current;
   const opp = me === 1 ? 2 : 1;
@@ -28,6 +29,12 @@ export function getBestMove(s: BattleshipState): BattleshipMove {
     const ship = shipAt(s.fleets[opp], i);
     return ship && !isSunk(ship, shots) ? [i] : [];
   });
+
+  // easy fires blindly; medium finishes ships it has hit but searches without the checkerboard pattern
+  if (level === 'easy') {
+    const all = shots.flatMap((_, i) => (free(i) ? [i] : []));
+    return { kind: 'fire', cell: all[nextInt(s.seed, all.length)[0]] };
+  }
 
   if (open.length) {
     const candidates: number[] = [];
@@ -56,6 +63,6 @@ export function getBestMove(s: BattleshipState): BattleshipMove {
 
   const all = shots.flatMap((_, i) => (free(i) ? [i] : []));
   const parity = all.filter((i) => (rc(i)[0] + rc(i)[1]) % 2 === 0);
-  const pool = parity.length ? parity : all;
+  const pool = level === 'hard' && parity.length ? parity : all;
   return { kind: 'fire', cell: pool[nextInt(s.seed, pool.length)[0]] };
 }

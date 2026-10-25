@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   GameControls,
   GameShell,
@@ -7,11 +7,11 @@ import {
   Scoreboard,
   TurnBanner,
 } from '../../shared/components';
+import { useLevel } from '../../shared/level';
 import { useMatch } from '../../shared/useMatch';
-import { getBestMove } from './ai';
+import { chooseMove } from './ai';
 import { type MorrisState, morrisEngine } from './engine';
 
-const pickMove = (s: MorrisState) => getBestMove(s, 3);
 const RADII = [130, 87, 44];
 const CENTER = 150;
 
@@ -32,7 +32,9 @@ function coords(i: number): [number, number] {
 }
 
 export default function NineMensMorris() {
-  const m = useMatch(morrisEngine, { pickMove, delayMs: 600 });
+  const [level, levelPicker] = useLevel('nine-mens-morris');
+  const pickMove = useMemo(() => (s: MorrisState) => chooseMove(s, level), [level]);
+  const m = useMatch(morrisEngine, { pickMove, delayMs: 600, persistId: 'nine-mens-morris' });
   const { game, isCpuTurn } = m;
   const { state, status, player, play, legalMoves } = game;
   const names = m.names('White (Player 1)', 'Black (Player 2)');
@@ -85,6 +87,7 @@ export default function NineMensMorris() {
           m.changeMode(x);
         }}
       />
+      {m.mode === 'vs-cpu' && levelPicker}
       <Scoreboard names={names} scores={m.scores} />
       <div className="text-sm font-medium">
         In hand — {names[1]}: {state.hand[1]} · {names[2]}: {state.hand[2]}

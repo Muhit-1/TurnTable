@@ -29,7 +29,7 @@ Goal: decide the shape once, so the 26 games are copy-paste-consistent instead o
 
 ---
 
-## Phase 2 — Game Mechanics (all 26 games)  (status: 26/26 games done · 3 cross-cutting items still open)
+## Phase 2 — Game Mechanics (all 26 games)  (status: 26/26 games + all cross-cutting items ✅ complete)
 
 Goal: every game is fully playable and rule-correct with plain UI. Each game is "done" only when:
 rules implemented per `game-rules.txt` · win/draw/end detection · invalid moves rejected · unit tests pass · hot-seat playable end to end · rules + video link reachable from the game page.
@@ -75,11 +75,11 @@ rules implemented per `game-rules.txt` · win/draw/end detection · invalid move
 - [x] Seedable RNG utility shared by dice/card games (`src/shared/rng.ts`)
 - [x] Reusable deck/shuffle utility (`src/shared/deck.ts`)
 - [x] AI opponents where reasonable (vs-computer mode in every game that has choices; hidden-information games use pass-the-device)
-- [ ] Difficulty levels easy/medium/hard (done for Chess and Go; the other games have one fixed strength)
+- [x] Difficulty levels easy/medium/hard for every game with a computer opponent that makes real choices (search depth, memory span, shots strategy, roll count, or random-move rate; remembered per game; Rock Paper Scissors, War and Snakes and Ladders have no choices to weaken)
 - [x] Run AI in a Web Worker so Chess/Go search never freezes the UI (`src/shared/workerRpc.ts`, with main-thread fallback)
-- [ ] Game-state save/resume in `localStorage` (refresh doesn't lose a game)
+- [x] Game-state save/resume in `localStorage` (position, mode, scores and settings such as board size/variant; the undo history is not saved; Hangman and 20 Questions are not saved so a hidden word is never stored)
 - [x] Per-game rules panel + embedded "how to play" video link from `game-rules.txt`
-- [ ] Integration smoke test per game: play a scripted full game to a finish
+- [x] Integration test per game: `src/games/playthrough.test.ts` plays a complete game for every game in the registry, checks the computer at all 3 levels, and checks states survive JSON; it fails if a registered game has no harness entry
 
 ---
 

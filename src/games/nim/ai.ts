@@ -1,4 +1,5 @@
-import type { NimMove, NimState } from './engine';
+import { type Level, maybeRandom } from '../../shared/level';
+import { createNim, type NimMove, type NimState } from './engine';
 
 const nimSum = (piles: number[]) => piles.reduce((a, b) => a ^ b, 0);
 
@@ -27,4 +28,8 @@ export function getBestMove(s: NimState): NimMove {
   // Losing position: take one from the largest pile and hope for a mistake.
   const i = piles.indexOf(Math.max(...piles));
   return { pile: i, count: 1 };
+}
+
+export function chooseMove(s: NimState, level: Level, random: () => number = Math.random): NimMove {
+  return maybeRandom(level, getBestMove(s), createNim(s.piles, s.misere).legalMoves(s), random);
 }

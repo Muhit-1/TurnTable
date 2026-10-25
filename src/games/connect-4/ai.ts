@@ -1,3 +1,4 @@
+import { type Level, maybeRandom } from '../../shared/level';
 import { checkWin, dropDisc, getValidColumns, otherPlayer } from './logic';
 import { type Board, type Cell, COLS, type Player, ROWS } from './types';
 
@@ -123,4 +124,16 @@ export function getBestMove(board: Board, aiPlayer: Player, depth = DEFAULT_DEPT
   }
 
   return bestCol;
+}
+
+const DEPTH: Record<Level, number> = { easy: 2, medium: 4, hard: 6 };
+
+/** Search depth grows with the level; weaker levels also sometimes play a random column. */
+export function chooseMove(
+  board: Board,
+  aiPlayer: Player,
+  level: Level,
+  random: () => number = Math.random,
+): number {
+  return maybeRandom(level, getBestMove(board, aiPlayer, DEPTH[level]), getValidColumns(board), random);
 }

@@ -1,4 +1,5 @@
 import type { PlayerId } from '../../shared/engine';
+import { type Level, maybeRandom } from '../../shared/level';
 import { type TttState, tttEngine } from './engine';
 
 /** Full-depth minimax; the tree is tiny, so no pruning is needed. Prefers faster wins. */
@@ -27,4 +28,9 @@ export function getBestMove(state: TttState): number {
     }
   }
   return bestMove;
+}
+
+/** Perfect play at hard; weaker levels sometimes play a random square. */
+export function chooseMove(state: TttState, level: Level, random: () => number = Math.random): number {
+  return maybeRandom(level, getBestMove(state), tttEngine.legalMoves(state), random);
 }

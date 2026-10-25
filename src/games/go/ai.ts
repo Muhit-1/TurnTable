@@ -1,7 +1,8 @@
 import type { PlayerId } from '../../shared/engine';
+import type { Level } from '../../shared/level';
 import { createGo, type GoMove, type GoState, neighbours } from './engine';
 
-export type Level = 'easy' | 'medium' | 'hard';
+export type { Level };
 export interface SearchOptions {
   timeMs: number;
   /** stop after this many playouts even if time remains (used for repeatable tests) */

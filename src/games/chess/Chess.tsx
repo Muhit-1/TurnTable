@@ -8,8 +8,8 @@ import {
   TurnBanner,
 } from '../../shared/components';
 import type { PlayerId } from '../../shared/engine';
+import { useLevel } from '../../shared/level';
 import { useMatch } from '../../shared/useMatch';
-import { LEVELS, type Level } from './ai';
 import {
   BISHOP,
   type ChessMove,
@@ -46,7 +46,7 @@ function captured(cells: number[], color: PlayerId): number[] {
 }
 
 export default function Chess() {
-  const [level, setLevel] = useState<Level>('medium');
+  const [level, levelPicker] = useLevel('chess');
   const [flipped, setFlipped] = useState(false);
   const [selected, setSelected] = useState<number | null>(null);
   const [promoting, setPromoting] = useState<{ from: number; to: number } | null>(null);
@@ -55,7 +55,7 @@ export default function Chess() {
     async (s: ChessState) => (await pickChessMove(s, level)) as ChessMove,
     [level],
   );
-  const m = useMatch(chessEngine, { pickMove, delayMs: 250 });
+  const m = useMatch(chessEngine, { pickMove, delayMs: 250, persistId: 'chess' });
   const { game, isCpuTurn } = m;
   const { state, status, player, play, legalMoves } = game;
   const names = m.names('White', 'Black');
@@ -118,21 +118,7 @@ export default function Chess() {
           m.changeMode(x);
         }}
       />
-      {m.mode === 'vs-cpu' && (
-        <div className="flex items-center gap-2 text-sm">
-          Difficulty
-          {(Object.keys(LEVELS) as Level[]).map((l) => (
-            <button
-              key={l}
-              type="button"
-              className={`px-3 py-1 rounded border capitalize ${l === level ? 'bg-neutral-900 text-white' : 'bg-white'}`}
-              onClick={() => setLevel(l)}
-            >
-              {l}
-            </button>
-          ))}
-        </div>
-      )}
+      {m.mode === 'vs-cpu' && levelPicker}
       <Scoreboard names={names} scores={m.scores} />
       <TurnBanner>
         {status.state === 'playing' &&

@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import {
   GameControls,
   GameShell,
@@ -6,14 +7,15 @@ import {
   Scoreboard,
   TurnBanner,
 } from '../../shared/components';
+import { useLevel } from '../../shared/level';
 import { useMatch } from '../../shared/useMatch';
-import { getBestMove } from './ai';
+import { chooseMove } from './ai';
 import { count, type ReversiState, reversiEngine, SIZE } from './engine';
 
-const pickMove = (s: ReversiState) => getBestMove(s);
-
 export default function Reversi() {
-  const m = useMatch(reversiEngine, { pickMove, delayMs: 450 });
+  const [level, levelPicker] = useLevel('reversi');
+  const pickMove = useMemo(() => (s: ReversiState) => chooseMove(s, level), [level]);
+  const m = useMatch(reversiEngine, { pickMove, delayMs: 450, persistId: 'reversi' });
   const { game, isCpuTurn } = m;
   const { state, status, player, play, legalMoves } = game;
   const names = m.names('Dark', 'Light');
@@ -22,6 +24,7 @@ export default function Reversi() {
   return (
     <GameShell id="reversi" title="Reversi / Othello">
       <ModeToggle mode={m.mode} onChange={m.changeMode} />
+      {m.mode === 'vs-cpu' && levelPicker}
       <Scoreboard names={names} scores={m.scores} />
       <div className="text-sm font-medium">
         Discs — {names[1]}: {discs[1]} · {names[2]}: {discs[2]}

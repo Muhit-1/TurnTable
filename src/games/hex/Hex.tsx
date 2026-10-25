@@ -1,12 +1,14 @@
+import { useMemo } from 'react';
 import { GameControls, GameShell, ModeToggle, Scoreboard, TurnBanner } from '../../shared/components';
+import { useLevel } from '../../shared/level';
 import { useMatch } from '../../shared/useMatch';
-import { getBestMove } from './ai';
+import { chooseMove } from './ai';
 import { type HexState, hexEngine, SIZE } from './engine';
 
-const pickMove = (s: HexState) => getBestMove(s);
-
 export default function Hex() {
-  const m = useMatch(hexEngine, { pickMove, delayMs: 350 });
+  const [level, levelPicker] = useLevel('hex');
+  const pickMove = useMemo(() => (s: HexState) => chooseMove(s, level), [level]);
+  const m = useMatch(hexEngine, { pickMove, delayMs: 350, persistId: 'hex' });
   const { game, isCpuTurn } = m;
   const { state, status, player, play } = game;
   const names = m.names('Red (top ↔ bottom)', 'Blue (left ↔ right)');
@@ -15,6 +17,7 @@ export default function Hex() {
   return (
     <GameShell id="hex" title="Hex">
       <ModeToggle mode={m.mode} onChange={m.changeMode} />
+      {m.mode === 'vs-cpu' && levelPicker}
       <Scoreboard names={names} scores={m.scores} />
       <TurnBanner>
         {status.state === 'playing' && (isCpuTurn ? 'Computer is thinking…' : `${names[player]}: your turn`)}

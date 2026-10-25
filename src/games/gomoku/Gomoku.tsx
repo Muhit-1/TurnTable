@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import {
   GameControls,
   GameShell,
@@ -6,14 +7,15 @@ import {
   Scoreboard,
   TurnBanner,
 } from '../../shared/components';
+import { useLevel } from '../../shared/level';
 import { useMatch } from '../../shared/useMatch';
-import { getBestMove } from './ai';
+import { chooseMove } from './ai';
 import { type GomokuState, gomokuEngine, SIZE } from './engine';
 
-const pickMove = (s: GomokuState) => getBestMove(s);
-
 export default function Gomoku() {
-  const m = useMatch(gomokuEngine, { pickMove, delayMs: 350 });
+  const [level, levelPicker] = useLevel('gomoku');
+  const pickMove = useMemo(() => (s: GomokuState) => chooseMove(s, level), [level]);
+  const m = useMatch(gomokuEngine, { pickMove, delayMs: 350, persistId: 'gomoku' });
   const { game, isCpuTurn } = m;
   const { state, status, player, play } = game;
   const names = m.names('Black', 'White');
@@ -22,6 +24,7 @@ export default function Gomoku() {
   return (
     <GameShell id="gomoku" title="Gomoku">
       <ModeToggle mode={m.mode} onChange={m.changeMode} />
+      {m.mode === 'vs-cpu' && levelPicker}
       <Scoreboard names={names} scores={m.scores} />
       <TurnBanner>
         {status.state === 'playing' &&

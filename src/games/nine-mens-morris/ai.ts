@@ -1,4 +1,5 @@
 import type { PlayerId } from '../../shared/engine';
+import { type Level, maybeRandom } from '../../shared/level';
 import { MILLS, type MorrisMove, type MorrisState, morrisEngine, movesFor } from './engine';
 
 function evaluate(s: MorrisState, me: PlayerId): number {
@@ -62,4 +63,10 @@ export function getBestMove(s: MorrisState, depth = 3): MorrisMove {
     }
   }
   return best;
+}
+
+const DEPTH: Record<Level, number> = { easy: 1, medium: 2, hard: 3 };
+
+export function chooseMove(s: MorrisState, level: Level, random: () => number = Math.random): MorrisMove {
+  return maybeRandom(level, getBestMove(s, DEPTH[level]), morrisEngine.legalMoves(s), random);
 }

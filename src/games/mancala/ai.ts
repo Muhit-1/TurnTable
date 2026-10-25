@@ -1,4 +1,5 @@
 import type { PlayerId } from '../../shared/engine';
+import { type Level, maybeRandom } from '../../shared/level';
 import { type MancalaState, mancalaEngine, P1_STORE, P2_STORE } from './engine';
 
 function search(s: MancalaState, depth: number, alpha: number, beta: number, me: PlayerId): number {
@@ -39,4 +40,10 @@ export function getBestMove(s: MancalaState, depth = 8): number {
     }
   }
   return best;
+}
+
+const DEPTH: Record<Level, number> = { easy: 3, medium: 6, hard: 8 };
+
+export function chooseMove(s: MancalaState, level: Level, random: () => number = Math.random): number {
+  return maybeRandom(level, getBestMove(s, DEPTH[level]), mancalaEngine.legalMoves(s), random);
 }

@@ -1,9 +1,9 @@
+import { useMemo } from 'react';
 import { GameControls, GameShell, ModeToggle, Scoreboard, TurnBanner } from '../../shared/components';
+import { useLevel } from '../../shared/level';
 import { useMatch } from '../../shared/useMatch';
-import { getBestMove } from './ai';
+import { chooseMove } from './ai';
 import { availablePieces, PIECES, type QuartoState, quartoEngine, SIZE, traitOf } from './engine';
-
-const pickMove = (s: QuartoState) => getBestMove(s);
 
 const describe = (p: number) =>
   `${traitOf(p, 0) ? 'tall' : 'short'}, ${traitOf(p, 1) ? 'dark' : 'light'}, ${traitOf(p, 2) ? 'square' : 'round'}, ${traitOf(p, 3) ? 'hollow' : 'solid'}`;
@@ -30,7 +30,9 @@ function PieceView({ piece, size = 40 }: { piece: number; size?: number }) {
 }
 
 export default function Quarto() {
-  const m = useMatch(quartoEngine, { pickMove, delayMs: 550 });
+  const [level, levelPicker] = useLevel('quarto');
+  const pickMove = useMemo(() => (s: QuartoState) => chooseMove(s, level), [level]);
+  const m = useMatch(quartoEngine, { pickMove, delayMs: 550, persistId: 'quarto' });
   const { game, isCpuTurn } = m;
   const { state, status, player, play } = game;
   const names = m.names('Player 1', 'Player 2');
@@ -42,6 +44,7 @@ export default function Quarto() {
   return (
     <GameShell id="quarto" title="Quarto">
       <ModeToggle mode={m.mode} onChange={m.changeMode} />
+      {m.mode === 'vs-cpu' && levelPicker}
       <Scoreboard names={names} scores={m.scores} />
       <TurnBanner>
         {status.state === 'playing' &&

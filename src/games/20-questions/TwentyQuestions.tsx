@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { GameShell, type Mode, ModeToggle, Scoreboard, TurnBanner } from '../../shared/components';
-import { getBestMove } from './ai';
+import type { Level } from '../../shared/level';
+import { useLevel } from '../../shared/level';
+import { chooseMove } from './ai';
 import { createTwentyQuestions, MAX_QUESTIONS, type TqMove, type TqState } from './engine';
 
 type Person = 1 | 2;
@@ -10,6 +12,7 @@ export default function TwentyQuestions() {
   const [round, setRound] = useState(0);
   const [started, setStarted] = useState<{ secret: string | null } | null>(null);
   const [scores, setScores] = useState<Record<Person, number>>({ 1: 0, 2: 0 });
+  const [level, levelPicker] = useLevel('20-questions');
 
   // vs computer: the computer guesses and the human answers. pvp: guesser alternates each round.
   const guesser: Person = mode === 'vs-cpu' ? 2 : round % 2 === 0 ? 1 : 2;
@@ -28,6 +31,7 @@ export default function TwentyQuestions() {
   return (
     <GameShell id="20-questions" title="20 Questions">
       <ModeToggle mode={mode} onChange={changeMode} />
+      {mode === 'vs-cpu' && levelPicker}
       <Scoreboard names={names} scores={scores} />
       {started === null ? (
         <Setup
@@ -41,6 +45,7 @@ export default function TwentyQuestions() {
           key={round}
           secret={started.secret}
           computerGuesses={mode === 'vs-cpu'}
+          level={level}
           guesserName={names[guesser]}
           answererName={names[answerer]}
           onFinished={(guesserWon) =>
@@ -118,6 +123,7 @@ function Setup({
 function Round({
   secret,
   computerGuesses,
+  level,
   guesserName,
   answererName,
   onFinished,
@@ -125,6 +131,7 @@ function Round({
 }: {
   secret: string | null;
   computerGuesses: boolean;
+  level: Level;
   guesserName: string;
   answererName: string;
   onFinished: (guesserWon: boolean) => void;
@@ -148,9 +155,9 @@ function Round({
   // The computer asks or guesses by itself when it is the guesser.
   useEffect(() => {
     if (!computerGuesses || over || state.phase !== 'ask') return;
-    const t = setTimeout(() => apply(getBestMove(state)), 900);
+    const t = setTimeout(() => apply(chooseMove(state, level)), 900);
     return () => clearTimeout(t);
-  }, [computerGuesses, over, state, apply]);
+  }, [computerGuesses, over, state, apply, level]);
 
   const pending = state.log[state.log.length - 1];
   const left = MAX_QUESTIONS - state.log.length;

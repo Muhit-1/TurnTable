@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   GameControls,
   GameShell,
@@ -7,14 +7,15 @@ import {
   Scoreboard,
   TurnBanner,
 } from '../../shared/components';
+import { useLevel } from '../../shared/level';
 import { useMatch } from '../../shared/useMatch';
-import { getBestMove } from './ai';
+import { chooseMove } from './ai';
 import { type CheckersState, checkersEngine, countPieces, isCapture, isDark, SIZE } from './engine';
 
-const pickMove = (s: CheckersState) => getBestMove(s, 6);
-
 export default function Checkers() {
-  const m = useMatch(checkersEngine, { pickMove, delayMs: 450 });
+  const [level, levelPicker] = useLevel('checkers');
+  const pickMove = useMemo(() => (s: CheckersState) => chooseMove(s, level), [level]);
+  const m = useMatch(checkersEngine, { pickMove, delayMs: 450, persistId: 'checkers' });
   const { game, isCpuTurn } = m;
   const { state, status, player, play, legalMoves } = game;
   const names = m.names('Red (Player 1)', 'White (Player 2)');
@@ -53,6 +54,7 @@ export default function Checkers() {
           m.changeMode(x);
         }}
       />
+      {m.mode === 'vs-cpu' && levelPicker}
       <Scoreboard names={names} scores={m.scores} />
       <div className="text-sm font-medium">
         Pieces — {names[1]}: {counts[1].men + counts[1].kings} ({counts[1].kings} kings) · {names[2]}:{' '}
