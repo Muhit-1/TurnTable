@@ -26,7 +26,7 @@ function PieceView({ piece, size = 40 }: { piece: number; size?: number }) {
     <span
       role="img"
       aria-label={describe(piece)}
-      className={`inline-flex items-center justify-center border-2 ${square ? 'rounded-sm' : 'rounded-full'} ${dark ? 'bg-amber-900 border-amber-950' : 'bg-amber-200 border-amber-500'}`}
+      className={`piece-pop inline-flex items-center justify-center border-2 shadow-md ${square ? 'rounded-sm' : 'rounded-full'} ${dark ? 'bg-gradient-to-br from-amber-800 to-amber-950 border-amber-950' : 'bg-gradient-to-br from-amber-100 to-amber-300 border-amber-500'}`}
       style={{ width: w, height: h }}
     >
       {hollow ? (
@@ -74,7 +74,7 @@ export default function Quarto() {
       </div>
 
       <BoardFrame>
-        <div className="grid grid-cols-4 gap-1 bg-amber-700 p-2 rounded">
+        <div className="board-paper grid grid-cols-4 gap-1 p-2">
           {state.board.map((piece, i) => (
             <button
               // biome-ignore lint/suspicious/noArrayIndexKey: fixed board squares
@@ -83,7 +83,7 @@ export default function Quarto() {
               aria-label={`Row ${Math.floor(i / SIZE) + 1}, column ${(i % SIZE) + 1}${piece !== null ? `, ${describe(piece)}` : ''}`}
               disabled={locked || giving || piece !== null}
               onClick={() => play({ kind: 'place', square: i })}
-              className={`w-16 h-16 rounded bg-amber-100 flex items-center justify-center enabled:hover:bg-amber-200 ${win?.includes(i) ? 'ring-4 ring-red-500' : ''}`}
+              className={`w-16 h-16 rounded bg-amber-50/50 border border-amber-900/20 flex items-center justify-center enabled:hover:bg-amber-200 ${win?.includes(i) ? 'ring-4 ring-red-500' : ''}`}
             >
               {piece !== null && <PieceView piece={piece} size={52} />}
             </button>

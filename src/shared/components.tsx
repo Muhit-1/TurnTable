@@ -78,6 +78,44 @@ export function BoardFrame({
   );
 }
 
+const PIPS: Record<number, number[]> = {
+  1: [4],
+  2: [0, 8],
+  3: [0, 4, 8],
+  4: [0, 2, 6, 8],
+  5: [0, 2, 4, 6, 8],
+  6: [0, 2, 3, 5, 6, 8],
+};
+
+/** A die face with pips. `rollKey` changes (e.g. a roll counter) replay the tumble animation. */
+export function Die({
+  value,
+  size = '2.6rem',
+  rollKey,
+  held,
+}: {
+  value: number;
+  size?: string;
+  rollKey?: string | number;
+  held?: boolean;
+}) {
+  const on = new Set(PIPS[value] ?? []);
+  return (
+    <span
+      key={rollKey}
+      role="img"
+      aria-label={`die showing ${value}`}
+      className={`die-face dice-tumble${held ? ' held' : ''}`}
+      style={{ '--d': size } as CSSProperties}
+    >
+      {Array.from({ length: 9 }, (_, i) => (
+        // biome-ignore lint/suspicious/noArrayIndexKey: fixed 3x3 pip grid
+        <i key={i} style={{ visibility: on.has(i) ? 'visible' : 'hidden' }} />
+      ))}
+    </span>
+  );
+}
+
 export function GameControls({
   canUndo,
   canRedo,

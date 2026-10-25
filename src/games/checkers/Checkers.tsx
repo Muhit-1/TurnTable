@@ -71,7 +71,7 @@ export default function Checkers() {
       </TurnBanner>
 
       <BoardFrame>
-        <div className="grid grid-cols-8 border-4 border-amber-900">
+        <div className="grid grid-cols-8 overflow-hidden rounded-lg">
           {state.cells.map((cell, i) => {
             const r = Math.floor(i / SIZE);
             const c = i % SIZE;
@@ -86,7 +86,7 @@ export default function Checkers() {
                 disabled={!dark || locked}
                 aria-label={`Row ${r + 1}, column ${c + 1}${cell ? `, ${cell.owner === 1 ? 'red' : 'white'} ${cell.king ? 'king' : 'man'}` : ''}${isTarget ? ', move here' : ''}`}
                 onClick={() => click(i)}
-                className={`w-11 h-11 sm:w-12 sm:h-12 flex items-center justify-center ${dark ? 'bg-amber-800' : 'bg-amber-100'} ${
+                className={`w-11 h-11 sm:w-12 sm:h-12 flex items-center justify-center ${dark ? 'sq-dark' : 'sq-light'} ${
                   selected
                     ? 'ring-4 ring-inset ring-yellow-300'
                     : isTarget
@@ -98,10 +98,9 @@ export default function Checkers() {
               >
                 {cell && (
                   <span
-                    className={`w-9 h-9 rounded-full border-2 flex items-center justify-center text-lg ${
-                      cell.owner === 1
-                        ? 'bg-red-600 border-red-900 text-yellow-200'
-                        : 'bg-neutral-100 border-neutral-400 text-amber-600'
+                    key={`${cell.owner}${cell.king}`}
+                    className={`checker piece-pop flex items-center justify-center text-lg ${
+                      cell.owner === 1 ? 'red text-yellow-200' : 'cream text-amber-700'
                     }`}
                   >
                     {cell.king ? '♛' : ''}

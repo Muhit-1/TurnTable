@@ -36,7 +36,7 @@ export default function Gomoku() {
 
       <BoardFrame>
         <div
-          className="grid bg-amber-200 p-2 rounded max-w-full overflow-auto"
+          className="board-go grid rounded p-2 max-w-full overflow-auto"
           style={{ gridTemplateColumns: `repeat(${SIZE}, 2rem)` }}
         >
           {state.cells.map((cell, i) => (
@@ -51,7 +51,7 @@ export default function Gomoku() {
             >
               {cell && (
                 <span
-                  className={`block w-6 h-6 rounded-full border ${cell === 1 ? 'bg-neutral-900 border-neutral-900' : 'bg-white border-neutral-500'} ${
+                  className={`block w-6 h-6 piece-pop ${cell === 1 ? 'stone-b' : 'stone-w'} ${
                     win?.includes(i) ? 'ring-2 ring-red-500' : state.last === i ? 'ring-2 ring-blue-400' : ''
                   }`}
                 />

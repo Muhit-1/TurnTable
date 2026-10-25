@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import {
   BoardFrame,
+  Die,
   GameShell,
   ModeToggle,
   possessive,
@@ -151,9 +152,7 @@ export default function Backgammon() {
           {state.dice.length ? (
             state.dice.map((d, i) => (
               // biome-ignore lint/suspicious/noArrayIndexKey: dice are positional and may repeat (doubles)
-              <span key={i} className="px-2 border rounded bg-white">
-                {d}
-              </span>
+              <Die key={`${i}-${d}-${JSON.stringify(state.last)}`} value={d} size="2.4rem" />
             ))
           ) : (
             <span className="text-neutral-400 text-base">no dice</span>

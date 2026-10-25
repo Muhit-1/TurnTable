@@ -40,7 +40,7 @@ export default function Reversi() {
       </TurnBanner>
 
       <BoardFrame>
-        <div className="grid grid-cols-8 gap-0.5 bg-green-900 p-1 rounded">
+        <div className="board-felt grid grid-cols-8 gap-0.5 p-1">
           {state.cells.map((cell, i) => {
             const legal = !isCpuTurn && legalMoves.includes(i);
             return (
@@ -51,11 +51,12 @@ export default function Reversi() {
                 aria-label={`Row ${Math.floor(i / SIZE) + 1}, column ${(i % SIZE) + 1}${cell ? `, ${cell === 1 ? 'dark' : 'light'}` : legal ? ', legal move' : ''}`}
                 disabled={!legal}
                 onClick={() => play(i)}
-                className="w-10 h-10 bg-green-700 flex items-center justify-center disabled:cursor-default"
+                className="w-10 h-10 bg-white/5 flex items-center justify-center disabled:cursor-default"
               >
                 {cell ? (
                   <span
-                    className={`block w-8 h-8 rounded-full ${cell === 1 ? 'bg-neutral-900' : 'bg-white'}`}
+                    key={cell}
+                    className={`block w-8 h-8 piece-flip ${cell === 1 ? 'stone-b' : 'stone-w'}`}
                   />
                 ) : legal ? (
                   <span className="block w-2 h-2 rounded-full bg-green-300" />

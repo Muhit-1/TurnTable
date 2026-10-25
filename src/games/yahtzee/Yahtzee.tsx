@@ -1,5 +1,5 @@
-import { useMemo } from 'react';
-import { GameShell, ModeToggle, possessive, Scoreboard, TurnBanner } from '../../shared/components';
+import { type CSSProperties, useMemo } from 'react';
+import { Die, GameShell, ModeToggle, possessive, Scoreboard, TurnBanner } from '../../shared/components';
 import { useLevel } from '../../shared/level';
 import { useMatch } from '../../shared/useMatch';
 import { chooseMove } from './ai';
@@ -33,7 +33,6 @@ const LABEL: Record<Category, string> = {
   yahtzee: 'Yahtzee (50)',
   chance: 'Chance',
 };
-const FACE = ['', '⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
 
 export default function Yahtzee() {
   const [level, levelPicker] = useLevel('yahtzee');
@@ -104,9 +103,18 @@ export default function Yahtzee() {
             aria-pressed={state.held[i]}
             disabled={!humanTurn || !rolled || state.rollsLeft === 0}
             onClick={() => play({ kind: 'hold', index: i })}
-            className={`w-16 h-16 text-5xl rounded border-2 bg-white ${state.held[i] ? 'border-amber-500 bg-amber-100' : 'border-neutral-300'}`}
+            className="rounded-xl bg-transparent p-1 disabled:cursor-default"
           >
-            {FACE[d] || '·'}
+            {d ? (
+              <Die
+                value={d}
+                size="3.6rem"
+                held={state.held[i]}
+                rollKey={state.held[i] ? 'held' : state.rollsLeft}
+              />
+            ) : (
+              <span className="die-face" style={{ '--d': '3.6rem', opacity: 0.35 } as CSSProperties} />
+            )}
           </button>
         ))}
       </div>

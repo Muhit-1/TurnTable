@@ -83,7 +83,7 @@ rules implemented per `game-rules.txt` · win/draw/end detection · invalid move
 
 ---
 
-## Phase 3 — UI/UX Polish & Release  (status: 4/16)
+## Phase 3 — UI/UX Polish & Release  (status: 5/16)
 
 > Design mock ready for review: `design/mock/homepage.html`, `game-board.html`, `design-guide.html` (open in a browser). Card hovers/animations are preserved verbatim and guarded by `node design/mock/check-motion.mjs`. It is now built into the app (tavern theme, preserved card motion, wooden board frames, bigger boards, sound).
 
@@ -96,8 +96,8 @@ Goal: make it feel like one product. Because Phase 1–2 isolate logic from rend
 - [x] Redesign homepage (category filters, animated game cards) — search and "recently played" still to do
 
 ### Per-game graphics
-- [ ] Board/piece art for each of the 26 games (SVG preferred, scales cleanly)
-- [ ] Animations: disc drops done (Connect Four); piece moves, card flips, dice rolls, win-line highlight still to do
+- [ ] Board/piece art: 22 of 26 games done (wooden frames, gem/stone/checker pieces, felt/paper boards, card backs and faces, pip dice); Hangman, 20 Questions, Scrabble and Rock Paper Scissors still have the basic look
+- [x] Animations: pieces pop in and discs flip, Connect Four discs drop, cards flip/deal, dice tumble, last-move and win glow (all switched off by `prefers-reduced-motion`)
 - [x] Sound effects + mute toggle (soft "tong" per move, win chime; mute remembered)
 
 ### Quality & accessibility

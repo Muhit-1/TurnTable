@@ -1,5 +1,12 @@
 import { type ReactNode, useMemo, useState } from 'react';
-import { GameShell, ModeToggle, possessive, Scoreboard, TurnBanner } from '../../shared/components';
+import {
+  BoardFrame,
+  GameShell,
+  ModeToggle,
+  possessive,
+  Scoreboard,
+  TurnBanner,
+} from '../../shared/components';
 import type { PlayerId } from '../../shared/engine';
 import { useLevel } from '../../shared/level';
 import { PassGate } from '../../shared/PassGate';
@@ -22,11 +29,16 @@ function Grid({ title, cell }: { title: string; cell: (i: number) => ReactNode }
   return (
     <div>
       <div className="text-sm font-medium text-center mb-1">{title}</div>
-      <div className="grid gap-px bg-sky-900 p-px" style={{ gridTemplateColumns: `repeat(${SIZE}, 2rem)` }}>
-        {Array.from({ length: SIZE * SIZE }, (_, i) => (
-          <div key={`${COLS[i % SIZE]}${Math.floor(i / SIZE) + 1}`}>{cell(i)}</div>
-        ))}
-      </div>
+      <BoardFrame frame={['#35506b', '#1f3347']}>
+        <div
+          className="grid gap-px rounded-lg bg-sky-900 p-px overflow-hidden"
+          style={{ gridTemplateColumns: `repeat(${SIZE}, 2rem)` }}
+        >
+          {Array.from({ length: SIZE * SIZE }, (_, i) => (
+            <div key={`${COLS[i % SIZE]}${Math.floor(i / SIZE) + 1}`}>{cell(i)}</div>
+          ))}
+        </div>
+      </BoardFrame>
     </div>
   );
 }
@@ -72,7 +84,11 @@ export default function Battleship() {
         onClick={() => play({ kind: 'place', row: Math.floor(i / SIZE), col: i % SIZE, horizontal })}
         className={`w-8 h-8 flex items-center justify-center text-sm ${preview.has(i) ? 'bg-emerald-300' : base}`}
       >
-        {shot === 'hit' ? '💥' : shot === 'miss' ? '•' : ''}
+        {shot && (
+          <span key={shot} className="piece-pop">
+            {shot === 'hit' ? '💥' : '•'}
+          </span>
+        )}
       </button>
     );
   };
@@ -88,7 +104,11 @@ export default function Battleship() {
         onClick={() => play({ kind: 'fire', cell: i })}
         className={`w-8 h-8 flex items-center justify-center text-sm ${shot === 'hit' ? 'bg-red-300' : shot === 'miss' ? 'bg-sky-300' : revealed ? 'bg-slate-400' : 'bg-sky-100 enabled:hover:bg-sky-300'}`}
       >
-        {shot === 'hit' ? '💥' : shot === 'miss' ? '•' : ''}
+        {shot && (
+          <span key={shot} className="piece-pop">
+            {shot === 'hit' ? '💥' : '•'}
+          </span>
+        )}
       </button>
     );
   };

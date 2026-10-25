@@ -87,7 +87,7 @@ function Match({
       </TurnBanner>
 
       <BoardFrame>
-        <div className="relative w-[min(88vw,560px)] aspect-square bg-amber-300 rounded border-2 border-amber-900">
+        <div className="relative w-[min(88vw,560px)] aspect-square board-go rounded-lg">
           <svg
             viewBox={`0 0 ${V} ${V}`}
             className="absolute inset-0 w-full h-full pointer-events-none"
@@ -140,8 +140,9 @@ function Match({
                   cx={pos(col)}
                   cy={pos(row)}
                   r={size === 19 ? 4.4 : 4.6}
-                  fill={stone === 1 ? '#171717' : '#fafafa'}
-                  stroke="#262626"
+                  className="piece-pop"
+                  fill={stone === 1 ? 'url(#go-black)' : 'url(#go-white)'}
+                  stroke="rgba(0,0,0,0.45)"
                   strokeWidth="0.3"
                 />
               ) : null;

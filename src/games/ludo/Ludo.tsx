@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import {
   BoardFrame,
+  Die,
   GameShell,
   ModeToggle,
   possessive,
@@ -100,7 +101,15 @@ export default function Ludo() {
             style={{ gridRow: '2 / 14', gridColumn: '2 / 14' }}
           >
             <div className="text-5xl" aria-live="polite">
-              {state.dice ?? state.last?.roll ?? '🎲'}
+              {(state.dice ?? state.last?.roll) ? (
+                <Die
+                  value={(state.dice ?? state.last?.roll) as number}
+                  size="3.4rem"
+                  rollKey={JSON.stringify(state.last)}
+                />
+              ) : (
+                '🎲'
+              )}
             </div>
             <button
               type="button"

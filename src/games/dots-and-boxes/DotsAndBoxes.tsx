@@ -57,13 +57,13 @@ export default function DotsAndBoxes() {
       </TurnBanner>
 
       <BoardFrame>
-        <div className="relative bg-white rounded border" style={{ width, height }}>
+        <div className="board-paper relative" style={{ width, height }}>
           {/* boxes */}
           {state.boxes.map((owner, i) => (
             <div
               // biome-ignore lint/suspicious/noArrayIndexKey: fixed positions
               key={i}
-              className={`absolute flex items-center justify-center text-lg font-bold ${owner === 1 ? 'bg-rose-100 text-rose-600' : owner === 2 ? 'bg-sky-100 text-sky-600' : ''}`}
+              className={`absolute flex items-center justify-center text-lg font-bold ${owner ? 'piece-pop' : ''} ${owner === 1 ? 'bg-rose-100 text-rose-600' : owner === 2 ? 'bg-sky-100 text-sky-600' : ''}`}
               style={{
                 left: PAD + DOT / 2 + (i % cols) * CELL + 2,
                 top: PAD + DOT / 2 + Math.floor(i / cols) * CELL + 2,

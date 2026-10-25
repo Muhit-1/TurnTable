@@ -1,5 +1,12 @@
-import { useMemo, useState } from 'react';
-import { GameControls, GameShell, ModeToggle, Scoreboard, TurnBanner } from '../../shared/components';
+import { type CSSProperties, useMemo, useState } from 'react';
+import {
+  BoardFrame,
+  GameControls,
+  GameShell,
+  ModeToggle,
+  Scoreboard,
+  TurnBanner,
+} from '../../shared/components';
 import { useLevel } from '../../shared/level';
 import { usePersistentState } from '../../shared/storage';
 import { useMatch } from '../../shared/useMatch';
@@ -55,29 +62,30 @@ function NimMatch({
         {status.state === 'won' && `${names[status.winner]} wins!`}
       </TurnBanner>
 
-      <div className="flex flex-col gap-3 items-start">
-        {state.piles.map((size, pile) => (
-          // biome-ignore lint/suspicious/noArrayIndexKey: fixed pile positions
-          <div key={pile} className="flex items-center gap-2">
-            <span className="w-14 text-sm text-neutral-600">Pile {pile + 1}</span>
-            {Array.from({ length: size }, (_, index) => (
-              <button
-                // biome-ignore lint/suspicious/noArrayIndexKey: tokens are positional
-                key={index}
-                type="button"
-                aria-label={`Pile ${pile + 1}, take ${size - index}`}
-                disabled={status.state !== 'playing' || isCpuTurn}
-                onClick={() => pick(pile, index)}
-                className={`w-8 h-8 rounded-full border-2 ${
-                  selected && selected.pile === pile && index >= size - selected.count
-                    ? 'bg-red-400 border-red-700'
-                    : 'bg-amber-300 border-amber-600'
-                }`}
-              />
-            ))}
-          </div>
-        ))}
-      </div>
+      <BoardFrame>
+        <div className="board-felt flex flex-col gap-3 items-start p-5">
+          {state.piles.map((size, pile) => (
+            // biome-ignore lint/suspicious/noArrayIndexKey: fixed pile positions
+            <div key={pile} className="flex items-center gap-2">
+              <span className="w-14 text-sm text-amber-100/80">Pile {pile + 1}</span>
+              {Array.from({ length: size }, (_, index) => (
+                <button
+                  // biome-ignore lint/suspicious/noArrayIndexKey: tokens are positional
+                  key={index}
+                  type="button"
+                  aria-label={`Pile ${pile + 1}, take ${size - index}`}
+                  disabled={status.state !== 'playing' || isCpuTurn}
+                  onClick={() => pick(pile, index)}
+                  style={{ '--size': '2rem' } as CSSProperties}
+                  className={`gem cursor-pointer disabled:cursor-default enabled:hover:brightness-110 ${
+                    selected && selected.pile === pile && index >= size - selected.count ? '' : 'brass'
+                  }`}
+                />
+              ))}
+            </div>
+          ))}
+        </div>
+      </BoardFrame>
 
       <button
         type="button"

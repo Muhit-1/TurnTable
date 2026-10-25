@@ -27,7 +27,7 @@ const label = (v: UnoCard['value']) =>
 const name = (c: UnoCard) => `${c.color ?? 'wild'} ${c.value}`;
 
 function Face({ card, active, onClick }: { card: UnoCard; active?: boolean; onClick?: () => void }) {
-  const cls = `w-14 h-20 rounded-lg border-2 flex items-center justify-center text-xl font-bold ${card.color ? BG[card.color] : 'bg-neutral-800 text-white'} ${active ? 'ring-4 ring-yellow-200 -translate-y-1' : 'opacity-80'}`;
+  const cls = `card-deal shadow-lg w-14 h-20 rounded-lg border-2 flex items-center justify-center text-xl font-bold ${card.color ? BG[card.color] : 'bg-neutral-800 text-white'} ${active ? 'ring-4 ring-yellow-200 -translate-y-1' : 'opacity-80'}`;
   return onClick ? (
     <button type="button" aria-label={`Play ${name(card)}`} className={cls} onClick={onClick}>
       {label(card.value)}

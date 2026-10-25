@@ -1,5 +1,6 @@
 import { useEffect, useMemo } from 'react';
 import {
+  BoardFrame,
   GameControls,
   GameShell,
   ModeToggle,
@@ -95,34 +96,34 @@ function Match({
         {status.state === 'draw' && "It's a draw!"}
       </TurnBanner>
 
-      <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${cols}, 4.5rem)` }}>
-        {state.symbols.map((sym, i) => {
-          const up = state.flipped.includes(i);
-          const owner = state.matchedBy[i];
-          const shown = up || owner !== null;
-          return (
-            <button
-              // biome-ignore lint/suspicious/noArrayIndexKey: fixed grid positions
-              key={i}
-              type="button"
-              aria-label={shown ? `Card ${i + 1}, ${SYMBOLS[sym]}` : `Card ${i + 1}, face down`}
-              disabled={isCpuTurn || owner !== null || up || status.state !== 'playing'}
-              onClick={() => play(i)}
-              className={`h-20 rounded border-2 text-3xl flex items-center justify-center ${
-                owner === 1
-                  ? 'bg-amber-200 border-amber-500'
-                  : owner === 2
-                    ? 'bg-emerald-200 border-emerald-500'
-                    : up
-                      ? 'bg-white'
-                      : 'bg-blue-700 hover:bg-blue-600'
-              }`}
-            >
-              {shown ? SYMBOLS[sym] : ''}
-            </button>
-          );
-        })}
-      </div>
+      <BoardFrame>
+        <div className="board-felt grid gap-2 p-3" style={{ gridTemplateColumns: `repeat(${cols}, 4.5rem)` }}>
+          {state.symbols.map((sym, i) => {
+            const up = state.flipped.includes(i);
+            const owner = state.matchedBy[i];
+            const shown = up || owner !== null;
+            return (
+              <button
+                // biome-ignore lint/suspicious/noArrayIndexKey: fixed grid positions
+                key={i}
+                type="button"
+                aria-label={shown ? `Card ${i + 1}, ${SYMBOLS[sym]}` : `Card ${i + 1}, face down`}
+                disabled={isCpuTurn || owner !== null || up || status.state !== 'playing'}
+                onClick={() => play(i)}
+                className={`h-20 text-3xl flex items-center justify-center ${
+                  owner === 1 ? 'pcard-gold' : owner === 2 ? 'pcard-teal' : up ? 'pcard' : 'pcard-back'
+                }`}
+              >
+                {shown && (
+                  <span key={`${shown}`} className="card-flip">
+                    {SYMBOLS[sym]}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </BoardFrame>
 
       <GameControls
         canUndo={game.canUndo && !isCpuTurn}

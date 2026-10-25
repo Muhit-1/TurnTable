@@ -140,7 +140,7 @@ export default function Chess() {
         {diff < 0 && <span className="ml-1 text-xs">+{-diff}</span>}
       </div>
       <BoardFrame>
-        <div className="grid grid-cols-8 border-4 border-amber-900 select-none">
+        <div className="grid grid-cols-8 overflow-hidden rounded-lg select-none">
           {order.map((i) => {
             const piece = state.cells[i];
             const light = (rowOf(i) + (i & 7)) % 2 === 0;
@@ -153,19 +153,12 @@ export default function Chess() {
                 disabled={locked}
                 aria-label={`${squareName(i)}${piece ? `, ${colorOf(piece) === 1 ? 'white' : 'black'} ${PIECE_NAME[typeOf(piece)]}` : ''}${isTarget ? ', legal move' : ''}`}
                 onClick={() => click(i)}
-                className={`relative w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center text-3xl sm:text-4xl leading-none ${light ? 'bg-amber-100' : 'bg-amber-700'} ${
+                className={`relative w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center text-3xl sm:text-4xl leading-none ${light ? 'sq-light' : 'sq-dark'} ${
                   selected === i ? 'ring-4 ring-inset ring-yellow-400' : ''
-                } ${isLast ? 'bg-yellow-200' : ''} ${checkedKing === i ? 'bg-red-400' : ''}`}
+                } ${isLast ? 'last-move' : ''} ${checkedKing === i ? 'bg-red-400' : ''}`}
               >
                 {piece !== EMPTY && (
-                  <span
-                    className={colorOf(piece) === 1 ? 'text-white' : 'text-neutral-900'}
-                    style={
-                      colorOf(piece) === 1
-                        ? { textShadow: '0 0 2px #000, 0 0 2px #000, 0 0 3px #000' }
-                        : undefined
-                    }
-                  >
+                  <span key={piece} className={`piece piece-pop ${colorOf(piece) === 1 ? 'w' : 'b'}`}>
                     {GLYPH[typeOf(piece)]}
                   </span>
                 )}

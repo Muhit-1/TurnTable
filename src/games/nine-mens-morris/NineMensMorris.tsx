@@ -101,7 +101,7 @@ export default function NineMensMorris() {
       </TurnBanner>
 
       <BoardFrame>
-        <div className="relative w-[min(86vw,420px)] aspect-square bg-amber-100 rounded border">
+        <div className="relative w-[min(86vw,420px)] aspect-square board-go rounded-lg">
           <svg
             viewBox="0 0 300 300"
             className="absolute inset-0 w-full h-full pointer-events-none"
@@ -125,11 +125,12 @@ export default function NineMensMorris() {
                   (sliding && from === null && movable.has(i)));
               return (
                 <circle
-                  key={`p${x}-${y}`}
+                  key={`p${x}-${y}-${piece}`}
+                  className={piece ? 'piece-pop' : undefined}
                   cx={x}
                   cy={y}
                   r={piece ? 13 : 7}
-                  fill={piece === 1 ? '#fafafa' : piece === 2 ? '#171717' : '#78350f'}
+                  fill={piece === 1 ? '#f4efe2' : piece === 2 ? '#1b1d22' : '#78350f'}
                   stroke={
                     selected
                       ? '#facc15'

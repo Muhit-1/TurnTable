@@ -9,7 +9,7 @@ function CardView({ card }: { card: Card }) {
     <div
       role="img"
       aria-label={`${card.rank} of ${card.suit}`}
-      className={`w-20 h-28 rounded border-2 bg-white flex flex-col items-center justify-center text-2xl font-bold ${red ? 'text-red-600' : 'text-neutral-900'}`}
+      className={`pcard card-flip w-20 h-28 flex flex-col items-center justify-center text-2xl font-bold ${red ? 'text-red-600' : 'text-neutral-900'}`}
     >
       <span>{cardLabel(card).slice(0, -1)}</span>
       <span>{SUIT_SYMBOL[card.suit]}</span>
@@ -43,9 +43,9 @@ export default function War() {
       <div className="flex gap-10 items-center min-h-28">
         {last ? (
           <>
-            <CardView card={last.c1} />
-            <span className="text-neutral-500">vs</span>
-            <CardView card={last.c2} />
+            <CardView key={`a${state.flips}`} card={last.c1} />
+            <span className="font-semibold text-amber-900/70">vs</span>
+            <CardView key={`b${state.flips}`} card={last.c2} />
           </>
         ) : (
           <span className="text-neutral-500">Two piles of 26 cards, face down.</span>

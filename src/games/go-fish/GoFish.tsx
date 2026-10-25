@@ -14,7 +14,7 @@ function CardFace({ card }: { card: Card }) {
     <span
       role="img"
       aria-label={`${rankLabel(card.rank)} of ${card.suit}`}
-      className={`inline-flex w-10 h-14 rounded border bg-white items-center justify-center text-sm font-bold ${red ? 'text-red-600' : 'text-neutral-900'}`}
+      className={`pcard card-deal inline-flex w-10 h-14 items-center justify-center text-sm font-bold ${red ? 'text-red-600' : 'text-neutral-900'}`}
     >
       {cardLabel(card)}
     </span>
