@@ -7,6 +7,7 @@ import {
   type RefObject,
   useContext,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
 } from 'react';
@@ -181,8 +182,17 @@ export function GameControls({
 }
 
 /** Toast and end-of-game popup, driven by `notify`. Neither blocks the board. */
+/** How long the result stays in the middle of the screen before the board resets. */
+const AWARD_MS = 3200;
+
 function Overlays() {
   const [toast, setToast] = useState<{ id: number; message: string } | null>(null);
+  const shown = useRef(0);
+  const closeAward = () => {
+    shown.current = 0;
+    setAward(null);
+    notify.reset();
+  };
   const [award, setAward] = useState<{ id: number; result: 'won' | 'draw'; text: string } | null>(null);
   useEffect(
     () =>
@@ -197,7 +207,13 @@ function Overlays() {
             const id = Date.now();
             const text = document.querySelector('.who')?.textContent?.trim() || 'Game over';
             setAward({ id, result: e.result, text });
-            window.setTimeout(() => setAward((a) => (a?.id === id ? null : a)), 3800);
+            shown.current = id;
+            window.setTimeout(() => {
+              if (shown.current !== id) return;
+              shown.current = 0;
+              setAward(null);
+              notify.reset();
+            }, AWARD_MS);
           }, 700);
         }
       }),
@@ -211,15 +227,15 @@ function Overlays() {
         </div>
       )}
       {award && (
-        <div className="overlay top" key={award.id}>
-          <button type="button" className="award-card" onClick={() => setAward(null)} aria-label="Dismiss">
+        <div className="overlay dim" key={award.id}>
+          <button type="button" className="award-card" onClick={closeAward} aria-label="Start a new game">
             <span className="medal" aria-hidden="true">
               {award.result === 'won' ? <IconTrophy /> : <IconEqual />}
             </span>
             <span className="kicker">{award.result === 'won' ? 'Game over' : 'Nobody wins'}</span>
             <span className="title">{award.text}</span>
-            <span className="hint">Press Restart to play again</span>
-            <span className="drain" aria-hidden="true" />
+            <span className="hint">A new game starts in a moment. Tap to start now.</span>
+            <span className="drain" aria-hidden="true" style={{ ['--life' as string]: `${AWARD_MS}ms` }} />
           </button>
         </div>
       )}
@@ -371,7 +387,7 @@ export function GameShell({ id, title, children }: { id: string; title: string; 
             <>
               <div className="ts-left">
                 <div className="ts-panel left">
-                  <h1 className="card-title">{title}</h1>
+                  <FitTitle>{title}</FitTitle>
                   {before}
                 </div>
                 {controls.length > 0 && <div className="ts-panel controls">{controls}</div>}
@@ -389,6 +405,34 @@ export function GameShell({ id, title, children }: { id: string; title: string; 
         <Overlays />
       </div>
     </GameContext.Provider>
+  );
+}
+
+/** A heading that shrinks until it fits on one line. */
+function FitTitle({ children }: { children: string }) {
+  const el = useRef<HTMLHeadingElement>(null);
+  // biome-ignore lint/correctness/useExhaustiveDependencies: a new title needs a new fit
+  useLayoutEffect(() => {
+    const h = el.current;
+    if (!h) return;
+    const fit = () => {
+      h.style.fontSize = '';
+      let size = Number.parseFloat(getComputedStyle(h).fontSize);
+      while (h.scrollWidth > h.clientWidth + 1 && size > 12) {
+        size -= 1;
+        h.style.fontSize = `${size}px`;
+      }
+    };
+    fit();
+    document.fonts?.ready.then(fit);
+    const ro = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(fit);
+    ro?.observe(h);
+    return () => ro?.disconnect();
+  }, [children]);
+  return (
+    <h1 className="card-title" ref={el}>
+      {children}
+    </h1>
   );
 }
 

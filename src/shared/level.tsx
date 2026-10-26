@@ -26,19 +26,21 @@ export function depthFor(level: Level, depths: Record<Level, number>): number {
 
 export function LevelPicker({ level, onChange }: { level: Level; onChange: (l: Level) => void }) {
   return (
-    <div className="flex flex-wrap items-center justify-center gap-2 text-sm">
-      Difficulty
-      {LEVEL_NAMES.map((l) => (
-        <button
-          key={l}
-          type="button"
-          aria-pressed={l === level}
-          className={`px-3 py-1 rounded border capitalize ${l === level ? 'bg-neutral-900 text-white' : 'bg-white'}`}
-          onClick={() => onChange(l)}
-        >
-          {l}
-        </button>
-      ))}
+    <div className="level">
+      <span className="level-label">Difficulty</span>
+      <div className="level-row">
+        {LEVEL_NAMES.map((l) => (
+          <button
+            key={l}
+            type="button"
+            aria-pressed={l === level}
+            className={`px-3 py-1 rounded border capitalize ${l === level ? 'bg-neutral-900 text-white' : 'bg-white'}`}
+            onClick={() => onChange(l)}
+          >
+            {l}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

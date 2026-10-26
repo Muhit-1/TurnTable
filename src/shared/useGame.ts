@@ -141,6 +141,7 @@ export function useGame<State, Move, Line = unknown>(
   const reset = useCallback(() => {
     setHistory({ past: [], present: engine.initialState(), future: [] });
   }, [engine]);
+  useEffect(() => notify.registerReset(reset), [reset]);
 
   return {
     state: present,

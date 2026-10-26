@@ -972,3 +972,145 @@ summary.ib::-webkit-details-marker {
 .ts-panel table.sheet :is(th, td)[class*="w-24"] {
   width: auto;
 }
+
+/* ===================== round 3: alignment, widths, one-line text, popups ===================== */
+/* the top bar sits on the same left edge as the cards below it */
+.gp-page .top {
+  padding-left: 0;
+  padding-right: 0;
+}
+.gp-page {
+  padding-left: clamp(12px, 1.8vw, 28px);
+  padding-right: clamp(12px, 1.8vw, 28px);
+}
+.ts-stage {
+  grid-template-columns: minmax(230px, 280px) minmax(0, 1fr) minmax(220px, fit-content(340px));
+}
+.ts-panel > * {
+  max-width: 100%;
+}
+.card-title {
+  white-space: nowrap;
+  overflow: hidden;
+  min-width: 0;
+}
+@media (orientation: landscape) and (max-height: 560px) {
+  .ts-stage {
+    grid-template-columns: minmax(150px, 200px) minmax(0, 1fr) minmax(150px, 210px);
+  }
+}
+@media (max-width: 900px) and (orientation: portrait), (max-width: 560px) {
+  .ts-stage {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* difficulty: label above, the three levels side by side */
+.level {
+  width: 100%;
+  display: grid;
+  gap: 6px;
+}
+.level-label {
+  font: 700 11px var(--font-mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--brass);
+}
+.level-row {
+  display: flex;
+  gap: 6px;
+}
+.level-row button {
+  flex: 1;
+  padding: 6px 4px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+/* markers in the player rows are solid */
+.tok.x {
+  background: var(--parchment);
+  box-shadow:
+    inset 0 -2px 3px rgba(0, 0, 0, 0.25),
+    0 1px 3px rgba(0, 0, 0, 0.5);
+}
+.tok.x::before,
+.tok.x::after {
+  background: #1f2a24;
+}
+.tok.o {
+  background: var(--brass);
+  box-shadow:
+    inset 0 -2px 3px rgba(0, 0, 0, 0.3),
+    0 1px 3px rgba(0, 0, 0, 0.5);
+}
+.tok.o::after {
+  border-color: #2a1b0e;
+}
+
+/* the squares a piece can move to are lit, instead of marked with a dot */
+.sq-target {
+  background-image: linear-gradient(rgb(var(--brass-rgb) / 0.58), rgb(var(--brass-rgb) / 0.58));
+  box-shadow: inset 0 0 0 3px var(--brass);
+}
+
+/* connect four: the preview disc fills the slot it would land in */
+.c4-slot .gem.ghost {
+  opacity: 0.5;
+  animation: none;
+}
+.c4-col:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* the result is shown in the middle of the screen, then the board resets */
+.overlay.dim {
+  background: rgba(4, 16, 12, 0.55);
+  pointer-events: auto;
+  align-items: center;
+  padding-top: 16px;
+}
+.award-card {
+  width: min(420px, 92vw);
+  padding: 30px 28px 34px;
+}
+.award-card .title {
+  font-size: 34px;
+  line-height: 1.1;
+}
+.award-card .medal {
+  width: 64px;
+  height: 64px;
+  font-size: 30px;
+}
+
+/* scrabble: a classic board, cream squares with coloured premium squares */
+.sc-cell {
+  background: #efe3c4;
+  box-shadow: inset 0 0 0 1px rgb(90 70 40 / 0.14);
+}
+.sc-tw {
+  background: #c8372d;
+  color: #fff;
+}
+.sc-dw {
+  background: #f0b3a5;
+  color: #3a2a22;
+}
+.sc-tl {
+  background: #2a64a8;
+  color: #fff;
+}
+.sc-dl {
+  background: #a8cfe6;
+  color: #26343f;
+}
+.sc-tw,
+.sc-dw,
+.sc-tl,
+.sc-dl {
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.18);
+}

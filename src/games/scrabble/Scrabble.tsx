@@ -16,10 +16,10 @@ import { type Dictionary, dictionaryFromText } from './dictionary';
 import { checkPlay, createScrabble, LETTER_VALUES, type Placement, PREMIUMS, SIZE } from './engine';
 
 const PREMIUM_STYLE: Record<string, string> = {
-  TW: 'bg-red-700 text-white',
-  DW: 'bg-pink-300 text-neutral-900',
-  TL: 'bg-blue-700 text-white',
-  DL: 'bg-sky-200 text-neutral-900',
+  TW: 'sc-tw',
+  DW: 'sc-dw',
+  TL: 'sc-tl',
+  DL: 'sc-dl',
 };
 
 export default function Scrabble() {
@@ -56,7 +56,7 @@ export default function Scrabble() {
                 <div
                   // biome-ignore lint/suspicious/noArrayIndexKey: fixed board squares
                   key={i}
-                  className={`w-8 h-8 text-[10px] flex items-center justify-center ${prem ? PREMIUM_STYLE[prem] : 'bg-green-100'}`}
+                  className={`w-8 h-8 text-[10px] flex items-center justify-center ${prem ? PREMIUM_STYLE[prem] : 'sc-cell'}`}
                 >
                   {prem}
                 </div>
@@ -186,7 +186,7 @@ function Match({ dict }: { dict: Dictionary }) {
                         : 'tile-wood font-bold text-base'
                       : prem
                         ? PREMIUM_STYLE[prem]
-                        : 'bg-green-100'
+                        : 'sc-cell'
                   }`}
                 >
                   {shown ? (
@@ -213,7 +213,7 @@ function Match({ dict }: { dict: Dictionary }) {
       <PassGate player={viewer} name={names[viewer]} enabled={pvp && !over}>
         <div className="flex flex-col items-center gap-3">
           <div className="text-sm font-medium">{possessive(names[viewer])} rack</div>
-          <div className="flex gap-1">
+          <div className="flex flex-wrap justify-center gap-1">
             {display.map((i) => {
               const letter = rack[i];
               const used = usedIdx.has(i);

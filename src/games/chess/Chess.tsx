@@ -153,7 +153,7 @@ export default function Chess() {
                 disabled={locked}
                 aria-label={`${squareName(i)}${piece ? `, ${colorOf(piece) === 1 ? 'white' : 'black'} ${PIECE_NAME[typeOf(piece)]}` : ''}${isTarget ? ', legal move' : ''}`}
                 onClick={() => click(i)}
-                className={`relative w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center text-3xl sm:text-4xl leading-none ${light ? 'sq-light' : 'sq-dark'} ${
+                className={`${isTarget ? 'sq-target ' : ''}relative w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center text-3xl sm:text-4xl leading-none ${light ? 'sq-light' : 'sq-dark'} ${
                   selected === i ? 'ring-4 ring-inset ring-yellow-400' : ''
                 } ${isLast ? 'last-move' : ''} ${checkedKing === i ? 'bg-red-400' : ''}`}
               >
@@ -161,11 +161,6 @@ export default function Chess() {
                   <span key={piece} className={`piece piece-pop ${colorOf(piece) === 1 ? 'w' : 'b'}`}>
                     {GLYPH[typeOf(piece)]}
                   </span>
-                )}
-                {isTarget && (
-                  <span
-                    className={`absolute rounded-full ${piece !== EMPTY ? 'inset-1 ring-4 ring-green-500/70' : 'w-3 h-3 bg-green-600/60'}`}
-                  />
                 )}
               </button>
             );

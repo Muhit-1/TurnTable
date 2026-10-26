@@ -1,4 +1,4 @@
-import { type CSSProperties, useEffect, useMemo, useRef } from 'react';
+import { type CSSProperties, useEffect, useMemo, useRef, useState } from 'react';
 import {
   BoardFrame,
   GameControls,
@@ -39,6 +39,13 @@ export default function ConnectFour() {
     seen.current = new Set(filled);
   });
 
+  // Hovering or focusing a column previews a disc in the slot it would land in.
+  const [hover, setHover] = useState<number | null>(null);
+  const landing =
+    hover === null || isCpuTurn || status.state !== 'playing'
+      ? -1
+      : state.board.map((row) => row[hover]).lastIndexOf(null);
+
   const winLine = status.state === 'won' ? status.line : undefined;
 
   return (
@@ -54,47 +61,54 @@ export default function ConnectFour() {
       </TurnBanner>
 
       <BoardFrame frame={['#7a5733', '#4a3220']}>
-        <div className="c4-board wood" aria-hidden="true">
-          {state.board.map((row, rowIdx) =>
-            row.map((cell, col) => {
-              const win = isWinningCell(winLine, rowIdx, col);
+        <div className="relative">
+          <div className="c4-board wood" aria-hidden="true">
+            {state.board.map((row, rowIdx) =>
+              row.map((cell, col) => {
+                const win = isWinningCell(winLine, rowIdx, col);
+                return (
+                  // biome-ignore lint/suspicious/noArrayIndexKey: fixed grid positions
+                  <div key={`${rowIdx}-${col}`} className={`c4-slot${win ? ' win' : ''}`}>
+                    {cell === null && hover === col && rowIdx === landing && (
+                      <i className={`gem ghost ${player === 1 ? '' : 'sapphire'}`} />
+                    )}
+                    {cell !== null && (
+                      <i
+                        key={cell}
+                        className={`gem ${cell === 1 ? '' : 'sapphire'}${fresh.has(`${rowIdx}-${col}`) ? ' fall' : ''}`}
+                        style={
+                          {
+                            '--drop': ((rowIdx + 1.2) * 1.22).toFixed(2),
+                            '--fall': `${(0.32 + rowIdx * 0.07).toFixed(2)}s`,
+                          } as CSSProperties
+                        }
+                      />
+                    )}
+                  </div>
+                );
+              }),
+            )}
+          </div>
+          <div className="c4-cols">
+            {Array.from({ length: COLS }, (_, col) => {
+              const disabled = isCpuTurn || !game.legalMoves.includes(col);
               return (
-                // biome-ignore lint/suspicious/noArrayIndexKey: fixed grid positions
-                <div key={`${rowIdx}-${col}`} className={`c4-slot${win ? ' win' : ''}`}>
-                  {cell !== null && (
-                    <i
-                      key={cell}
-                      className={`gem ${cell === 1 ? '' : 'sapphire'}${fresh.has(`${rowIdx}-${col}`) ? ' fall' : ''}`}
-                      style={
-                        {
-                          '--drop': ((rowIdx + 1.2) * 1.22).toFixed(2),
-                          '--fall': `${(0.32 + rowIdx * 0.07).toFixed(2)}s`,
-                        } as CSSProperties
-                      }
-                    />
-                  )}
-                </div>
+                <button
+                  // biome-ignore lint/suspicious/noArrayIndexKey: fixed columns
+                  key={col}
+                  type="button"
+                  className="c4-col"
+                  aria-label={`Drop in column ${col + 1}`}
+                  disabled={disabled}
+                  onClick={() => play(col)}
+                  onMouseEnter={() => setHover(col)}
+                  onMouseLeave={() => setHover((h) => (h === col ? null : h))}
+                  onFocus={() => setHover(col)}
+                  onBlur={() => setHover(null)}
+                />
               );
-            }),
-          )}
-        </div>
-        <div className="c4-cols">
-          {Array.from({ length: COLS }, (_, col) => {
-            const disabled = isCpuTurn || !game.legalMoves.includes(col);
-            return (
-              <button
-                // biome-ignore lint/suspicious/noArrayIndexKey: fixed columns
-                key={col}
-                type="button"
-                className="c4-col"
-                aria-label={`Drop in column ${col + 1}`}
-                disabled={disabled}
-                onClick={() => play(col)}
-              >
-                <i className={`gem c4-ghost ${player === 1 ? '' : 'sapphire'}`} />
-              </button>
-            );
-          })}
+            })}
+          </div>
         </div>
       </BoardFrame>
 

@@ -90,7 +90,7 @@ export default function Checkers() {
                   selected
                     ? 'ring-4 ring-inset ring-yellow-300'
                     : isTarget
-                      ? 'ring-4 ring-inset ring-green-400'
+                      ? 'sq-target'
                       : movable.has(i)
                         ? 'ring-2 ring-inset ring-yellow-200'
                         : ''
