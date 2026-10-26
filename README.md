@@ -3,7 +3,7 @@
 26 two-player games in the browser: chess, checkers, Go, Connect Four, Backgammon, Yahtzee, Battleship and more.
 Play hot-seat on one screen, or against the computer (easy / medium / hard) in most games.
 
-- Warm "tavern table" look: wooden board frames, gem pieces, 8 table colours to choose from.
+- "Baize" look: green felt, chalk lettering, brass fittings and walnut board rails, with ruby and ivory pieces that also differ by shape, 4 table felts to choose from (green, claret, midnight, slate).
 - Large boards on big screens, fully responsive down to a phone.
 - Soft sound effects (a gentle "tong" per move, a chime for a win) with a mute button.
 - Undo / redo, and every game resumes where you left it.
@@ -57,7 +57,7 @@ in Phase 2; keep their rules in `logic.ts` and unit-tested all the same.
 
 ## Design
 
-The look is documented in [`design/mock/design-guide.html`](design/mock/design-guide.html) (colours, type, components, motion, board look).
+The current look ("Baize") was designed in [`design/mock-v3/`](design/mock-v3/index.html) and is built into the app in `src/styles/baize.css`; the older mock and guide are kept in `design/mock/`.
 The homepage card hover and preview animations are deliberately fixed: `src/home/preserved-hub.css` and `src/styles/preserved-game.css` are
 verbatim copies of the original prototypes, and `node design/mock/check-motion.mjs` fails if they drift. Re-theme through
 `src/styles/tavern.css` (colours, fonts, new components) instead of editing them.

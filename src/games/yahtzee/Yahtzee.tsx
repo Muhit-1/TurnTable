@@ -142,7 +142,7 @@ export default function Yahtzee() {
         </div>
       </BoardFrame>
 
-      <table className="text-sm border bg-white rounded">
+      <table className="sheet text-sm">
         <thead>
           <tr>
             <th className="text-left p-1">Scorecard</th>

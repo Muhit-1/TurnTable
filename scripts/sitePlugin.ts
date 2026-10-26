@@ -45,6 +45,18 @@ export function sitePlugin(siteUrl: string): Plugin[] {
         { tag: 'meta', attrs: { name: 'twitter:card', content: 'summary_large_image' }, injectTo: 'head' as const },
         { tag: 'script', attrs: { type: 'application/ld+json' }, children: JSON.stringify(ld), injectTo: 'head' as const },
       ];
+      // Preload the two fonts the first screen uses (their file names carry a content hash, so look them up in the bundle).
+      if (ctx.bundle) {
+        for (const name of Object.keys(ctx.bundle)) {
+          if (/(alfa-slab-one|figtree)-latin.*\.woff2$/.test(name)) {
+            tags.push({
+              tag: 'link',
+              attrs: { rel: 'preload', as: 'font', type: 'font/woff2', crossorigin: '', href: `${up}${name}` },
+              injectTo: 'head',
+            } as (typeof tags)[number]);
+          }
+        }
+      }
       if (!ctx.server) {
         tags.push({
           tag: 'script',

@@ -1,36 +1,25 @@
 import {
   Children,
   type CSSProperties,
+  createContext,
   isValidElement,
   type ReactNode,
   type RefObject,
+  useContext,
   useEffect,
   useRef,
   useState,
-  useSyncExternalStore,
 } from 'react';
-import '../styles/fonts.css';
-import '../styles/preserved-game.css';
-import '../styles/tavern.css';
-import '../styles/shell.css';
+import '../styles/theme-game.css';
 import type { PlayerId } from './engine';
-import {
-  IconEqual,
-  IconHelp,
-  IconHome,
-  IconMenu,
-  IconRedo,
-  IconRestart,
-  IconTrophy,
-  IconUndo,
-  IconVolume,
-  IconVolumeOff,
-} from './icons';
+import { IconEqual, IconRedo, IconRestart, IconTrophy, IconUndo } from './icons';
+import { useMatchInfo } from './matchInfo';
 import { notify } from './notify';
 import { RulesDialog } from './RulesPanel';
 import { rememberRecent } from './recent';
-import { isMuted, setMuted, sfx, subscribeMuted } from './sound';
-import { applyTable, loadTable, saveTable, TABLE_THEMES } from './tableTheme';
+import { isMuted, setMuted, sfx } from './sound';
+import { TopBar } from './TopBar';
+import { applyTable, loadTable } from './tableTheme';
 
 export type Mode = 'pvp' | 'vs-cpu';
 
@@ -48,6 +37,24 @@ export function ModeToggle({ mode, onChange }: { mode: Mode; onChange: (m: Mode)
   );
 }
 
+/** Which marker each game gives its two players. Every marker has a shape as well as a colour. */
+const TOKENS: Record<string, [string, string]> = {
+  chess: ['w', 'b'],
+  'tic-tac-toe': ['x', 'o'],
+  'connect-4': ['ruby', 'ivory'],
+  checkers: ['ruby', 'ivory'],
+  reversi: ['b', 'w'],
+  go: ['b', 'w'],
+  gomoku: ['b', 'w'],
+  hex: ['ruby', 'ivory'],
+  'dots-and-boxes': ['ruby', 'ivory'],
+  ludo: ['ruby', 'ivory'],
+  'snakes-and-ladders': ['ruby', 'ivory'],
+  backgammon: ['w', 'b'],
+  'nine-mens-morris': ['w', 'b'],
+};
+const GameContext = createContext('');
+
 export function Scoreboard({
   names,
   scores,
@@ -55,31 +62,30 @@ export function Scoreboard({
   names: Record<PlayerId, string>;
   scores: Record<PlayerId, number>;
 }) {
+  const tokens = TOKENS[useContext(GameContext)] ?? ['p1', 'p2'];
+  const info = useMatchInfo();
   return (
-    <div className="scoreboard">
-      <span className="score-chip">
-        <i className="gem" aria-hidden="true" />
-        <span className="score-name">{names[1]}</span>
-        <b>{scores[1]}</b>
-      </span>
-      <span className="score-chip">
-        <i className="gem sapphire" aria-hidden="true" />
-        <span className="score-name">{names[2]}</span>
-        <b>{scores[2]}</b>
-      </span>
+    <div className="players">
+      {([1, 2] as const).map((p) => (
+        <div key={p} className={`player${info && !info.over && info.player === p ? ' active' : ''}`}>
+          <i className={`tok ${tokens[p - 1]}`} aria-hidden="true" />
+          <span className="pname">{names[p]}</span>
+          <b>{scores[p]}</b>
+        </div>
+      ))}
     </div>
   );
 }
 
 export function TurnBanner({ children }: { children: ReactNode }) {
   return (
-    <div className="turn-line" role="status" aria-live="polite">
+    <p className="who" role="status" aria-live="polite">
       {children}
-    </div>
+    </p>
   );
 }
 
-/** The wooden frame with brass inlay and corner studs that every board sits in. Pass `frame` colours to tint it per game. */
+/** The walnut rail with a brass inlay and studs that every board sits in; plaques name the two seats and light up for the player to move. */
 export function BoardFrame({
   children,
   className = '',
@@ -90,12 +96,19 @@ export function BoardFrame({
   frame?: [string, string];
 }) {
   const style = frame ? ({ '--frame-1': frame[0], '--frame-2': frame[1] } as CSSProperties) : undefined;
+  const info = useMatchInfo();
   return (
     <div className={`board-frame ${className}`} style={style}>
       <i className="corner tl" aria-hidden="true" />
       <i className="corner tr" aria-hidden="true" />
       <i className="corner bl" aria-hidden="true" />
       <i className="corner br" aria-hidden="true" />
+      {info && (
+        <>
+          <span className={`plaque top${!info.over && info.player === 2 ? ' on' : ''}`}>{info.names[2]}</span>
+          <span className={`plaque bot${!info.over && info.player === 1 ? ' on' : ''}`}>{info.names[1]}</span>
+        </>
+      )}
       {children}
     </div>
   );
@@ -153,96 +166,15 @@ export function GameControls({
   onRestart: () => void;
 }) {
   return (
-    <div className="gp-actions">
-      <button type="button" className="gp-btn" disabled={!canUndo} onClick={onUndo} aria-label="Undo">
+    <div className="controls-row">
+      <button type="button" className="act" disabled={!canUndo} onClick={onUndo}>
         <IconUndo /> Undo
       </button>
-      <button type="button" className="gp-btn" disabled={!canRedo} onClick={onRedo}>
+      <button type="button" className="act" disabled={!canRedo} onClick={onRedo}>
         <IconRedo /> Redo
       </button>
-      <button type="button" className="gp-btn" onClick={onRestart}>
+      <button type="button" className="act strong" onClick={onRestart}>
         <IconRestart /> Restart
-      </button>
-    </div>
-  );
-}
-
-function TopTools({ onRules }: { onRules: () => void }) {
-  const [table, setTable] = useState(loadTable);
-  const muted = useSyncExternalStore(subscribeMuted, isMuted, () => false);
-  const menu = useRef<HTMLDetailsElement>(null);
-  useEffect(() => {
-    applyTable(table);
-  }, [table]);
-  // close the menu on an outside click or Escape
-  useEffect(() => {
-    const close = (e: Event) => {
-      const m = menu.current;
-      if (
-        m?.open &&
-        (e.type === 'keydown' ? (e as KeyboardEvent).key === 'Escape' : !m.contains(e.target as Node))
-      )
-        m.open = false;
-    };
-    document.addEventListener('pointerdown', close);
-    document.addEventListener('keydown', close);
-    return () => {
-      document.removeEventListener('pointerdown', close);
-      document.removeEventListener('keydown', close);
-    };
-  }, []);
-  return (
-    <div className="table-tools">
-      <details className="menu" ref={menu}>
-        <summary className="icon-pill" aria-label="Menu" title="Menu">
-          <IconMenu />
-        </summary>
-        <div className="menu-pop">
-          <p className="menu-label">Table colour</p>
-          <fieldset className="swatches">
-            <legend className="sr-only">Table colour</legend>
-            {TABLE_THEMES.map((t) => (
-              <button
-                key={t.id}
-                type="button"
-                className="swatch"
-                title={t.name}
-                aria-label={t.name}
-                aria-pressed={t.id === table}
-                style={{ background: t.hex }}
-                onClick={() => {
-                  saveTable(t.id);
-                  setTable(t.id);
-                }}
-              />
-            ))}
-          </fieldset>
-          <button
-            type="button"
-            className="menu-row"
-            aria-pressed={!muted}
-            aria-keyshortcuts="m"
-            onClick={() => {
-              setMuted(!muted);
-              if (muted) sfx.tick();
-            }}
-          >
-            {muted ? <IconVolumeOff /> : <IconVolume />} {muted ? 'Sound off' : 'Sound on'}
-          </button>
-          <a className="menu-row" href="../../">
-            <IconHome /> All games
-          </a>
-        </div>
-      </details>
-      <button
-        type="button"
-        className="icon-pill round"
-        aria-keyshortcuts="?"
-        aria-label="How to play"
-        title="How to play (?)"
-        onClick={onRules}
-      >
-        <IconHelp />
       </button>
     </div>
   );
@@ -263,7 +195,7 @@ function Overlays() {
           // The turn line already holds the result with the right player names ("Player 1 wins!").
           window.setTimeout(() => {
             const id = Date.now();
-            const text = document.querySelector('.turn-line')?.textContent?.trim() || 'Game over';
+            const text = document.querySelector('.who')?.textContent?.trim() || 'Game over';
             setAward({ id, result: e.result, text });
             window.setTimeout(() => setAward((a) => (a?.id === id ? null : a)), 3800);
           }, 700);
@@ -390,6 +322,13 @@ export function GameShell({ id, title, children }: { id: string; title: string; 
   const controls = rest.filter((c) => isValidElement(c) && c.type === GameControls);
   const after = rest.filter((c) => !controls.includes(c));
   useFit(slot, fit, at < 0);
+  const info = useMatchInfo();
+  useEffect(() => {
+    document.body.dataset.turn = info && !info.over ? String(info.player) : '';
+  }, [info]);
+  useEffect(() => {
+    applyTable(loadTable());
+  }, []);
   useEffect(() => {
     document.body.classList.add('theme-tavern');
     rememberRecent(id);
@@ -408,51 +347,48 @@ export function GameShell({ id, title, children }: { id: string; title: string; 
     return () => window.removeEventListener('keydown', onKey);
   }, []);
   return (
-    <div className="gp-page">
-      <a className="skip-link" href="#board">
-        Skip to the board
-      </a>
-      <nav className="gp-nav" aria-label="Game navigation">
-        <a className="gp-wordmark" href="../../" title="All games">
-          TurnTable
+    <GameContext.Provider value={id}>
+      <div className="gp-page">
+        <a className="skip-link" href="#board">
+          Skip to the board
         </a>
-        <TopTools onRules={() => setRulesOpen(true)} />
-      </nav>
-      {/* A click on any button gets a soft tick; moves play their own (louder) note first and win the debounce. */}
-      {/* biome-ignore lint/a11y/useKeyWithClickEvents: delegated sound only, the buttons inside handle keys */}
-      <main
-        id="board"
-        tabIndex={-1}
-        ref={stage}
-        className={`ts-stage${at < 0 ? ' single' : ''}`}
-        aria-label={`${title} board and controls`}
-        onClick={(e) => {
-          if ((e.target as HTMLElement).closest('button')) sfx.tick();
-        }}
-      >
-        {at < 0 ? (
-          <div className="ts-panel">{items}</div>
-        ) : (
-          <>
-            <div className="ts-left">
-              <div className="ts-panel left">
-                <h1 className="card-title">{title}</h1>
-                {before}
+        <TopBar onRules={() => setRulesOpen(true)} />
+        {/* A click on any button gets a soft tick; moves play their own (louder) note first and win the debounce. */}
+        {/* biome-ignore lint/a11y/useKeyWithClickEvents: delegated sound only, the buttons inside handle keys */}
+        <main
+          id="board"
+          tabIndex={-1}
+          ref={stage}
+          className={`ts-stage${at < 0 ? ' single' : ''}`}
+          aria-label={`${title} board and controls`}
+          onClick={(e) => {
+            if ((e.target as HTMLElement).closest('button')) sfx.tick();
+          }}
+        >
+          {at < 0 ? (
+            <div className="ts-panel">{items}</div>
+          ) : (
+            <>
+              <div className="ts-left">
+                <div className="ts-panel left">
+                  <h1 className="card-title">{title}</h1>
+                  {before}
+                </div>
+                {controls.length > 0 && <div className="ts-panel controls">{controls}</div>}
               </div>
-              {controls.length > 0 && <div className="ts-panel controls">{controls}</div>}
-            </div>
-            <div className="ts-center" ref={slot}>
-              <div className="ts-fit" ref={fit}>
-                {board}
+              <div className="ts-center" ref={slot}>
+                <div className="ts-fit" ref={fit}>
+                  {board}
+                </div>
               </div>
-            </div>
-            <div className={`ts-panel right${after.length ? '' : ' empty'}`}>{after}</div>
-          </>
-        )}
-      </main>
-      <RulesDialog gameId={id} open={rulesOpen} onClose={() => setRulesOpen(false)} />
-      <Overlays />
-    </div>
+              <div className={`ts-panel right${after.length ? '' : ' empty'}`}>{after}</div>
+            </>
+          )}
+        </main>
+        <RulesDialog gameId={id} open={rulesOpen} onClose={() => setRulesOpen(false)} />
+        <Overlays />
+      </div>
+    </GameContext.Provider>
   );
 }
 

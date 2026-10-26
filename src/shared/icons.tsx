@@ -96,3 +96,14 @@ export const IconDice = (p: P) => (
     <path d="M8 8h.01M16 8h.01M12 12h.01M8 16h.01M16 16h.01" strokeWidth="3" />
   </Icon>
 );
+export const IconBack = (p: P) => (
+  <Icon {...p}>
+    <path d="m12 19-7-7 7-7M19 12H5" />
+  </Icon>
+);
+export const IconSearch = (p: P) => (
+  <Icon {...p}>
+    <circle cx="11" cy="11" r="7" />
+    <path d="m20 20-3.5-3.5" />
+  </Icon>
+);

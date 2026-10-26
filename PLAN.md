@@ -85,13 +85,13 @@ rules implemented per `game-rules.txt` · win/draw/end detection · invalid move
 
 ## Phase 3 — UI/UX Polish & Release  (status: 16/16)
 
-> Design reference: `design/mock/design-guide.html`. Card hovers/animations are preserved verbatim and guarded by `node design/mock/check-motion.mjs`.
+> Design reference: `design/mock-v3/index.html` ("Baize", built into the app in `src/styles/baize.css`). Card hovers/animations are preserved verbatim and guarded by `node design/mock/check-motion.mjs`.
 
 Goal: make it feel like one product. Because Phase 1–2 isolate logic from rendering, this was mostly restyling components.
 
 ### Design system
 - [x] Design tokens (colors, radius, shadows, fonts) as CSS variables in `src/styles/tavern.css`
-- [x] Table colours (8 wood tones) re-tint the whole page; the separate light/dark switch was removed as redundant
+- [x] Table colours (4 felts: baize, claret, midnight, slate) re-tint the whole page; the separate light/dark switch was removed as redundant
 - [x] Shared components restyled: buttons, turn banner, scoreboard, mode toggle, controls, board frame, rules dialog (`.gp-modal`), toast and end-of-game popup (`src/shared/notify.ts`)
 - [x] Redesign homepage: category filters, search, "recently played", animated cards, theme toggle
 

@@ -59,7 +59,7 @@ export default function Reversi() {
                     className={`block w-8 h-8 piece-flip ${cell === 1 ? 'stone-b' : 'stone-w'}`}
                   />
                 ) : legal ? (
-                  <span className="block w-2 h-2 rounded-full bg-green-300" />
+                  <span className="block w-3 h-3 rounded-full bg-amber-400/90" />
                 ) : null}
               </button>
             );

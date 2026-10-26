@@ -71,7 +71,7 @@ export default function Checkers() {
       </TurnBanner>
 
       <BoardFrame>
-        <div className="grid grid-cols-8 overflow-hidden rounded-lg">
+        <div className="checkers-board grid grid-cols-8 overflow-hidden rounded-lg">
           {state.cells.map((cell, i) => {
             const r = Math.floor(i / SIZE);
             const c = i % SIZE;

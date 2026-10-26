@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Mode } from './components';
 import type { GameEngine, PlayerId } from './engine';
+import { publishMatch } from './matchInfo';
 import { loadJson, saveJson } from './storage';
 import { type UseGame, useGame } from './useGame';
 
@@ -42,6 +43,13 @@ export function useMatch<State, Move, Line = unknown>(
     if (persistId) saveJson(`${persistId}:meta`, { mode, scores });
   }, [persistId, mode, scores]);
   const { state, status, player, play, reset } = game;
+  const lastNames = useRef<Record<PlayerId, string> | null>(null);
+  // Let the page chrome show the player names and whose turn it is.
+  useEffect(() => {
+    if (lastNames.current)
+      publishMatch({ names: lastNames.current, player, over: status.state !== 'playing' });
+  });
+  useEffect(() => () => publishMatch(null), []);
 
   const isCpuTurn = !!pickMove && mode === 'vs-cpu' && player === cpu && status.state === 'playing';
 
@@ -82,6 +90,10 @@ export function useMatch<State, Move, Line = unknown>(
     // Against the computer, rewind to the human's previous turn (the computer may have moved several times).
     undo: () =>
       mode === 'vs-cpu' && pickMove ? game.undoWhile((st) => engine.currentPlayer(st) === cpu) : game.undo(1),
-    names: (p1, p2) => (mode === 'vs-cpu' ? { 1: 'You', 2: 'Computer' } : { 1: p1, 2: p2 }),
+    names: (p1, p2) => {
+      const n: Record<PlayerId, string> = mode === 'vs-cpu' ? { 1: 'You', 2: 'Computer' } : { 1: p1, 2: p2 };
+      lastNames.current = n;
+      return n;
+    },
   };
 }

@@ -1,4 +1,4 @@
-import { type CSSProperties, useMemo } from 'react';
+import { useMemo } from 'react';
 import {
   BoardFrame,
   GameControls,
@@ -38,7 +38,7 @@ export default function TicTacToe() {
       </TurnBanner>
 
       <BoardFrame>
-        <div className="board-paper grid grid-cols-3 gap-1 p-3">
+        <div className="board-chalk grid grid-cols-3">
           {state.cells.map((cell, i) => (
             <button
               // biome-ignore lint/suspicious/noArrayIndexKey: fixed grid positions
@@ -47,17 +47,12 @@ export default function TicTacToe() {
               aria-label={`Cell ${i + 1}${cell ? `, ${cell === 1 ? 'X' : 'O'}` : ''}`}
               disabled={isCpuTurn || !game.legalMoves.includes(i)}
               onClick={() => play(i)}
-              className={`w-24 h-24 flex items-center justify-center rounded-lg border border-amber-900/20 bg-amber-50/40 enabled:hover:bg-amber-100/80 disabled:cursor-not-allowed ${
-                winLine?.includes(i) ? 'win-glow ring-4 ring-amber-400' : ''
+              className={`chalk-cell w-28 h-28 flex items-center justify-center enabled:hover:bg-white/5 disabled:cursor-not-allowed ${
+                winLine?.includes(i) ? 'win-glow bg-amber-400/25' : ''
               }`}
             >
               {cell !== null && (
-                <i
-                  key={cell}
-                  aria-hidden="true"
-                  className={`gem piece-pop ${cell === 1 ? '' : 'sapphire'}`}
-                  style={{ '--size': '3.6rem' } as CSSProperties}
-                />
+                <i key={cell} aria-hidden="true" className={cell === 1 ? 'mark-x' : 'mark-o'} />
               )}
             </button>
           ))}

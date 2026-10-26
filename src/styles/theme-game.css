@@ -1,0 +1,6 @@
+/* Everything a game page needs, in one file so the cascade order is fixed: the preserved prototype rules first, then the theme. */
+@import "./fonts.css";
+@import "./preserved-game.css";
+@import "./tavern.css";
+@import "./shell.css";
+@import "./baize.css";
