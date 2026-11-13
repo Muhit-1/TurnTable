@@ -1,0 +1,2115 @@
+/* ==========================================================================================================
+   Pencil & Paper: the whole look of TurnTable, in one file.
+   Half of these games started on squared paper, so the site is a maths notebook: a printed grid, a red margin,
+   punched holes, one blue pen and one red pen. Boards are separate sheets taped to the page.
+   Signature: the score is kept in tally marks, and the player to move has their name ringed in pen.
+   Note: Tailwind utilities live in a cascade layer, so rules here (unlayered) win over them. Anything a game
+   styles with utilities (padding, borders) must not be set on a bare element selector below.
+   ========================================================================================================== */
+
+:root {
+  --paper: #fdfdfb;
+  --sheet: #fffef8;
+  --rule: #cfe0f3; /* the printed squares */
+  --margin: #f0a3a0; /* the printed margin line */
+  --graphite: #2a2d36;
+  --soft: #5f6575;
+  --blue: #1f47c4;
+  --blue-tint: #e3eafc;
+  --red: #d5332a;
+  --red-tint: #fbe1df;
+  --marker: #ffe75c; /* highlighter */
+  --hand: "Shantell Sans", "Comic Sans MS", "Segoe Print", cursive;
+  --wob: 255px 15px 225px 15px / 15px 225px 15px 255px; /* a box drawn by hand: uneven corners */
+  --sq: 26px;
+  --gutter: clamp(36px, 3.8vw, 68px);
+  --pad-l: calc(var(--gutter) + clamp(10px, 1.4vw, 26px));
+  --pad-r: clamp(12px, 2vw, 36px);
+  --lift: 2px 3px 0 rgb(42 45 54 / 0.12);
+}
+
+/* Everything is sized in rem, so on a big screen the whole interface grows with it. */
+html {
+  font-size: clamp(16px, calc(10px + 0.5vw), 21px);
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--graphite);
+  font: 500 1rem / 1.45 var(--hand);
+  font-variation-settings:
+    "BNCE" 0,
+    "INFM" 30,
+    "SPAC" 0;
+  background:
+    linear-gradient(var(--rule) 1px, transparent 1px) 0 0 / var(--sq) var(--sq),
+    linear-gradient(90deg, var(--rule) 1px, transparent 1px) 0 0 / var(--sq) var(--sq),
+    var(--paper);
+}
+body[data-paper="lined"] {
+  background:
+    linear-gradient(var(--rule) 1px, transparent 1px) 0 0 / 100% calc(var(--sq) * 1.25),
+    var(--paper);
+}
+body[data-paper="dotted"] {
+  background:
+    radial-gradient(circle, #9db4d3 1.3px, transparent 1.7px) 0 0 / var(--sq) var(--sq),
+    var(--paper);
+}
+body[data-paper="plain"] {
+  background: var(--paper);
+}
+/* the red margin and the three punched holes, fixed to the left edge */
+body::before {
+  content: "";
+  position: fixed;
+  z-index: -1;
+  top: 0;
+  bottom: 0;
+  left: var(--gutter);
+  width: 2px;
+  background: var(--margin);
+  pointer-events: none;
+}
+body::after {
+  content: "";
+  position: fixed;
+  z-index: -1;
+  inset: 0 auto 0 0;
+  width: var(--gutter);
+  pointer-events: none;
+  --hole: clamp(7px, 0.9vw, 11px);
+  background:
+    radial-gradient(circle at 50% 14%, #e9edf2 0 var(--hole), transparent calc(var(--hole) + 1px)),
+    radial-gradient(circle at 50% 50%, #e9edf2 0 var(--hole), transparent calc(var(--hole) + 1px)),
+    radial-gradient(circle at 50% 86%, #e9edf2 0 var(--hole), transparent calc(var(--hole) + 1px));
+}
+a {
+  color: inherit;
+}
+button,
+input,
+select,
+textarea {
+  font-family: var(--hand);
+}
+:focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+::selection {
+  background: var(--marker);
+}
+.pen-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+.skip-link {
+  position: absolute;
+  left: 12px;
+  top: -80px;
+  z-index: 100;
+  padding: 0.6rem 1rem;
+  border: 2px solid var(--graphite);
+  border-radius: var(--wob);
+  background: var(--marker);
+  color: var(--graphite);
+  font-weight: 700;
+  transition: top 0.15s ease;
+}
+.skip-link:focus {
+  top: 12px;
+}
+
+/* ---- buttons drawn by hand ---- */
+.btn,
+.act,
+.ib,
+.ts-panel button.border,
+.ts-stage button.bg-neutral-900:not([class*="px-3"]),
+.ts-center button.bg-neutral-900 {
+  border: 2px solid var(--graphite);
+  border-radius: var(--wob);
+  background: var(--paper);
+  color: var(--graphite);
+  box-shadow: var(--lift);
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.12s ease;
+}
+.btn:hover:not(:disabled),
+.act:hover:not(:disabled),
+.ib:hover,
+.ts-panel button.border:hover:not(:disabled),
+.ts-stage button.bg-neutral-900:not([class*="px-3"]):hover:not(:disabled),
+.ts-center button.bg-neutral-900:hover:not(:disabled) {
+  transform: rotate(-1.2deg);
+  background: linear-gradient(transparent 55%, var(--marker) 55% 92%, transparent 92%) var(--paper);
+  color: var(--graphite);
+}
+.btn:disabled,
+.act:disabled,
+.ts-panel button.border:disabled,
+.ts-stage button.bg-neutral-900:disabled {
+  opacity: 0.4;
+  cursor: default;
+  transform: none;
+}
+/* the main action (Roll, Take, Start...) is the one in solid pen */
+.ts-stage button.bg-neutral-900:not([class*="px-3"]),
+.ts-center button.bg-neutral-900,
+.act.strong {
+  background: var(--graphite);
+  color: var(--paper);
+}
+.ts-stage button.bg-neutral-900:not([class*="px-3"]):hover:not(:disabled),
+.ts-center button.bg-neutral-900:hover:not(:disabled),
+.act.strong:hover:not(:disabled) {
+  background: var(--graphite);
+  color: var(--paper);
+  transform: rotate(-1.2deg) scale(1.02);
+}
+/* difficulty and board-size toggles: the chosen one is filled */
+.ts-panel button.border.bg-neutral-900 {
+  background: var(--graphite);
+  color: var(--paper);
+}
+.ts-panel button.border {
+  padding: 0.3rem 0.9rem;
+  background: var(--sheet);
+}
+.ts-panel button.border.bg-white {
+  color: var(--graphite);
+}
+.btn svg,
+.act svg,
+.ib svg,
+.menu-row svg {
+  width: 1.2rem;
+  height: 1.2rem;
+  flex: none;
+}
+
+/* ---- top bar (shared by the homepage and every game) ---- */
+.top {
+  position: relative;
+  z-index: 5;
+  flex: none;
+  width: 100%;
+  max-width: 1760px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px var(--pad-r) 6px var(--pad-l);
+}
+.gp-page .top {
+  padding-left: 0;
+  padding-right: 0;
+}
+.brand,
+.tools {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+.logo {
+  font-weight: 700;
+  font-size: 1.7rem;
+  line-height: 1;
+  color: var(--blue);
+  text-decoration: none;
+  font-variation-settings:
+    "BNCE" 60,
+    "INFM" 60,
+    "SPAC" 0;
+}
+.logo span {
+  color: var(--red);
+}
+.ib {
+  width: 3rem;
+  height: 3rem;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  list-style: none;
+}
+summary.ib::-webkit-details-marker {
+  display: none;
+}
+.menu {
+  position: relative;
+}
+.menu-pop {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 10px);
+  z-index: 60;
+  width: max-content;
+  min-width: 14rem;
+  max-width: 90vw;
+  padding: 1rem;
+  display: grid;
+  gap: 0.7rem;
+  background: var(--sheet);
+  border: 2px solid var(--graphite);
+  border-radius: 14px 18px 12px 20px;
+  box-shadow: 4px 6px 0 rgb(42 45 54 / 0.16);
+}
+.menu-label {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--soft);
+}
+fieldset.swatches {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+  display: flex;
+  gap: 0.6rem;
+}
+.swatch {
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 2px solid var(--graphite);
+  border-radius: 8px 10px 7px 11px;
+  cursor: pointer;
+  background: var(--paper);
+}
+.swatch[data-paper="squared"] {
+  background:
+    linear-gradient(var(--rule) 1px, transparent 1px) 0 0 / 8px 8px,
+    linear-gradient(90deg, var(--rule) 1px, transparent 1px) 0 0 / 8px 8px,
+    var(--paper);
+}
+.swatch[data-paper="lined"] {
+  background:
+    linear-gradient(#9db4d3 1px, transparent 1px) 0 0 / 100% 9px,
+    var(--paper);
+}
+.swatch[data-paper="dotted"] {
+  background:
+    radial-gradient(circle, #6f8bb3 1px, transparent 1.4px) 0 0 / 8px 8px,
+    var(--paper);
+}
+.swatch[aria-pressed="true"] {
+  box-shadow:
+    0 0 0 3px var(--paper),
+    0 0 0 5px var(--graphite);
+  background-color: var(--marker);
+}
+.menu-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.55rem 0.8rem;
+  border: 2px solid var(--graphite);
+  border-radius: var(--wob);
+  background: var(--paper);
+  color: var(--graphite);
+  font-weight: 600;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+.menu-row:hover {
+  background: linear-gradient(transparent 55%, var(--marker) 55% 92%, transparent 92%) var(--paper);
+}
+
+/* ---- rules pop-up ---- */
+dialog.gp-modal {
+  margin: auto;
+  position: fixed;
+  inset: 0;
+  max-height: min(88vh, 780px);
+  width: min(540px, calc(100vw - 32px));
+  height: fit-content;
+  padding: 0;
+  overflow: hidden;
+  background: var(--sheet);
+  color: var(--graphite);
+  border: 2px solid var(--graphite);
+  border-radius: 16px 20px 14px 22px;
+  box-shadow: 6px 8px 0 rgb(42 45 54 / 0.2);
+}
+dialog.gp-modal::backdrop {
+  background: rgb(42 45 54 / 0.45);
+}
+.gp-modal-inner {
+  padding: 1.5rem 1.6rem 1.7rem;
+  max-height: min(88vh, 780px);
+  overflow-y: auto;
+}
+.gp-modal-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.8rem;
+  margin-bottom: 1rem;
+}
+.gp-modal-title {
+  margin: 0;
+  font-size: 1.7rem;
+  font-weight: 800;
+  line-height: 1.1;
+  font-variation-settings:
+    "BNCE" 80,
+    "INFM" 70,
+    "SPAC" 0;
+}
+.gp-modal-close {
+  flex: none;
+  width: 2.4rem;
+  height: 2.4rem;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 2px solid var(--graphite);
+  border-radius: var(--wob);
+  background: var(--paper);
+  color: var(--graphite);
+  cursor: pointer;
+}
+.gp-modal-close svg {
+  width: 1rem;
+  height: 1rem;
+}
+.gp-rules {
+  display: grid;
+  gap: 0.9rem;
+  margin: 0;
+}
+.gp-rule-block + .gp-rule-block {
+  border-top: 2px dotted #b9c0cc;
+  padding-top: 0.9rem;
+}
+.gp-rule-label {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--blue);
+}
+.gp-rule-body {
+  margin: 0.15rem 0 0;
+  line-height: 1.55;
+}
+.gp-video {
+  margin-top: 1.3rem;
+  padding-top: 1rem;
+  border-top: 2px dotted #b9c0cc;
+}
+.gp-video-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  text-decoration: none;
+  background: linear-gradient(var(--marker), var(--marker)) no-repeat 0 85% / 100% 40%;
+}
+.gp-video-link svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* ==========================================================================================================
+   Homepage
+   ========================================================================================================== */
+.home-page {
+  max-width: 1760px;
+  margin: 0 auto;
+  padding: 0 var(--pad-r) 56px var(--pad-l);
+}
+.home-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: clamp(20px, 4vw, 56px);
+  align-items: end;
+  padding: clamp(12px, 3vw, 36px) 0 28px;
+}
+.home-title {
+  position: relative;
+  margin: 0;
+  width: fit-content;
+  font-weight: 800;
+  font-size: clamp(3.2rem, 8.6vw, 10rem);
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  font-variation-settings:
+    "BNCE" 100,
+    "INFM" 80,
+    "SPAC" 0;
+  transform: rotate(-2deg);
+}
+.home-title b {
+  font-weight: inherit;
+  color: var(--blue);
+}
+.home-title i {
+  font-style: normal;
+  color: var(--red);
+}
+.home-title svg {
+  position: absolute;
+  left: -2%;
+  bottom: -0.2em;
+  width: 104%;
+  height: 0.3em;
+  overflow: visible;
+}
+.home-title path {
+  fill: none;
+  stroke: var(--graphite);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 100;
+  animation: ink 0.9s ease-out 0.35s backwards;
+}
+@keyframes ink {
+  from {
+    stroke-dashoffset: 100;
+  }
+}
+.home-lede {
+  margin: 0 0 0.9rem;
+  font-size: clamp(1.15rem, 1.5vw, 1.75rem);
+  line-height: 1.35;
+}
+.home-lede mark {
+  background: linear-gradient(transparent 12%, var(--marker) 12% 88%, transparent 88%);
+  color: inherit;
+  padding: 0 3px;
+}
+.home-names {
+  display: grid;
+  gap: 0.4rem;
+}
+.home-names label {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  font-size: 0.95rem;
+  color: var(--soft);
+}
+.home-names input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  border-bottom: 2px dotted var(--graphite);
+  background: none;
+  padding: 0 4px 1px;
+  font-weight: 700;
+  font-size: 1.6rem;
+  font-variation-settings:
+    "BNCE" 40,
+    "INFM" 70,
+    "SPAC" 0;
+  color: var(--graphite);
+}
+.home-names input:focus {
+  outline: none;
+  border-bottom-style: solid;
+  background: linear-gradient(transparent 60%, var(--marker) 60%);
+}
+.home-names .n1 input {
+  color: var(--blue);
+}
+.home-names .n2 input {
+  color: var(--red);
+}
+.home-names input::placeholder {
+  color: #b6bcc8;
+  font-weight: 500;
+}
+.home-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 6px;
+  border-bottom: 2px solid var(--graphite);
+  padding: 0 4px;
+}
+.home-tabset {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.home-tab {
+  min-height: 2.9rem;
+  padding: 4px 1.1rem 2px;
+  border: 2px solid var(--graphite);
+  border-bottom: 0;
+  border-radius: 12px 14px 0 0 / 14px 12px 0 0;
+  background: #eef3f9;
+  color: var(--graphite);
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: pointer;
+  transform: translateY(2px);
+}
+.home-tab small {
+  font-size: 0.8rem;
+  color: var(--soft);
+  font-weight: 500;
+}
+.home-tab[aria-pressed="true"] {
+  background: var(--paper);
+  min-height: 3.4rem;
+  box-shadow: inset 0 -12px 0 -6px var(--marker);
+}
+.home-find {
+  flex: 1 1 180px;
+  min-width: 0;
+  align-self: center;
+  margin: 0 0 6px auto;
+  max-width: 22rem;
+  border: 0;
+  border-bottom: 2px dotted var(--graphite);
+  background: none;
+  padding: 4px 4px 2px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--graphite);
+}
+.home-find::placeholder {
+  color: var(--soft);
+  font-weight: 500;
+}
+.home-recent {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.8rem;
+  margin: 1rem 0 0;
+  font-size: 0.95rem;
+  color: var(--soft);
+}
+.home-recent a {
+  padding: 0.1rem 0.7rem;
+  border: 2px solid var(--graphite);
+  border-radius: var(--wob);
+  background: var(--paper);
+  color: var(--graphite);
+  font-weight: 600;
+  text-decoration: none;
+}
+.home-recent a:hover {
+  background: var(--marker);
+}
+.home-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+  gap: 14px 28px;
+  padding: 30px 0 0;
+}
+.home-entry {
+  display: grid;
+  grid-template-columns: clamp(5.2rem, 6.2vw, 7rem) 1fr;
+  gap: 1rem;
+  align-items: center;
+  padding: 10px 10px 10px 4px;
+  color: inherit;
+  text-decoration: none;
+  border-radius: 10px;
+}
+.home-entry.soon {
+  opacity: 0.5;
+}
+.home-entry .home-drawing {
+  display: block;
+}
+.home-entry .glyph {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  transition: transform 0.2s ease;
+}
+.home-entry b {
+  display: inline;
+  font-weight: 700;
+  font-size: 1.45rem;
+  line-height: 1.15;
+  font-variation-settings:
+    "BNCE" 30,
+    "INFM" 60,
+    "SPAC" 0;
+  background: linear-gradient(var(--marker), var(--marker)) no-repeat 0 78% / 0% 46%;
+  transition: background-size 0.25s ease;
+}
+.home-entry .home-what > span {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.9rem;
+  line-height: 1.32;
+  color: var(--soft);
+}
+.home-entry em {
+  font-style: normal;
+  white-space: nowrap;
+  color: var(--graphite);
+}
+.home-entry:hover b,
+.home-entry:focus-visible b {
+  background-size: 100% 46%;
+}
+.home-entry:hover .glyph,
+.home-entry:focus-visible .glyph {
+  transform: rotate(-5deg) scale(1.06);
+}
+.home-none {
+  grid-column: 1 / -1;
+  padding: 28px 0;
+  font-size: 1.2rem;
+}
+/* the drawings: pencil for the board, the two pens for the pieces */
+.glyph {
+  filter: url(#wobble);
+  overflow: visible;
+}
+.glyph .ln,
+.glyph .sa,
+.glyph .sb {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.glyph .ln {
+  stroke: var(--graphite);
+  stroke-width: 1.8;
+}
+.glyph .sa {
+  stroke: var(--blue);
+  stroke-width: 2.6;
+}
+.glyph .sb {
+  stroke: var(--red);
+  stroke-width: 2.6;
+}
+.glyph .a {
+  fill: url(#hatch-blue);
+  stroke: var(--blue);
+  stroke-width: 1.8;
+}
+.glyph .b {
+  fill: url(#hatch-red);
+  stroke: var(--red);
+  stroke-width: 1.8;
+}
+.glyph .n {
+  fill: url(#hatch-grey);
+  stroke: var(--graphite);
+  stroke-width: 1.6;
+}
+.glyph .h {
+  fill: var(--paper);
+  stroke: var(--graphite);
+  stroke-width: 1.4;
+}
+.glyph .d {
+  fill: var(--graphite);
+}
+.glyph .tx {
+  fill: var(--graphite);
+  font-family: var(--hand);
+  font-weight: 700;
+}
+
+/* ==========================================================================================================
+   Game page: top bar, then   left notes | the board | right notes   filling one screen
+   ========================================================================================================== */
+.gp-page {
+  height: 100dvh;
+  max-width: 1760px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0 var(--pad-r) 12px var(--pad-l);
+}
+.ts-stage {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(14rem, clamp(15rem, 18vw, 22rem)) minmax(0, 1fr) minmax(
+      14rem,
+      clamp(15rem, 18vw, 22rem)
+    );
+  grid-template-rows: minmax(0, 1fr);
+  gap: clamp(12px, 1.8vw, 32px);
+  color: var(--graphite);
+  --surface: var(--sheet);
+  --ink: var(--graphite);
+  --muted: var(--soft);
+  --line: rgb(42 45 54 / 0.25);
+  --accent: var(--blue);
+  --accent-2: var(--red);
+}
+.ts-stage.single {
+  grid-template-columns: minmax(0, 1fr);
+}
+.ts-stage:focus {
+  outline: none;
+}
+.ts-stage :focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 2px;
+  z-index: 5;
+}
+.ts-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  align-self: start;
+  min-height: 0;
+}
+/* The side panels are loose notes on the page; the boxes are drawn round the things inside them. */
+.ts-panel {
+  min-width: 0;
+  min-height: 0;
+  max-height: 100%;
+  overflow-y: auto;
+  scrollbar-width: none;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.8rem;
+  padding: 0.2rem;
+  color: var(--graphite);
+}
+.ts-panel::-webkit-scrollbar {
+  display: none;
+}
+.ts-panel > * {
+  max-width: 100%;
+}
+.ts-panel.right {
+  align-self: start;
+}
+.ts-panel.empty {
+  visibility: hidden;
+}
+.ts-panel.controls {
+  padding: 0.2rem;
+}
+.ts-stage.single .ts-panel {
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+  align-self: center;
+}
+.card-title {
+  margin: 0;
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-align: left;
+  font-weight: 800;
+  font-size: clamp(2.4rem, 3.6vw, 4.6rem);
+  line-height: 1.12;
+  font-variation-settings:
+    "BNCE" 90,
+    "INFM" 80,
+    "SPAC" 0;
+  transform: rotate(-2deg);
+  transform-origin: left;
+}
+.ts-center {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: clamp(14px, 2vw, 34px);
+}
+.ts-fit {
+  flex: none;
+}
+.ts-panel .text-sm,
+.ts-panel .text-xs {
+  color: var(--soft);
+}
+
+/* mode toggle */
+fieldset.seg {
+  margin: 0;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35rem;
+  padding: 0;
+  border: 0;
+  width: 100%;
+}
+.seg button {
+  padding: 0.4rem 0.5rem;
+  border: 2px solid var(--graphite);
+  border-radius: var(--wob);
+  background: var(--sheet);
+  color: var(--graphite);
+  font-size: 0.95rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.seg button:hover {
+  background: linear-gradient(transparent 55%, var(--marker) 55% 92%, transparent 92%) var(--sheet);
+}
+.seg button[aria-pressed="true"] {
+  background: var(--graphite);
+  color: var(--paper);
+}
+.level {
+  width: 100%;
+  display: grid;
+  gap: 0.3rem;
+}
+.level-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--soft);
+}
+.level-row {
+  display: flex;
+  gap: 0.35rem;
+}
+.level-row button {
+  flex: 1;
+  padding: 0.3rem 0.2rem;
+  font-size: 0.95rem;
+  white-space: nowrap;
+}
+
+/* the marker beside each name: its colour AND its shape, so colour is never the only cue */
+.tok {
+  position: relative;
+  flex: none;
+  display: inline-block;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 2.5px solid var(--pen);
+  border-radius: 50%;
+  background: repeating-linear-gradient(-48deg, var(--pen) 0 1.2px, var(--tint) 1.2px 4.2px);
+}
+.tok.ruby::after,
+.tok.ivory::after {
+  content: "";
+  position: absolute;
+  inset: 26%;
+  border: 2px solid var(--pen);
+  border-radius: 50%;
+  background: var(--sheet);
+}
+.tok.ivory::after {
+  inset: 24%;
+  border-radius: 2px;
+  transform: rotate(45deg) scale(0.85);
+}
+.tok.w {
+  background: var(--sheet);
+}
+.tok.b {
+  background: repeating-linear-gradient(-48deg, var(--graphite) 0 1.6px, #8a8e9a 1.6px 3.4px);
+}
+[data-game="chess"] .tok.w,
+[data-game="chess"] .tok.b {
+  background: repeating-linear-gradient(-48deg, var(--pen) 0 1.2px, var(--tint) 1.2px 4.2px);
+}
+.tok.x,
+.tok.o {
+  background: none;
+}
+.tok.x {
+  border-color: transparent;
+}
+.tok.x::before,
+.tok.x::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 8%;
+  width: 3px;
+  height: 84%;
+  margin-left: -1.5px;
+  background: var(--pen);
+  border-radius: 2px;
+  transform: rotate(45deg);
+}
+.tok.x::after {
+  transform: rotate(-45deg);
+}
+.tok.o {
+  border-width: 3.5px;
+}
+.tok.p1 {
+  background: var(--pen);
+}
+.tok.p2 {
+  border-radius: 5px;
+  background: var(--pen);
+}
+
+/* the score box: names, a ring round the one to move, wins in tally marks */
+.players {
+  width: 100%;
+  padding: 0.4rem 1rem;
+  border: 2px solid var(--graphite);
+  border-radius: var(--wob);
+  background: var(--sheet);
+  box-shadow: 3px 4px 0 rgb(42 45 54 / 0.1);
+}
+.player {
+  --pen: var(--graphite);
+  --tint: #e7e9ee;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.65rem 0.2rem;
+  color: var(--pen);
+}
+.player + .player {
+  border-top: 2px dotted #b9c0cc;
+}
+.player[data-tok="ruby"],
+.player[data-tok="o"],
+.player[data-tok="p1"] {
+  --pen: var(--red);
+  --tint: var(--red-tint);
+}
+.player[data-tok="ivory"],
+.player[data-tok="x"],
+.player[data-tok="p2"] {
+  --pen: var(--blue);
+  --tint: var(--blue-tint);
+}
+[data-game="chess"] .player[data-tok="w"] {
+  --pen: var(--blue);
+  --tint: var(--blue-tint);
+}
+[data-game="chess"] .player[data-tok="b"] {
+  --pen: var(--red);
+  --tint: var(--red-tint);
+}
+.pn {
+  position: relative;
+  min-width: 0;
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+}
+.player .pname {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 700;
+  font-size: 1.45rem;
+  line-height: 1.15;
+  font-variation-settings:
+    "BNCE" 40,
+    "INFM" 70,
+    "SPAC" 0;
+}
+.player .pname-edit {
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  text-align: left;
+  cursor: text;
+}
+.player .pname-edit:hover {
+  background: linear-gradient(transparent 62%, var(--marker) 62%);
+}
+.player .pname-input {
+  width: 100%;
+  padding: 0 0.2rem;
+  border: 0;
+  border-bottom: 2px solid var(--graphite);
+  background: linear-gradient(transparent 60%, var(--marker) 60%);
+  color: var(--graphite);
+  font-weight: 700;
+  font-size: 1.45rem;
+  outline: none;
+}
+.pen-ring {
+  position: absolute;
+  left: -0.9rem;
+  top: -0.5rem;
+  width: calc(100% + 1.5rem);
+  height: calc(100% + 1rem);
+  overflow: visible;
+  pointer-events: none;
+}
+.pen-ring path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+}
+.player.active .pen-ring path {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.55s ease-out;
+}
+.tally {
+  height: 2rem;
+  width: auto;
+  color: var(--pen);
+}
+.tally path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+}
+.tally.zero,
+.tally.count {
+  font-weight: 700;
+  font-size: 1.4rem;
+}
+.tally.zero {
+  color: var(--soft);
+}
+.who {
+  margin: 0;
+  width: 100%;
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.3;
+  text-align: left;
+}
+
+/* the controls under the scoreboard */
+.controls-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+  width: 100%;
+}
+.act {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 2.9rem;
+  padding: 0.3rem 0.6rem;
+  font-size: 1rem;
+}
+.act.strong {
+  grid-column: 1 / -1;
+}
+
+/* buttons directly in a side note keep their natural width */
+.ts-panel > button {
+  align-self: flex-start;
+}
+
+/* move lists and the other loose notes */
+.activity {
+  width: 100%;
+  padding: 0.7rem 1rem;
+  border: 2px solid var(--graphite);
+  border-radius: var(--wob);
+  background: var(--sheet);
+  box-shadow: 3px 4px 0 rgb(42 45 54 / 0.1);
+  font-size: 0.95rem;
+}
+.activity summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--soft);
+}
+.activity ol {
+  margin: 0.4rem 0 0;
+  padding-left: 1.5em;
+  max-height: min(46dvh, 460px);
+  overflow-y: auto;
+  columns: 2;
+  column-gap: 1.2rem;
+  font-size: 1.02rem;
+}
+.activity li {
+  break-inside: avoid;
+  padding: 1px 0;
+}
+.activity li::marker {
+  color: var(--soft);
+}
+.ts-panel table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  border: 2px solid var(--graphite);
+  border-radius: var(--wob);
+  background: var(--sheet);
+}
+.ts-panel table :is(th, td) {
+  padding: 0.25rem 0.4rem;
+  border-bottom: 2px dotted #b9c0cc;
+  white-space: nowrap;
+}
+.ts-panel table th:first-child {
+  white-space: normal;
+  text-align: left;
+  font-weight: 600;
+}
+.ts-panel table thead th {
+  color: var(--blue);
+}
+.ts-panel table tbody tr:last-child :is(th, td) {
+  border-bottom: 0;
+}
+.ts-panel table td button {
+  padding: 0 0.5rem;
+  border: 2px solid var(--graphite);
+  border-radius: var(--wob);
+  background: var(--marker);
+  color: var(--graphite);
+  font-weight: 700;
+}
+.ts-stage :is(input, select, textarea) {
+  background: var(--sheet);
+  color: var(--graphite);
+  border-color: var(--graphite);
+}
+
+/* ==========================================================================================================
+   The board sheet, taped down a little crooked
+   ========================================================================================================== */
+.board-frame {
+  position: relative;
+  padding: clamp(12px, 1.4vw, 22px);
+  background: var(--sheet);
+  border: 1px solid #d9d6c8;
+  box-shadow: 2px 5px 14px rgb(42 45 54 / 0.16);
+  transform: rotate(-0.7deg);
+}
+.tape {
+  position: absolute;
+  z-index: 2;
+  width: clamp(5rem, 8vw, 8rem);
+  height: clamp(1.6rem, 2.3vw, 2.3rem);
+  background: rgb(255 226 120 / 0.72);
+  box-shadow: 0 1px 2px rgb(42 45 54 / 0.12);
+  pointer-events: none;
+}
+.tape.t1 {
+  left: -1.4rem;
+  top: -0.3rem;
+  transform: rotate(-38deg);
+}
+.tape.t2 {
+  right: -1.4rem;
+  bottom: -0.3rem;
+  transform: rotate(-38deg);
+}
+/* the names of the two seats, written at the edges; the one to move is highlighted */
+.plaque {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  max-width: 70%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0 0.8rem;
+  border: 2px solid var(--graphite);
+  border-radius: var(--wob);
+  background: var(--paper);
+  color: var(--graphite);
+  font-size: 0.85rem;
+  font-weight: 700;
+  line-height: 1.5;
+  transition: background-color 0.3s ease;
+}
+.plaque.top {
+  top: -0.95rem;
+}
+.plaque.bot {
+  bottom: -0.95rem;
+}
+.plaque.on {
+  background: var(--marker);
+}
+
+/* board surfaces */
+.board-paper,
+.board-felt,
+.board-chalk,
+.board-go {
+  position: relative;
+  background: var(--sheet);
+  color: var(--graphite);
+  border: 3px solid var(--graphite);
+  border-radius: 3px 6px 4px 7px;
+}
+.board-felt {
+  overflow: hidden;
+}
+.sq-light {
+  background: transparent;
+}
+.sq-dark {
+  background:
+    repeating-linear-gradient(-52deg, rgb(42 45 54 / 0.42) 0 1.4px, transparent 1.4px 6px),
+    repeating-linear-gradient(-49deg, transparent 0 9px, rgb(42 45 54 / 0.16) 9px 10px, transparent 10px 17px);
+}
+.sq-light.green,
+.sq-dark.green {
+  background-color: transparent;
+}
+.checkers-board .sq-light,
+.checkers-board .sq-dark {
+  background-color: transparent;
+}
+/* the squares a piece can move to carry a blob of highlighter */
+.sq-target {
+  background-image: radial-gradient(circle, rgb(255 231 92 / 0.95) 0 27%, transparent 29%);
+  box-shadow: inset 0 0 0 2px rgb(42 45 54 / 0.3);
+}
+.last-move {
+  animation: last-glow 1.6s ease-in-out infinite;
+}
+@keyframes last-glow {
+  0%,
+  100% {
+    box-shadow: inset 0 0 0 4px rgb(255 214 0 / 0.95);
+  }
+  50% {
+    box-shadow: inset 0 0 0 4px rgb(255 214 0 / 0.35);
+  }
+}
+.piece {
+  font-family: "Segoe UI Symbol", "Noto Sans Symbols 2", "Apple Symbols", "DejaVu Sans", sans-serif;
+  line-height: 1;
+  -webkit-text-stroke: 0.045em currentColor;
+  paint-order: stroke fill;
+}
+.piece.w {
+  color: #cbd8fb;
+  -webkit-text-stroke-color: var(--blue);
+}
+.piece.b {
+  color: #f9cbc6;
+  -webkit-text-stroke-color: var(--red);
+}
+
+/* ---- pieces: hatched in pen, each with its own shape as well as its colour ---- */
+.gem {
+  --pen: var(--red);
+  --tint: var(--red-tint);
+  position: relative;
+  flex: 0 0 auto;
+  display: inline-block;
+  width: var(--size, 26px);
+  height: var(--size, 26px);
+  border: 2.5px solid var(--pen);
+  border-radius: 50%;
+  background: repeating-linear-gradient(-48deg, var(--pen) 0 1.2px, var(--tint) 1.2px 4.4px);
+  box-shadow: 1px 2px 0 rgb(42 45 54 / 0.22);
+}
+.gem::after {
+  content: "";
+  position: absolute;
+  inset: 30%;
+  border: 2px solid var(--pen);
+  border-radius: 50%;
+  background: var(--sheet);
+  pointer-events: none;
+}
+.gem.sapphire {
+  --pen: var(--blue);
+  --tint: var(--blue-tint);
+}
+.gem.sapphire::after {
+  inset: 28%;
+  border-radius: 2px;
+  transform: rotate(45deg) scale(0.85);
+}
+.gem.amethyst {
+  --pen: #6a3fc4;
+  --tint: #e9e0fa;
+}
+.gem.aquamarine {
+  --pen: #1b8a6b;
+  --tint: #d9f2e9;
+}
+.gem.onyx {
+  --pen: var(--graphite);
+  --tint: #d6d8de;
+}
+.gem.rosequartz {
+  --pen: #c23a7a;
+  --tint: #fbdfeb;
+}
+.gem.brass {
+  --pen: #b87f00;
+  --tint: #fff0b8;
+}
+.gem.brass::after,
+.gem.onyx::after,
+.gem.rosequartz::after {
+  display: none;
+}
+.gem.ghost {
+  opacity: 0.5;
+}
+.stone-b,
+.stone-w {
+  display: block;
+  border-radius: 50%;
+  border: 2.5px solid var(--graphite);
+  box-shadow: 1px 2px 0 rgb(42 45 54 / 0.22);
+}
+.stone-b {
+  background: repeating-linear-gradient(-48deg, var(--graphite) 0 1.6px, #8a8e9a 1.6px 3.4px);
+}
+.stone-w {
+  background: var(--sheet);
+}
+.checker {
+  --pen: var(--red);
+  --tint: var(--red-tint);
+  position: relative;
+  display: block;
+  width: 78%;
+  height: 78%;
+  border: 2.5px solid var(--pen);
+  border-radius: 50%;
+  background: repeating-linear-gradient(-48deg, var(--pen) 0 1.2px, var(--tint) 1.2px 4.4px);
+  box-shadow: 1px 2px 0 rgb(42 45 54 / 0.22);
+}
+.checker::after {
+  content: "";
+  position: absolute;
+  inset: 28%;
+  border: 2px solid var(--pen);
+  border-radius: 50%;
+  background: var(--sheet);
+}
+.checker.red {
+  --pen: var(--red);
+  --tint: var(--red-tint);
+}
+.checker.cream {
+  --pen: var(--blue);
+  --tint: var(--blue-tint);
+}
+.checker.cream::after {
+  border-radius: 2px;
+  transform: rotate(45deg) scale(0.85);
+}
+
+/* tic-tac-toe */
+.chalk-cell {
+  border-right: 3px solid var(--graphite);
+  border-bottom: 3px solid var(--graphite);
+}
+.chalk-cell:nth-child(3n) {
+  border-right: 0;
+}
+.chalk-cell:nth-child(n + 7) {
+  border-bottom: 0;
+}
+.mark-x,
+.mark-o {
+  display: block;
+  width: 56%;
+  height: 56%;
+  animation: piece-pop 0.3s cubic-bezier(0.3, 1.4, 0.5, 1) both;
+}
+.mark-x {
+  background:
+    linear-gradient(var(--blue), var(--blue)) center / 100% 11% no-repeat,
+    linear-gradient(var(--blue), var(--blue)) center / 11% 100% no-repeat;
+  rotate: 45deg;
+  border-radius: 4px;
+}
+.mark-o {
+  border: 0.55rem solid var(--red);
+  border-radius: 50%;
+}
+
+/* connect four */
+.c4-board {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(7, var(--cell, 58px));
+  grid-template-rows: repeat(6, var(--cell, 58px));
+  padding: 10px;
+  background: var(--sheet);
+  border: 3px solid var(--graphite);
+  border-radius: 6px 10px 7px 11px;
+}
+.c4-slot {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.c4-slot::before {
+  content: "";
+  width: 82%;
+  height: 82%;
+  border-radius: 50%;
+  border: 2px solid var(--graphite);
+  background: repeating-linear-gradient(-52deg, rgb(42 45 54 / 0.28) 0 1.2px, transparent 1.2px 5px);
+}
+.c4-slot .gem {
+  --size: 82%;
+  position: absolute;
+}
+.c4-slot .gem.fall {
+  animation: disc-fall var(--fall, 0.5s) cubic-bezier(0.45, 0, 0.9, 0.55) both;
+}
+.c4-slot.win .gem {
+  animation: win-glow 1.1s ease-in-out infinite;
+}
+.c4-cols {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(7, var(--cell, 58px));
+  padding: 0 10px;
+}
+.c4-col {
+  position: relative;
+  background: none;
+  border: 0;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+.c4-col:hover:not(:disabled) {
+  background: rgb(255 231 92 / 0.35);
+}
+.c4-col:disabled {
+  cursor: not-allowed;
+}
+.c4-ghost {
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  width: 36px;
+  height: 36px;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  pointer-events: none;
+}
+.c4-col:hover:not(:disabled) .c4-ghost {
+  opacity: 0.85;
+}
+.c4-ghost::after {
+  display: none;
+}
+
+/* dice, cards, letter tiles */
+.die-face {
+  --d: 2.6rem;
+  display: inline-grid;
+  grid-template: repeat(3, 1fr) / repeat(3, 1fr);
+  width: var(--d);
+  height: var(--d);
+  padding: calc(var(--d) * 0.14);
+  border: 2px solid var(--graphite);
+  border-radius: calc(var(--d) * 0.2);
+  background: var(--sheet);
+  box-shadow: 2px 3px 0 rgb(42 45 54 / 0.18);
+}
+.die-face i {
+  width: 70%;
+  height: 70%;
+  margin: auto;
+  border-radius: 50%;
+  background: var(--graphite);
+}
+.die-face.held {
+  outline: 3px solid var(--blue);
+  outline-offset: 2px;
+  background: var(--marker);
+}
+.pcard,
+.pcard-back,
+.pcard-gold,
+.pcard-teal {
+  border: 2px solid var(--graphite);
+  border-radius: 8px 10px 7px 11px;
+  box-shadow: 2px 3px 0 rgb(42 45 54 / 0.18);
+}
+.pcard {
+  background: var(--sheet);
+}
+.pcard-back {
+  background: repeating-linear-gradient(-48deg, var(--blue) 0 1.4px, var(--blue-tint) 1.4px 5px);
+  border-color: var(--blue);
+}
+.pcard-back:not(:disabled):hover {
+  filter: brightness(1.08);
+}
+.pcard-gold {
+  background: #ffeaa0;
+}
+.pcard-teal {
+  background: #cfeee1;
+}
+.tile-wood {
+  background: var(--sheet);
+  border: 2px solid var(--graphite);
+  border-radius: 6px 8px 5px 9px;
+  color: var(--graphite);
+  font-weight: 800;
+  box-shadow: 1px 2px 0 rgb(42 45 54 / 0.2);
+}
+.tile-wood.hit {
+  background: #cfeee1;
+  border-color: #1b8a6b;
+}
+.tile-wood.miss {
+  background: var(--red-tint);
+  border-color: var(--red);
+  text-decoration: line-through;
+}
+/* scrabble: premium squares are coloured in with marker */
+.sc-cell {
+  background: var(--sheet);
+  box-shadow: inset 0 0 0 1px rgb(42 45 54 / 0.25);
+}
+.sc-tw {
+  background: #f5b5ae;
+  color: #5a1410;
+}
+.sc-dw {
+  background: #fbdcd7;
+  color: #5a1410;
+}
+.sc-tl {
+  background: #aebff0;
+  color: #12296e;
+}
+.sc-dl {
+  background: #dbe5fb;
+  color: #12296e;
+}
+.sc-tw,
+.sc-dw,
+.sc-tl,
+.sc-dl {
+  font-weight: 800;
+  box-shadow: inset 0 0 0 1px rgb(42 45 54 / 0.3);
+}
+
+/* a few colours the games set with Tailwind classes, brought into the two pens */
+/* dark browns become pencil shading on paper, and the text on them turns to graphite */
+.ts-stage :is([class*="bg-amber-8"], [class*="bg-amber-9"]) {
+  background-color: var(--sheet);
+  background-image: repeating-linear-gradient(-52deg, rgb(42 45 54 / 0.38) 0 1.3px, transparent 1.3px 6px);
+  color: var(--graphite);
+}
+.ts-stage [class*="bg-orange-3"] {
+  background-color: var(--sheet);
+  background-image: repeating-linear-gradient(-52deg, rgb(42 45 54 / 0.22) 0 1.2px, transparent 1.2px 7px);
+}
+.ts-stage :is([class*="bg-amber-2"], [class*="bg-amber-1"]) {
+  background-color: var(--sheet);
+}
+.ts-stage :is([class*="text-amber-"], [class*="text-yellow-"]) {
+  color: var(--soft);
+}
+/* the nine men's morris board draws its lines and points with fixed colours */
+.board-go svg line {
+  stroke: var(--graphite);
+}
+.board-go svg circle[fill="#78350f"] {
+  fill: var(--graphite);
+}
+.board-go svg circle[fill="#f4efe2"] {
+  fill: var(--sheet);
+  stroke: var(--graphite);
+}
+.board-go svg circle[fill="#1b1d22"] {
+  fill: var(--graphite);
+}
+.ts-stage [class*="border-amber-"] {
+  border-color: rgb(42 45 54 / 0.5);
+}
+.ts-stage :is([class*="bg-rose-500"], [class*="bg-rose-600"]) {
+  background-color: var(--red);
+}
+.ts-stage [class*="bg-sky-500"] {
+  background-color: var(--blue);
+}
+.ts-stage [class*="text-rose-"] {
+  color: var(--red);
+}
+.ts-stage [class*="text-sky-"] {
+  color: var(--blue);
+}
+.ts-stage [class*="text-neutral-"]:not([class*="text-neutral-900"]) {
+  color: var(--soft);
+}
+
+/* ==========================================================================================================
+   Animations (new nodes mount when a piece appears, so these play once per move)
+   ========================================================================================================== */
+@keyframes piece-pop {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.12);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes piece-flip {
+  0% {
+    transform: rotateY(0) scale(1);
+  }
+  50% {
+    transform: rotateY(90deg) scale(1.08);
+  }
+  100% {
+    transform: rotateY(0) scale(1);
+  }
+}
+@keyframes card-flip {
+  0% {
+    transform: rotateY(90deg);
+  }
+  100% {
+    transform: rotateY(0);
+  }
+}
+@keyframes card-deal {
+  0% {
+    transform: translateY(-26px) rotate(-6deg);
+    opacity: 0;
+  }
+  100% {
+    transform: none;
+    opacity: 1;
+  }
+}
+@keyframes dice-tumble {
+  0% {
+    transform: rotate(-200deg) scale(0.5);
+    opacity: 0;
+  }
+  60% {
+    transform: rotate(14deg) scale(1.1);
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(0) scale(1);
+  }
+}
+@keyframes line-glow {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 0 rgb(255 214 0 / 0));
+  }
+  50% {
+    filter: drop-shadow(0 0 7px rgb(255 214 0 / 0.95));
+  }
+}
+@keyframes disc-fall {
+  0% {
+    transform: translateY(calc(var(--drop, 5) * -100% - 40px));
+  }
+  62% {
+    transform: translateY(0);
+  }
+  76% {
+    transform: translateY(-9%);
+  }
+  88% {
+    transform: translateY(0);
+  }
+  94% {
+    transform: translateY(-3%);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+@keyframes win-glow {
+  0%,
+  100% {
+    filter: brightness(1);
+    transform: scale(1);
+  }
+  50% {
+    filter: brightness(1.15);
+    transform: scale(1.06);
+  }
+}
+@keyframes award-in {
+  0% {
+    opacity: 0;
+    transform: translateY(14px) scale(0.94) rotate(-2deg);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(-2px) scale(1.01) rotate(-1deg);
+  }
+  100% {
+    transform: rotate(-1deg);
+  }
+}
+@keyframes award-drain {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+.piece-pop {
+  animation: piece-pop 0.3s cubic-bezier(0.3, 1.4, 0.5, 1) both;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.piece-flip {
+  animation: piece-flip 0.45s ease-in-out both;
+}
+.card-flip {
+  animation: card-flip 0.28s ease-out both;
+}
+.card-deal {
+  animation: card-deal 0.3s ease-out both;
+}
+.dice-tumble {
+  animation: dice-tumble 0.5s cubic-bezier(0.3, 1.3, 0.5, 1) both;
+}
+.win-glow {
+  animation: line-glow 1.1s ease-in-out infinite;
+}
+
+/* ---- the result, in the middle of the screen, then the board resets ---- */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  pointer-events: none;
+}
+.overlay.dim {
+  background: rgb(42 45 54 / 0.4);
+  pointer-events: auto;
+}
+button.award-card {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  width: min(26rem, 92vw);
+  padding: 1.8rem 1.6rem 2.1rem;
+  text-align: center;
+  font: inherit;
+  color: var(--graphite);
+  background: var(--sheet);
+  border: 2px solid var(--graphite);
+  border-radius: 16px 20px 14px 22px;
+  box-shadow: 6px 8px 0 rgb(42 45 54 / 0.2);
+  cursor: pointer;
+  animation: award-in 0.45s cubic-bezier(0.2, 0.9, 0.3, 1) both;
+  transform: rotate(-1deg);
+}
+.award-card .medal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 4.2rem;
+  height: 4.2rem;
+  margin: 0 auto 0.8rem;
+  border: 2px solid var(--graphite);
+  border-radius: 50%;
+  background: var(--marker);
+  font-size: 2rem;
+}
+.award-card .kicker {
+  display: block;
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--soft);
+}
+.award-card .title {
+  display: block;
+  margin: 0.2rem 0 0.7rem;
+  font-size: 2.1rem;
+  font-weight: 800;
+  line-height: 1.1;
+  font-variation-settings:
+    "BNCE" 80,
+    "INFM" 70,
+    "SPAC" 0;
+}
+.award-card .hint {
+  display: block;
+  font-size: 0.95rem;
+  color: var(--soft);
+}
+.award-card .drain {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 6px;
+  background: var(--marker);
+  transform-origin: left;
+  animation: award-drain var(--life, 3.2s) linear forwards;
+}
+.toast {
+  position: fixed;
+  top: 22px;
+  left: 50%;
+  z-index: 50;
+  max-width: 90vw;
+  padding: 0.7rem 1.1rem;
+  background: var(--marker);
+  color: var(--graphite);
+  font-size: 1rem;
+  font-weight: 700;
+  box-shadow: 2px 4px 8px rgb(42 45 54 / 0.25);
+  transform: translateX(-50%) rotate(-1.5deg);
+  pointer-events: none;
+}
+
+/* ---- shown instead of a blank page when something breaks ---- */
+.boot {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 72px 16px;
+  text-align: center;
+}
+.crash {
+  max-width: 34rem;
+  color: var(--graphite);
+  font-family: var(--hand);
+}
+.crash h1 {
+  margin: 0 0 0.8rem;
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 800;
+  line-height: 1.1;
+}
+.crash p {
+  margin: 0 0 1.2rem;
+}
+.crash-actions {
+  display: flex;
+  gap: 0.7rem;
+  justify-content: center;
+}
+.crash-actions .act {
+  grid-column: auto;
+  padding: 0.5rem 1.2rem;
+}
+
+/* ==========================================================================================================
+   Smaller screens
+   ========================================================================================================== */
+@media (max-width: 1280px) {
+  .ts-stage {
+    grid-template-columns: minmax(13rem, 1fr) minmax(0, 2.6fr) minmax(12rem, 0.9fr);
+  }
+}
+@media (max-width: 980px) {
+  .home-head {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .home-find {
+    max-width: none;
+    margin-left: 0;
+  }
+  .home-entry {
+    grid-template-columns: 4.6rem 1fr;
+  }
+}
+/* portrait phones and tablets: notes above and below the board */
+@media (max-width: 900px) and (orientation: portrait), (max-width: 560px) {
+  :root {
+    --gutter: 30px;
+    --pad-l: 42px;
+    --pad-r: 10px;
+  }
+  .top .logo {
+    display: none;
+  }
+  .gp-page {
+    padding-bottom: 6px;
+  }
+  .ts-stage {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr) auto auto;
+    gap: 0.5rem;
+  }
+  .ts-left {
+    display: contents;
+  }
+  .ts-panel.left {
+    order: 1;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem 0.7rem;
+    max-height: 36dvh;
+  }
+  .ts-center {
+    order: 2;
+    padding: 12px 8px;
+  }
+  .ts-panel.controls {
+    order: 3;
+  }
+  .ts-panel.right {
+    order: 4;
+    max-height: 22dvh;
+  }
+  .ts-panel.empty {
+    display: none;
+  }
+  .ts-panel.left .seg,
+  .ts-panel.left .players,
+  .ts-panel.left .who,
+  .ts-panel.left .level {
+    flex: 1 1 100%;
+  }
+  .card-title {
+    display: none;
+  }
+  .controls-row {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.4rem;
+  }
+  .act {
+    min-height: 2.4rem;
+    font-size: 0.9rem;
+  }
+  .act.strong {
+    grid-column: auto;
+  }
+  .players {
+    padding: 0.2rem 0.7rem;
+  }
+  .player {
+    padding: 0.35rem 0.1rem;
+  }
+  .player .pname {
+    font-size: 1.15rem;
+  }
+  .tally {
+    height: 1.6rem;
+  }
+  .who {
+    font-size: 1.05rem;
+  }
+}
+@media (max-width: 560px) and (max-height: 700px) {
+  .card-title {
+    display: none;
+  }
+  .ts-panel.left {
+    max-height: 30dvh;
+  }
+}
+/* landscape phones and short windows: keep three columns, just slimmer */
+@media (orientation: landscape) and (max-height: 560px) {
+  .ts-stage {
+    grid-template-columns: minmax(10rem, 1fr) minmax(0, 3fr) minmax(9rem, 1fr);
+  }
+  .card-title {
+    font-size: 1.6rem;
+  }
+  .player {
+    padding: 0.3rem 0.1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .title path,
+  .piece-pop,
+  .piece-flip,
+  .card-flip,
+  .card-deal,
+  .dice-tumble,
+  .last-move,
+  .win-glow,
+  .c4-slot.win .gem,
+  .mark-x,
+  .mark-o,
+  .award-card,
+  .award-card .drain {
+    animation: none !important;
+  }
+  .c4-slot .gem.fall {
+    animation-duration: 0.01s;
+  }
+  .btn,
+  .act,
+  .ib,
+  .entry b,
+  .entry .glyph,
+  .player.active .pen-ring path,
+  .plaque {
+    transition: none;
+  }
+}
+
+/* chess: pencilled ranks and files round the board, so a move in the list can be found on it */
+.chess-frame {
+  display: grid;
+  grid-template-columns: auto 1fr;
+}
+.chess-ranks,
+.chess-files {
+  display: grid;
+  color: var(--soft);
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1;
+  text-align: center;
+}
+.chess-ranks {
+  grid-template-rows: repeat(8, 1fr);
+  align-items: center;
+  padding-right: 0.4rem;
+}
+.chess-files {
+  grid-column: 2;
+  grid-template-columns: repeat(8, 1fr);
+  padding-top: 0.4rem;
+}
+.chess-board {
+  border: 3px solid var(--graphite);
+  border-radius: 3px 6px 4px 7px !important;
+}
+.sq-light.last-move,
+.sq-dark.last-move {
+  z-index: 1;
+}

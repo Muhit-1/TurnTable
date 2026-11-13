@@ -13,7 +13,17 @@ import { IconDice } from '../../shared/icons';
 import { useLevel } from '../../shared/level';
 import { useMatch } from '../../shared/useMatch';
 import { chooseMove } from './ai';
-import { BAR, type BgState, backgammonEngine, CHECKERS, countAt, OFF, pipCount } from './engine';
+import {
+  BAR,
+  type BgState,
+  backgammonEngine,
+  CHECKERS,
+  countAt,
+  cubeOf,
+  OFF,
+  pipCount,
+  winPoints,
+} from './engine';
 
 const TOP = [12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
 const BOTTOM = [11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0];
@@ -22,7 +32,12 @@ const SHOWN = 5; // checkers drawn before collapsing into a count
 export default function Backgammon() {
   const [level, levelPicker] = useLevel('backgammon');
   const pickMove = useMemo(() => (s: BgState) => chooseMove(s, level), [level]);
-  const m = useMatch(backgammonEngine, { pickMove, delayMs: 650, persistId: 'backgammon' });
+  const m = useMatch(backgammonEngine, {
+    pickMove,
+    delayMs: 650,
+    persistId: 'backgammon',
+    pointsFor: winPoints,
+  });
   const { game, isCpuTurn } = m;
   const { state, status, player, play, legalMoves } = game;
   const names = m.names('White (Player 1)', 'Black (Player 2)');
@@ -30,7 +45,11 @@ export default function Backgammon() {
   const humanTurn = status.state === 'playing' && !isCpuTurn;
 
   const moves = legalMoves.filter((x): x is Extract<typeof x, { kind: 'move' }> => x.kind === 'move');
-  const needsRoll = legalMoves.length === 1 && legalMoves[0].kind === 'roll';
+  const needsRoll = legalMoves.some((x) => x.kind === 'roll');
+  const mayDouble = legalMoves.some((x) => x.kind === 'double');
+  const answering = legalMoves.some((x) => x.kind === 'take');
+  const cube = cubeOf(state);
+  const points = winPoints(state);
   const forcedBar = moves.length > 0 && moves.every((x) => x.from === BAR);
   const from = forcedBar ? BAR : selected;
   const destinations = new Set(moves.filter((x) => x.from === from).map((x) => x.to));
@@ -125,10 +144,15 @@ export default function Backgammon() {
         {status.state === 'playing' &&
           (isCpuTurn
             ? 'Computer is playing…'
-            : needsRoll
-              ? `${possessive(names[player])} turn: roll the dice`
-              : `${possessive(names[player])} turn: select a checker, then where to move it`)}
-        {status.state === 'won' && `${names[status.winner]} bears off all ${CHECKERS} checkers and wins!`}
+            : answering
+              ? `${names[player]}: the stakes are being doubled to ${cube.value * 2}. Take it, or drop and lose ${cube.value}`
+              : needsRoll
+                ? `${possessive(names[player])} turn: roll the dice`
+                : `${possessive(names[player])} turn: select a checker, then where to move it`)}
+        {status.state === 'won' &&
+          (state.off[status.winner] === CHECKERS
+            ? `${names[status.winner]} bears off all ${CHECKERS} checkers and wins ${points} ${points === 1 ? 'point' : 'points'}!`
+            : `${names[status.winner]} wins ${points} ${points === 1 ? 'point' : 'points'}: the double was dropped.`)}
       </TurnBanner>
 
       <BoardFrame>
@@ -165,6 +189,38 @@ export default function Backgammon() {
         >
           <IconDice /> Roll
         </button>
+        {humanTurn && mayDouble && (
+          <button
+            type="button"
+            className="px-4 py-2 rounded border bg-white"
+            onClick={() => play({ kind: 'double' })}
+          >
+            Double to {cube.value * 2}
+          </button>
+        )}
+        {humanTurn && answering && (
+          <>
+            <button
+              type="button"
+              className="px-4 py-2 rounded border bg-white"
+              onClick={() => play({ kind: 'take' })}
+            >
+              Take
+            </button>
+            <button
+              type="button"
+              className="px-4 py-2 rounded border bg-white"
+              onClick={() => play({ kind: 'drop' })}
+            >
+              Drop
+            </button>
+          </>
+        )}
+      </div>
+      <div className="text-xs text-neutral-600" aria-live="polite">
+        Doubling cube: {cube.value}
+        {cube.owner ? `, held by ${names[cube.owner]}` : ', in the middle'} · a gammon counts double, a
+        backgammon triple
       </div>
       <div className="text-xs text-neutral-600">
         Pip count — {names[1]}: {pipCount(state, 1)} · {names[2]}: {pipCount(state, 2)} · White checkers on

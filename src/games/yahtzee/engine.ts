@@ -101,16 +101,30 @@ const emptyCard = (): Scorecard => ({
 const isFull = (card: Scorecard) => CATEGORIES.every((k) => card.scores[k] !== null);
 const rolled = (s: YahtzeeState) => s.rollsLeft < ROLLS_PER_TURN;
 
-/** Extra Yahtzee while the Yahtzee box already holds 50: +100 bonus and joker scoring. */
+/** Extra Yahtzee while the Yahtzee box already holds 50: +100 bonus. */
 const bonusApplies = (s: YahtzeeState) => isYahtzee(s.dice) && s.cards[s.current].scores.yahtzee === 50;
 
+/** A Yahtzee rolled after the Yahtzee box has been used (for 50 or for 0) is a joker. */
+export const jokerActive = (s: YahtzeeState) =>
+  isYahtzee(s.dice) && s.cards[s.current].scores.yahtzee !== null;
+
+/**
+ * The boxes the player may score in right now. Normally every empty box. With a joker the choice is forced:
+ * the upper box of that number if it is empty; otherwise any empty lower box (full house and straights score in full);
+ * otherwise any empty upper box (which scores nothing).
+ */
 export function openCategories(s: YahtzeeState): Category[] {
-  return CATEGORIES.filter((k) => s.cards[s.current].scores[k] === null);
+  const open = CATEGORIES.filter((k) => s.cards[s.current].scores[k] === null);
+  if (!jokerActive(s)) return open;
+  const own = UPPER[s.dice[0] - 1];
+  if (open.includes(own)) return [own];
+  const lower = open.filter((k) => !UPPER.includes(k));
+  return lower.length > 0 ? lower : open;
 }
 
 /** What `category` would be worth right now, including the joker rule. */
 export function potentialScore(s: YahtzeeState, category: Category): number {
-  return scoreFor(category, s.dice, bonusApplies(s));
+  return scoreFor(category, s.dice, jokerActive(s));
 }
 
 export function createYahtzee(fixedSeed?: number): GameEngine<YahtzeeState, YahtzeeMove> {
@@ -158,10 +172,10 @@ export function createYahtzee(fixedSeed?: number): GameEngine<YahtzeeState, Yaht
         case 'score': {
           if (!rolled(s) || !(CATEGORIES as readonly string[]).includes(move.category)) return null;
           const card = s.cards[s.current];
-          if (card.scores[move.category] !== null) return null;
+          if (!openCategories(s).includes(move.category)) return null;
           const bonus = bonusApplies(s);
           const next: Scorecard = {
-            scores: { ...card.scores, [move.category]: scoreFor(move.category, s.dice, bonus) },
+            scores: { ...card.scores, [move.category]: potentialScore(s, move.category) },
             bonuses: card.bonuses + (bonus ? 1 : 0),
           };
           return {

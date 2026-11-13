@@ -1,6 +1,10 @@
 import { createHash } from 'node:crypto';
 import type { Plugin } from 'vite';
-import { games } from '../src/games/registry';
+import { games } from '../src/games/registry.ts';
+
+// The paper and pen colours from src/styles/notebook.css, used before any stylesheet has loaded.
+const PAPER = '#fdfdfb';
+const INK = '#2a2d36';
 
 /**
  * Site-wide extras that every HTML page needs, generated from the game registry so nothing is listed twice:
@@ -31,7 +35,7 @@ export function sitePlugin(siteUrl: string): Plugin[] {
       };
       const tags = [
         { tag: 'meta', attrs: { name: 'description', content: esc(description) }, injectTo: 'head' as const },
-        { tag: 'meta', attrs: { name: 'theme-color', content: '#2b2016' }, injectTo: 'head' as const },
+        { tag: 'meta', attrs: { name: 'theme-color', content: PAPER }, injectTo: 'head' as const },
         { tag: 'link', attrs: { rel: 'canonical', href: url }, injectTo: 'head' as const },
         { tag: 'link', attrs: { rel: 'icon', type: 'image/svg+xml', href: `${up}favicon.svg` }, injectTo: 'head' as const },
         { tag: 'link', attrs: { rel: 'apple-touch-icon', href: `${up}icons/icon-192.png` }, injectTo: 'head' as const },
@@ -48,7 +52,7 @@ export function sitePlugin(siteUrl: string): Plugin[] {
       // Preload the two fonts the first screen uses (their file names carry a content hash, so look them up in the bundle).
       if (ctx.bundle) {
         for (const name of Object.keys(ctx.bundle)) {
-          if (/(alfa-slab-one|figtree)-latin.*\.woff2$/.test(name)) {
+          if (/shantell-sans-latin.*\.woff2$/.test(name)) {
             tags.push({
               tag: 'link',
               attrs: { rel: 'preload', as: 'font', type: 'font/woff2', crossorigin: '', href: `${up}${name}` },
@@ -67,8 +71,8 @@ export function sitePlugin(siteUrl: string): Plugin[] {
       // App shell: real text and the right background in the first HTML bytes, so the page paints before any script or stylesheet arrives.
       const heading = meta ? meta.title : 'TurnTable';
       const critical = game
-        ? 'html,body{background:#2b2016}body{margin:0;min-height:100vh;color:#ede1c8;background:radial-gradient(1100px 700px at 12% -10%,rgba(201,144,63,.17),transparent 55%),#2b2016}.boot{max-width:980px;margin:0 auto;padding:64px 16px;text-align:center}.boot h1{font:italic 600 clamp(34px,5vw,56px)/1.1 Georgia,serif;margin:0 0 12px}.boot p{margin:0;opacity:.8;font:16px system-ui,sans-serif}'
-        : 'body{margin:0;min-height:100vh;color:#4a3520;background:linear-gradient(180deg,#fffaf0,#f6ecd6)}.boot{padding:72px 16px;text-align:center}.boot h1{font:700 clamp(48px,8vw,84px)/1 system-ui,sans-serif;color:#c05a12;margin:0 0 12px}.boot p{margin:0;opacity:.75;font:16px system-ui,sans-serif}';
+        ? `html,body{background:${PAPER}}body{margin:0;min-height:100vh;color:${INK}}.boot{max-width:980px;margin:0 auto;padding:64px 16px;text-align:center}.boot h1{font:800 clamp(34px,5vw,56px)/1.1 'Comic Sans MS','Segoe Print',cursive;margin:0 0 12px}.boot p{margin:0;opacity:.8;font:16px system-ui,sans-serif}`
+        : `html,body{background:${PAPER}}body{margin:0;min-height:100vh;color:${INK}}.boot{padding:72px 16px;text-align:center}.boot h1{font:800 clamp(48px,8vw,84px)/1 'Comic Sans MS','Segoe Print',cursive;margin:0 0 12px}.boot p{margin:0;opacity:.8;font:16px system-ui,sans-serif}`;
       tags.push({ tag: 'style', children: critical, injectTo: 'head-prepend' } as (typeof tags)[number]);
       const shell = `<div id="root"><div class="boot"><h1>${esc(heading)}</h1><p>${game ? 'Setting up the board…' : `${games.length} two-player games, one shared screen.`}</p></div></div>`;
       return {
@@ -94,7 +98,12 @@ self.addEventListener('install', (e) => {
     caches
       .open(CACHE)
       .then((c) => Promise.allSettled(PRECACHE.map((u) => c.add(new Request(u, { cache: 'reload' })))))
-      .then(() => self.skipWaiting()),
+      .then((results) => {
+        // A missed file means some game would not open offline: fail this install so the browser tries again on the next visit.
+        const missed = results.filter((r) => r.status === 'rejected').length;
+        if (missed) throw new Error('TurnTable offline copy incomplete: ' + missed + ' of ' + PRECACHE.length + ' files failed');
+        return self.skipWaiting();
+      }),
   );
 });
 self.addEventListener('activate', (e) => {

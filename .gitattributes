@@ -1,0 +1,4 @@
+# Always LF, on every OS, so Biome formatting agrees with CI.
+* text=auto eol=lf
+*.woff2 binary
+*.png binary

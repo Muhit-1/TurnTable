@@ -15,6 +15,7 @@ import { chooseMove } from './ai';
 import {
   CATEGORIES,
   type Category,
+  openCategories,
   potentialScore,
   ROLLS_PER_TURN,
   totalScore,
@@ -54,6 +55,7 @@ export default function Yahtzee() {
   const humanTurn = status.state === 'playing' && !isCpuTurn;
   const card = (p: 1 | 2) => state.cards[p];
 
+  const allowed = openCategories(state);
   const row = (k: Category) => (
     <tr key={k} className="border-t">
       <th scope="row" className="text-left font-normal pr-4 py-1">
@@ -61,7 +63,7 @@ export default function Yahtzee() {
       </th>
       {([1, 2] as const).map((p) => {
         const v = card(p).scores[k];
-        const canPick = humanTurn && rolled && p === player && v === null;
+        const canPick = humanTurn && rolled && p === player && v === null && allowed.includes(k);
         return (
           <td key={p} className="text-center w-24">
             {v !== null ? (

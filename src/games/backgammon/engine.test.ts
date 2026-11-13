@@ -6,11 +6,14 @@ import {
   type BgState,
   CHECKERS,
   createBackgammon,
+  cubeOf,
   OFF,
   POINTS,
   pipCount,
   startingPoints,
   stepsFor,
+  winMultiplier,
+  winPoints,
 } from './engine';
 
 const e = createBackgammon(3);
@@ -46,7 +49,7 @@ describe('backgammon setup', () => {
   });
 
   it('starts by asking player 1 to roll', () => {
-    expect(e.legalMoves(e.initialState())).toEqual([{ kind: 'roll' }]);
+    expect(e.legalMoves(e.initialState())).toEqual([{ kind: 'roll' }, { kind: 'double' }]);
   });
 });
 
@@ -281,5 +284,69 @@ describe('backgammon AI and whole games', () => {
       expect(eng.getStatus(s).state).toBe('won');
       expect(s.off[s.winner as 1 | 2]).toBe(CHECKERS);
     }
+  });
+});
+
+describe('doubling cube and scoring', () => {
+  const eng = createBackgammon(7);
+  const start = eng.initialState();
+
+  it('a double passes the decision to the opponent, who takes or drops', () => {
+    const offered = eng.applyMove(start, { kind: 'double' }) as BgState;
+    expect(eng.currentPlayer(offered)).toBe(2);
+    expect(eng.legalMoves(offered)).toEqual([{ kind: 'take' }, { kind: 'drop' }]);
+    expect(eng.applyMove(offered, { kind: 'roll' })).toBeNull();
+
+    const taken = eng.applyMove(offered, { kind: 'take' }) as BgState;
+    expect(cubeOf(taken)).toEqual({ value: 2, owner: 2 });
+    // the player who doubled now rolls, and may not double again: the cube belongs to the opponent
+    expect(eng.currentPlayer(taken)).toBe(1);
+    expect(eng.legalMoves(taken)).toEqual([{ kind: 'roll' }]);
+
+    const dropped = eng.applyMove(offered, { kind: 'drop' }) as BgState;
+    expect(eng.getStatus(dropped)).toEqual({ state: 'won', winner: 1 });
+    expect(winPoints(dropped)).toBe(1);
+  });
+
+  it('only the owner of the cube may double, never after rolling, and never past 64', () => {
+    const owned: BgState = { ...start, cube: { value: 2, owner: 2 } };
+    expect(eng.applyMove(owned, { kind: 'double' })).toBeNull();
+    expect(eng.applyMove({ ...owned, current: 2 }, { kind: 'double' })).not.toBeNull();
+    const rolled = eng.applyMove(start, { kind: 'roll' }) as BgState;
+    if (rolled.current === 1) expect(eng.applyMove(rolled, { kind: 'double' })).toBeNull();
+    expect(eng.applyMove({ ...start, cube: { value: 64, owner: null } }, { kind: 'double' })).toBeNull();
+    expect(eng.applyMove(start, { kind: 'take' })).toBeNull();
+  });
+
+  it('counts a plain win, a gammon and a backgammon', () => {
+    const empty = Array<number>(24).fill(0);
+    const at = (i: number, n: number) => empty.map((v, k) => (k === i ? n : v));
+    const off0 = { 1: 15, 2: 0 } as const;
+    expect(winMultiplier({ points: at(10, -15), bar: { 1: 0, 2: 0 }, off: { 1: 15, 2: 3 } }, 1)).toBe(1);
+    expect(winMultiplier({ points: at(10, -15), bar: { 1: 0, 2: 0 }, off: off0 }, 1)).toBe(2);
+    expect(winMultiplier({ points: at(3, -15), bar: { 1: 0, 2: 0 }, off: off0 }, 1)).toBe(3);
+    expect(winMultiplier({ points: at(10, -14), bar: { 1: 0, 2: 1 }, off: off0 }, 1)).toBe(3);
+  });
+
+  it('the last checker off wins the cube value times the multiplier', () => {
+    const points = Array<number>(24).fill(0);
+    points[0] = 1; // one white checker left, on its 1-point
+    points[10] = -15; // black has borne off nothing: a gammon
+    const s: BgState = {
+      ...start,
+      points,
+      off: { 1: 14, 2: 0 },
+      dice: [1],
+      cube: { value: 4, owner: 1 },
+    };
+    const won = eng.applyMove(s, { kind: 'move', from: 0, to: 'off', die: 1 }) as BgState;
+    expect(eng.getStatus(won)).toEqual({ state: 'won', winner: 1 });
+    expect(winPoints(won)).toBe(8);
+  });
+
+  it('reads a save made before the cube existed', () => {
+    const { cube: _cube, offer: _offer, stake: _stake, ...old } = start;
+    expect(cubeOf(old)).toEqual({ value: 1, owner: null });
+    expect(eng.applyMove(old, { kind: 'roll' })).not.toBeNull();
   });
 });

@@ -9,14 +9,26 @@ import {
   TurnBanner,
 } from '../../shared/components';
 import { useLevel } from '../../shared/level';
+import { usePersistentState } from '../../shared/storage';
 import { useMatch } from '../../shared/useMatch';
 import { chooseMove } from './ai';
-import { type GomokuState, gomokuEngine, SIZE } from './engine';
+import { createGomoku, type GomokuState, isVariant, SIZE, type Variant } from './engine';
 
 export default function Gomoku() {
+  const [variant, setVariant] = usePersistentState<Variant>('gomoku:variant', 'freestyle', isVariant);
+  // A new match for each rule, so its position and scores are kept apart.
+  return <GomokuMatch key={variant} variant={variant} onVariant={setVariant} />;
+}
+
+function GomokuMatch({ variant, onVariant }: { variant: Variant; onVariant: (v: Variant) => void }) {
   const [level, levelPicker] = useLevel('gomoku');
+  const engine = useMemo(() => createGomoku(variant), [variant]);
   const pickMove = useMemo(() => (s: GomokuState) => chooseMove(s, level), [level]);
-  const m = useMatch(gomokuEngine, { pickMove, delayMs: 350, persistId: 'gomoku' });
+  const m = useMatch(engine, {
+    pickMove,
+    delayMs: 350,
+    persistId: variant === 'freestyle' ? 'gomoku' : `gomoku:${variant}`,
+  });
   const { game, isCpuTurn } = m;
   const { state, status, player, play } = game;
   const names = m.names('Black', 'White');
@@ -26,6 +38,15 @@ export default function Gomoku() {
     <GameShell id="gomoku" title="Gomoku">
       <ModeToggle mode={m.mode} onChange={m.changeMode} />
       {m.mode === 'vs-cpu' && levelPicker}
+      <fieldset className="seg">
+        <legend className="sr-only">Winning rule</legend>
+        <button type="button" aria-pressed={variant === 'freestyle'} onClick={() => onVariant('freestyle')}>
+          5 or more
+        </button>
+        <button type="button" aria-pressed={variant === 'standard'} onClick={() => onVariant('standard')}>
+          Exactly 5
+        </button>
+      </fieldset>
       <Scoreboard names={names} scores={m.scores} />
       <TurnBanner>
         {status.state === 'playing' &&

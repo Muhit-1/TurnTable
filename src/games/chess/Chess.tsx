@@ -10,6 +10,7 @@ import {
 } from '../../shared/components';
 import type { PlayerId } from '../../shared/engine';
 import { useLevel } from '../../shared/level';
+import { notify } from '../../shared/notify';
 import { useMatch } from '../../shared/useMatch';
 import {
   BISHOP,
@@ -29,6 +30,7 @@ import {
   squareName,
   typeOf,
 } from './engine';
+import { toPgn } from './pgn';
 import { pickChessMove } from './workerClient';
 
 // U+FE0E asks for the text (not emoji) form, so the colour styling applies to every piece including the pawn
@@ -140,31 +142,46 @@ export default function Chess() {
         {diff < 0 && <span className="ml-1 text-xs">+{-diff}</span>}
       </div>
       <BoardFrame>
-        <div className="grid grid-cols-8 overflow-hidden rounded-lg select-none">
-          {order.map((i) => {
-            const piece = state.cells[i];
-            const light = (rowOf(i) + (i & 7)) % 2 === 0;
-            const isTarget = targets.has(i);
-            const isLast = lastMove && (lastMove.from === i || lastMove.to === i);
-            return (
-              <button
-                key={i}
-                type="button"
-                disabled={locked}
-                aria-label={`${squareName(i)}${piece ? `, ${colorOf(piece) === 1 ? 'white' : 'black'} ${PIECE_NAME[typeOf(piece)]}` : ''}${isTarget ? ', legal move' : ''}`}
-                onClick={() => click(i)}
-                className={`${isTarget ? 'sq-target ' : ''}relative w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center text-3xl sm:text-4xl leading-none ${light ? 'sq-light' : 'sq-dark'} ${
-                  selected === i ? 'ring-4 ring-inset ring-yellow-400' : ''
-                } ${isLast ? 'last-move' : ''} ${checkedKing === i ? 'bg-red-400' : ''}`}
-              >
-                {piece !== EMPTY && (
-                  <span key={piece} className={`piece piece-pop ${colorOf(piece) === 1 ? 'w' : 'b'}`}>
-                    {GLYPH[typeOf(piece)]}
-                  </span>
-                )}
-              </button>
-            );
-          })}
+        <div className="chess-frame">
+          <div className="chess-ranks" aria-hidden="true">
+            {(flipped ? [1, 2, 3, 4, 5, 6, 7, 8] : [8, 7, 6, 5, 4, 3, 2, 1]).map((n) => (
+              <span key={n}>{n}</span>
+            ))}
+          </div>
+          <div className="chess-board grid grid-cols-8 overflow-hidden rounded-lg select-none">
+            {order.map((i) => {
+              const piece = state.cells[i];
+              const light = (rowOf(i) + (i & 7)) % 2 === 0;
+              const isTarget = targets.has(i);
+              const isLast = lastMove && (lastMove.from === i || lastMove.to === i);
+              return (
+                <button
+                  key={i}
+                  type="button"
+                  disabled={locked}
+                  aria-label={`${squareName(i)}${piece ? `, ${colorOf(piece) === 1 ? 'white' : 'black'} ${PIECE_NAME[typeOf(piece)]}` : ''}${isTarget ? ', legal move' : ''}`}
+                  onClick={() => click(i)}
+                  className={`${isTarget ? 'sq-target ' : ''}relative w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center text-3xl sm:text-4xl leading-none ${light ? 'sq-light' : 'sq-dark'} ${
+                    selected === i ? 'ring-4 ring-inset ring-yellow-400' : ''
+                  } ${isLast ? 'last-move' : ''} ${checkedKing === i ? 'bg-red-400' : ''}`}
+                >
+                  {piece !== EMPTY && (
+                    <span key={piece} className={`piece piece-pop ${colorOf(piece) === 1 ? 'w' : 'b'}`}>
+                      {GLYPH[typeOf(piece)]}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+          <div className="chess-files" aria-hidden="true">
+            {(flipped
+              ? ['h', 'g', 'f', 'e', 'd', 'c', 'b', 'a']
+              : ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
+            ).map((f) => (
+              <span key={f}>{f}</span>
+            ))}
+          </div>
         </div>
       </BoardFrame>
       <div className="text-sm h-5" title="Captured pieces">
@@ -208,6 +225,20 @@ export default function Chess() {
         onClick={() => setFlipped((f) => !f)}
       >
         Flip board
+      </button>
+      <button
+        type="button"
+        className="px-3 py-1 rounded border bg-white text-sm"
+        disabled={state.san.length === 0}
+        onClick={() => {
+          const pgn = toPgn(state.san, status, names);
+          navigator.clipboard?.writeText(pgn).then(
+            () => notify.toast('Game copied as PGN'),
+            () => notify.toast('Copying is blocked in this browser'),
+          );
+        }}
+      >
+        Copy game (PGN)
       </button>
 
       <details className="text-sm max-w-md w-full" open>

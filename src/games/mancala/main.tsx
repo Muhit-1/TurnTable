@@ -1,10 +1,5 @@
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
 import '../../styles/index.css';
+import { mount } from '../../shared/mount';
 import Mancala from './Mancala';
 
-createRoot(document.getElementById('root') as HTMLElement).render(
-  <StrictMode>
-    <Mancala />
-  </StrictMode>,
-);
+mount(<Mancala />, 'mancala');

@@ -1,6 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import { distance, getBestMove } from './ai';
-import { hexEngine as e, findChain, type HexState, neighbours, SIZE } from './engine';
+import {
+  canSwap,
+  hexEngine as e,
+  findChain,
+  type HexState,
+  hexEngine,
+  neighbours,
+  SIZE,
+  SWAP,
+} from './engine';
 
 const at = (r: number, c: number) => r * SIZE + c;
 const play = (moves: number[]) => {
@@ -102,5 +111,34 @@ describe('hex AI', () => {
     for (let r = 0; r < SIZE - 1; r++) cells[at(r, 0)] = 1; // one cell short
     const s: HexState = { cells, current: 1, status: { state: 'playing' } };
     expect(getBestMove(s)).toBe(at(SIZE - 1, 0));
+  });
+});
+
+describe('swap rule', () => {
+  const first = hexEngine.applyMove(hexEngine.initialState(), 2 * SIZE + 5) as HexState;
+
+  it('is offered to the second player only, right after the first stone', () => {
+    expect(canSwap(hexEngine.initialState())).toBe(false);
+    expect(canSwap(first)).toBe(true);
+    expect(hexEngine.legalMoves(first)).toContain(SWAP);
+    const second = hexEngine.applyMove(first, 0) as HexState;
+    expect(canSwap(second)).toBe(false);
+    expect(hexEngine.applyMove(second, SWAP)).toBeNull();
+  });
+
+  it('turns the stone into a mirrored stone of the second player and hands the move back', () => {
+    const swapped = hexEngine.applyMove(first, SWAP) as HexState;
+    expect(swapped.cells.filter((c) => c !== null)).toHaveLength(1);
+    // row 2, column 5 becomes row 5, column 2
+    expect(swapped.cells[5 * SIZE + 2]).toBe(2);
+    expect(swapped.current).toBe(1);
+    expect(canSwap(swapped)).toBe(false);
+  });
+
+  it('the computer takes a central opening and leaves an edge one', () => {
+    const centre = hexEngine.applyMove(hexEngine.initialState(), 5 * SIZE + 5) as HexState;
+    expect(getBestMove(centre)).toBe(SWAP);
+    const corner = hexEngine.applyMove(hexEngine.initialState(), 0) as HexState;
+    expect(getBestMove(corner)).not.toBe(SWAP);
   });
 });

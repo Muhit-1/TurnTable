@@ -1,10 +1,5 @@
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
 import '../../styles/index.css';
+import { mount } from '../../shared/mount';
 import Battleship from './Battleship';
 
-createRoot(document.getElementById('root') as HTMLElement).render(
-  <StrictMode>
-    <Battleship />
-  </StrictMode>,
-);
+mount(<Battleship />, 'battleship');

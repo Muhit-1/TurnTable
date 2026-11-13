@@ -1,10 +1,5 @@
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
 import '../../styles/index.css';
+import { mount } from '../../shared/mount';
 import Nim from './Nim';
 
-createRoot(document.getElementById('root') as HTMLElement).render(
-  <StrictMode>
-    <Nim />
-  </StrictMode>,
-);
+mount(<Nim />, 'nim');

@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TurnTable — Direction B, Pencil &amp; Paper — chess</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shantell+Sans:ital,wght,BNCE,INFM,SPAC@0,300..800,-100..100,0..100,-100..100&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="b.css">
+</head>
+<body>
+<div class="page">
+  <div class="holes" aria-hidden="true"><i></i><i></i><i></i></div>
+
+  <header class="top">
+    <a class="btn" href="b-home.html" aria-label="Back to all games">← All games</a>
+    <span class="gap"></span>
+    <button class="btn" type="button">How to play</button>
+  </header>
+
+  <main class="desk">
+    <aside>
+      <h1 class="gname">Chess</h1>
+      <section class="score box" aria-label="Score">
+        <h2>Games won</h2>
+        <div class="who w1 on" id="who1">
+          <span class="pn">Ana
+            <svg class="ring" viewBox="0 0 120 50" preserveAspectRatio="none" aria-hidden="true"><path pathLength="100" d="M14 26 C10 8 48 3 74 5 C102 7 116 16 110 30 C104 44 62 48 34 45 C14 43 6 34 16 20"/></svg>
+          </span>
+          <span id="t1"></span>
+          <small id="s1" role="status">Blue pen · your turn</small>
+        </div>
+        <div class="who w2" id="who2">
+          <span class="pn">Ben
+            <svg class="ring" viewBox="0 0 120 50" preserveAspectRatio="none" aria-hidden="true"><path pathLength="100" d="M14 26 C10 8 48 3 74 5 C102 7 116 16 110 30 C104 44 62 48 34 45 C14 43 6 34 16 20"/></svg>
+          </span>
+          <span id="t2"></span>
+          <small id="s2">Red pen</small>
+        </div>
+      </section>
+      <div class="acts">
+        <button class="btn" type="button" id="undo">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 16 13 7l6 6-6 6H8z M10 10l6 6 M3 20h18"/></svg>Undo
+        </button>
+        <button class="btn" type="button" id="redo">Redo</button>
+        <button class="btn wide" type="button" id="restart">Start a new game</button>
+      </div>
+    </aside>
+
+    <div>
+      <div class="sheet">
+        <i class="tape t1" aria-hidden="true"></i><i class="tape t2" aria-hidden="true"></i>
+        <div class="frame">
+          <div class="ranks" aria-hidden="true"><span>8</span><span>7</span><span>6</span><span>5</span><span>4</span><span>3</span><span>2</span><span>1</span></div>
+          <div class="board" id="board" role="group" aria-label="Chess board"></div>
+          <div class="files" aria-hidden="true"><span>a</span><span>b</span><span>c</span><span>d</span><span>e</span><span>f</span><span>g</span><span>h</span></div>
+        </div>
+      </div>
+      <p class="turnline" id="turnline"></p>
+    </div>
+
+    <aside>
+      <section class="notes box" aria-label="Moves played">
+        <h2>Moves</h2>
+        <div class="rows" id="moves"></div>
+      </section>
+      <p class="sticky">Mock board: pieces go anywhere, so you can watch the turn pass. The real rules are not checked here.</p>
+    </aside>
+  </main>
+</div>
+
+<script src="b-defs.js"></script>
+<script src="chess-lite.js"></script>
+<script>
+  document.getElementById('t1').innerHTML = tally(7);
+  document.getElementById('t2').innerHTML = tally(4);
+  const moves = document.getElementById('moves');
+  const game = ChessLite.mount(document.getElementById('board'), (s) => {
+    document.getElementById('who1').classList.toggle('on', s.turn === 1);
+    document.getElementById('who2').classList.toggle('on', s.turn === 2);
+    document.getElementById('s1').textContent = s.turn === 1 ? 'Blue pen · your turn' : 'Blue pen';
+    document.getElementById('s2').textContent = s.turn === 2 ? 'Red pen · your turn' : 'Red pen';
+    document.getElementById('turnline').innerHTML =
+      s.turn === 1 ? '<b class="t1">Ana</b>, your move.' : '<b class="t2">Ben</b>, your move.';
+    document.getElementById('undo').disabled = !s.canUndo;
+    document.getElementById('redo').disabled = !s.canRedo;
+    let html = '';
+    for (let i = 0; i < s.moves.length; i += 2) {
+      html += `<span class="n">${i / 2 + 1}.</span><span class="m1">${s.moves[i]}</span><span class="m2">${s.moves[i + 1] || ''}</span>`;
+    }
+    moves.innerHTML = html || '<span class="empty">Nothing yet. Blue goes first.</span>';
+    moves.scrollTop = moves.scrollHeight;
+  });
+  document.getElementById('undo').onclick = game.undo;
+  document.getElementById('redo').onclick = game.redo;
+  document.getElementById('restart').onclick = game.restart;
+</script>
+</body>
+</html>

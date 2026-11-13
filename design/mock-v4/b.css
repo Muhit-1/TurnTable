@@ -1,0 +1,754 @@
+/* ==========================================================================
+   Direction B — "Pencil & Paper"
+   Half of these games started life on squared paper (noughts and crosses, dots and boxes, hangman, battleships).
+   So the whole site is a maths notebook: blue squares, a red margin, one blue pen and one red pen.
+   Signature: the score is kept in tally marks, and whoever is to move gets their name ringed in pen.
+   Type: Shantell Sans, a marker hand that stays legible; its "bounce" axis is turned up only for headings.
+   ========================================================================== */
+:root {
+  --paper: #fdfdfb;
+  --rule: #cfe0f3; /* the printed squares */
+  --margin: #f0a3a0; /* the printed margin line */
+  --graphite: #2a2d36;
+  --soft: #6a7080;
+  --blue: #1f47c4; /* player 1: blue ballpoint */
+  --red: #d5332a; /* player 2: red pen */
+  --marker: #ffe75c; /* highlighter */
+  --hand: "Shantell Sans", "Comic Sans MS", "Segoe Print", cursive;
+  --sq: 26px;
+}
+* {
+  box-sizing: border-box;
+}
+html {
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  margin: 0;
+  color: var(--graphite);
+  font: 500 clamp(17px, 0.55vw + 11px, 21px) / 1.45 var(--hand);
+  font-variation-settings: "BNCE" 0, "INFM" 30, "SPAC" 0;
+  background:
+    linear-gradient(var(--rule) 1px, transparent 1px) 0 0 / var(--sq) var(--sq),
+    linear-gradient(90deg, var(--rule) 1px, transparent 1px) 0 0 / var(--sq) var(--sq),
+    var(--paper);
+}
+a {
+  color: inherit;
+}
+button,
+input {
+  font: inherit;
+  color: inherit;
+}
+:focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+.sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+/* The page: a margin line down the left, with three punched holes. */
+.page {
+  position: relative;
+  max-width: 1760px;
+  margin: 0 auto;
+  padding: 0 clamp(14px, 2.2vw, 40px) 56px clamp(50px, 5vw, 92px);
+  min-height: 100dvh;
+}
+.page::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 clamp(36px, 3.8vw, 68px);
+  width: 2px;
+  background: var(--margin);
+}
+.holes {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: clamp(36px, 3.8vw, 68px);
+  display: grid;
+  align-content: space-around;
+  justify-items: center;
+  pointer-events: none;
+}
+.holes i {
+  width: clamp(14px, 1.8vw, 22px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #e9edf2;
+  box-shadow: inset 1px 2px 3px rgb(42 45 54 / 0.28);
+}
+
+/* A hand-drawn box: uneven corners, pencil line. */
+.box {
+  border: 2px solid var(--graphite);
+  border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+  background: var(--paper);
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 6px 20px;
+  box-shadow: 2px 3px 0 rgb(42 45 54 / 0.12);
+  border: 2px solid var(--graphite);
+  border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+  background: var(--paper);
+  font-weight: 600;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.12s ease;
+}
+.btn:hover {
+  transform: rotate(-1.2deg);
+  background: linear-gradient(transparent 55%, var(--marker) 55% 92%, transparent 92%) var(--paper);
+}
+.btn[aria-pressed="true"] {
+  background: var(--graphite);
+  color: var(--paper);
+}
+.btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+  transform: none;
+  background: var(--paper);
+}
+.btn svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ---- top line ---- */
+.top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 0 6px;
+}
+.top .gap {
+  flex: 1;
+}
+.sig {
+  font-weight: 700;
+  font-size: 1.6em;
+  font-variation-settings: "BNCE" 60, "INFM" 60, "SPAC" 0;
+  text-decoration: none;
+}
+.sig b {
+  color: var(--blue);
+}
+.sig i {
+  font-style: normal;
+  color: var(--red);
+}
+
+/* ---- homepage ---- */
+.head {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: clamp(20px, 4vw, 56px);
+  align-items: end;
+  padding: clamp(12px, 3vw, 36px) 0 28px;
+}
+.title {
+  position: relative;
+  margin: 0;
+  width: fit-content;
+  font-weight: 800;
+  font-size: clamp(52px, 8.6vw, 164px);
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  font-variation-settings: "BNCE" 100, "INFM" 80, "SPAC" 0;
+  transform: rotate(-2deg);
+}
+.title b {
+  font-weight: inherit;
+  color: var(--blue);
+}
+.title i {
+  font-style: normal;
+  color: var(--red);
+}
+.title svg {
+  position: absolute;
+  left: -2%;
+  bottom: -0.2em;
+  width: 104%;
+  height: 0.3em;
+  overflow: visible;
+}
+.title path {
+  fill: none;
+  stroke: var(--graphite);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 100;
+  animation: ink 0.9s ease-out 0.35s backwards;
+}
+@keyframes ink {
+  from {
+    stroke-dashoffset: 100;
+  }
+}
+.lede {
+  margin: 0 0 14px;
+  font-size: clamp(19px, 1.5vw, 28px);
+  line-height: 1.35;
+}
+.lede mark {
+  background: linear-gradient(transparent 12%, var(--marker) 12% 88%, transparent 88%);
+  color: inherit;
+  padding: 0 3px;
+}
+/* Names are written on dotted lines, each in that player's own pen. */
+.names {
+  display: grid;
+  gap: 6px;
+}
+.names label {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  font-size: 0.95em;
+  color: var(--soft);
+}
+.names input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  border-bottom: 2px dotted var(--graphite);
+  background: none;
+  padding: 0 4px 1px;
+  font-weight: 700;
+  font-size: 1.6em;
+  font-variation-settings: "BNCE" 40, "INFM" 70, "SPAC" 0;
+}
+.names input:focus {
+  outline: none;
+  border-bottom-style: solid;
+  background: linear-gradient(transparent 60%, var(--marker) 60%);
+}
+.names .n1 input {
+  color: var(--blue);
+}
+.names .n2 input {
+  color: var(--red);
+}
+.names input::placeholder {
+  color: #b6bcc8;
+  font-weight: 500;
+}
+
+/* Kinds of game: index tabs, like the dividers of a ring binder. */
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 6px;
+  border-bottom: 2px solid var(--graphite);
+  padding: 0 4px;
+}
+.tab {
+  min-height: 46px;
+  padding: 4px 18px 2px;
+  font-size: 1.05em;
+  border: 2px solid var(--graphite);
+  border-bottom: 0;
+  border-radius: 12px 14px 0 0 / 14px 12px 0 0;
+  background: #eef3f9;
+  font-weight: 600;
+  cursor: pointer;
+  transform: translateY(2px);
+}
+.tab small {
+  font-size: 13px;
+  color: var(--soft);
+  font-weight: 500;
+}
+.tab[aria-pressed="true"] {
+  background: var(--paper);
+  min-height: 56px;
+  box-shadow: inset 0 -12px 0 -6px var(--marker);
+}
+.find {
+  flex: 1 1 180px;
+  min-width: 0;
+  align-self: center;
+  margin: 0 0 6px auto;
+  max-width: 360px;
+  border: 0;
+  font-size: 1.05em;
+  border-bottom: 2px dotted var(--graphite);
+  background: none;
+  padding: 4px 4px 2px;
+  font-weight: 600;
+}
+.find::placeholder {
+  color: var(--soft);
+  font-weight: 500;
+}
+
+.list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+  gap: 14px 28px;
+  padding: 30px 0 0;
+}
+.entry {
+  display: grid;
+  grid-template-columns: clamp(84px, 6.2vw, 112px) 1fr;
+  gap: 16px;
+  align-items: center;
+  padding: 10px 10px 10px 4px;
+  text-decoration: none;
+  border-radius: 10px;
+}
+.entry .glyph {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  transition: transform 0.2s ease;
+}
+.entry b {
+  display: inline;
+  font-weight: 700;
+  font-size: 1.45em;
+  line-height: 1.15;
+  font-variation-settings: "BNCE" 30, "INFM" 60, "SPAC" 0;
+  background: linear-gradient(var(--marker), var(--marker)) no-repeat 0 78% / 0% 46%;
+  transition: background-size 0.25s ease;
+}
+.entry span {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.9em;
+  line-height: 1.32;
+  color: var(--soft);
+}
+.entry em {
+  font-style: normal;
+  white-space: nowrap;
+  color: var(--graphite);
+}
+/* Hover: a swipe of highlighter under the name, and the doodle tips over a little. */
+.entry:hover b,
+.entry:focus-visible b {
+  background-size: 100% 46%;
+}
+.entry:hover .glyph,
+.entry:focus-visible .glyph {
+  transform: rotate(-5deg) scale(1.06);
+}
+.none {
+  grid-column: 1 / -1;
+  padding: 28px 0;
+  font-size: 19px;
+}
+
+/* ---- the drawings: pencil for the board, the two pens for the pieces ---- */
+.glyph {
+  filter: url(#wobble);
+  overflow: visible;
+}
+.glyph .ln,
+.glyph .sa,
+.glyph .sb {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.glyph .ln {
+  stroke: var(--graphite);
+  stroke-width: 1.8;
+}
+.glyph .sa {
+  stroke: var(--blue);
+  stroke-width: 2.6;
+}
+.glyph .sb {
+  stroke: var(--red);
+  stroke-width: 2.6;
+}
+.glyph .a {
+  fill: url(#hatch-blue);
+  stroke: var(--blue);
+  stroke-width: 1.8;
+}
+.glyph .b {
+  fill: url(#hatch-red);
+  stroke: var(--red);
+  stroke-width: 1.8;
+}
+.glyph .n {
+  fill: url(#hatch-grey);
+  stroke: var(--graphite);
+  stroke-width: 1.6;
+}
+.glyph .h {
+  fill: var(--paper);
+  stroke: var(--graphite);
+  stroke-width: 1.4;
+}
+.glyph .d {
+  fill: var(--graphite);
+}
+.glyph .tx {
+  fill: var(--graphite);
+  font-family: var(--hand);
+  font-weight: 700;
+}
+
+/* ==========================================================================
+   Game page
+   ========================================================================== */
+.desk {
+  display: grid;
+  grid-template-columns: minmax(230px, 1fr) auto minmax(230px, 1fr);
+  gap: clamp(18px, 2.4vw, 44px);
+  align-items: start;
+  padding-top: 8px;
+}
+.gname {
+  margin: 0 0 12px;
+  font-weight: 800;
+  font-size: clamp(40px, 4.4vw, 76px);
+  line-height: 1;
+  font-variation-settings: "BNCE" 90, "INFM" 80, "SPAC" 0;
+  transform: rotate(-2deg);
+  transform-origin: left;
+}
+.score {
+  padding: 18px 20px 14px;
+  box-shadow: 3px 4px 0 rgb(42 45 54 / 0.1);
+}
+.score h2,
+.notes h2 {
+  margin: 0 0 8px;
+  font-size: 0.9em;
+  font-weight: 600;
+  color: var(--soft);
+}
+.who {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 8px;
+}
+.who + .who {
+  border-top: 2px dotted #b9c0cc;
+}
+.who .pn {
+  position: relative;
+  width: fit-content;
+  font-weight: 700;
+  font-size: 1.9em;
+  line-height: 1.1;
+  font-variation-settings: "BNCE" 40, "INFM" 70, "SPAC" 0;
+}
+.who.w1 .pn {
+  color: var(--blue);
+}
+.who.w2 .pn {
+  color: var(--red);
+}
+.who small {
+  grid-column: 1 / -1;
+  font-size: 0.85em;
+  color: var(--soft);
+}
+/* The ring drawn round the name of the player to move. */
+.ring {
+  position: absolute;
+  inset: -9px -16px -7px -14px;
+  width: calc(100% + 30px);
+  height: calc(100% + 16px);
+  overflow: visible;
+  pointer-events: none;
+}
+.ring path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  transition: stroke-dashoffset 0.01s;
+}
+.who.on .ring path {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.55s ease-out;
+}
+.tally {
+  height: 2.1em;
+  width: auto;
+}
+.tally path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+}
+.who.w1 .tally {
+  color: var(--blue);
+}
+.who.w2 .tally {
+  color: var(--red);
+}
+.acts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 18px;
+}
+.acts .wide {
+  grid-column: 1 / -1;
+}
+
+/* The board is its own sheet, taped to the page a little crooked. */
+.sheet {
+  position: relative;
+  justify-self: center;
+  width: clamp(300px, min(100dvh - 210px, 100vw - 700px), 920px);
+  padding: clamp(12px, 1.4vw, 22px) clamp(12px, 1.4vw, 22px) clamp(8px, 1vw, 14px) clamp(8px, 1vw, 14px);
+  background: #fffef8;
+  border: 1px solid #d9d6c8;
+  box-shadow: 2px 5px 14px rgb(42 45 54 / 0.16);
+  transform: rotate(-0.7deg);
+}
+.tape {
+  position: absolute;
+  width: clamp(84px, 8vw, 132px);
+  height: clamp(26px, 2.3vw, 36px);
+  background: rgb(255 226 120 / 0.72);
+  box-shadow: 0 1px 2px rgb(42 45 54 / 0.12);
+}
+.tape.t1 {
+  left: -30px;
+  top: -8px;
+  transform: rotate(-38deg);
+}
+.tape.t2 {
+  right: -30px;
+  bottom: -8px;
+  transform: rotate(-38deg);
+}
+/* Pencilled letters and numbers round the board, so a move can be read back from the notes. */
+.frame {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: 1fr auto;
+}
+.ranks,
+.files {
+  display: grid;
+  color: var(--soft);
+  font-size: clamp(11px, 0.95vw, 17px);
+  font-weight: 600;
+  line-height: 1;
+  text-align: center;
+}
+.ranks {
+  grid-template-rows: repeat(8, 1fr);
+  align-items: center;
+  padding-right: clamp(4px, 0.5vw, 9px);
+}
+.files {
+  grid-column: 2;
+  grid-template-columns: repeat(8, 1fr);
+  padding-top: clamp(4px, 0.5vw, 8px);
+}
+.board {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  border: 3px solid var(--graphite);
+  border-radius: 3px 6px 4px 7px;
+}
+.sq {
+  position: relative;
+  aspect-ratio: 1;
+  padding: 0;
+  border: 0;
+  background: none;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  container-type: inline-size;
+}
+/* Dark squares are shaded with pencil strokes. */
+.sq.d {
+  background:
+    repeating-linear-gradient(-52deg, rgb(42 45 54 / 0.42) 0 1.4px, transparent 1.4px 6px),
+    repeating-linear-gradient(-49deg, transparent 0 9px, rgb(42 45 54 / 0.16) 9px 10px, transparent 10px 17px);
+}
+.sq.last::after {
+  content: "";
+  position: absolute;
+  inset: 8%;
+  background: var(--marker);
+  opacity: 0.75;
+  border-radius: 40% 55% 45% 60%;
+  z-index: 0;
+}
+.sq.sel {
+  box-shadow: inset 0 0 0 3px var(--graphite);
+  border-radius: 8px 3px 9px 4px;
+}
+.sq:hover {
+  box-shadow: inset 0 0 0 2px rgb(42 45 54 / 0.35);
+  border-radius: 8px 3px 9px 4px;
+}
+.sq:focus-visible {
+  outline-offset: -4px;
+  z-index: 2;
+}
+.pc {
+  position: relative;
+  z-index: 1;
+  font-size: 80cqw;
+  transition: transform 0.12s ease;
+  line-height: 1;
+  font-family: "Segoe UI Symbol", "Noto Sans Symbols 2", "Apple Symbols", "DejaVu Sans", sans-serif;
+  color: #fffef8;
+  -webkit-text-stroke: 0.045em currentColor;
+  paint-order: stroke fill;
+}
+.pc.w {
+  -webkit-text-stroke-color: var(--blue);
+  color: #cbd8fb;
+}
+.pc.b {
+  -webkit-text-stroke-color: var(--red);
+  color: #f9cbc6;
+}
+.sq.sel .pc {
+  transform: translateY(-6%) rotate(-5deg) scale(1.08);
+}
+.turnline {
+  margin: 16px 0 0;
+  text-align: center;
+  font-size: 1.35em;
+  font-weight: 600;
+}
+.turnline b.t1 {
+  color: var(--blue);
+}
+.turnline b.t2 {
+  color: var(--red);
+}
+
+.notes {
+  padding: 18px 20px;
+  box-shadow: 3px 4px 0 rgb(42 45 54 / 0.1);
+  transform: rotate(0.6deg);
+}
+.notes .rows {
+  display: grid;
+  grid-template-columns: auto 1fr 1fr;
+  gap: 3px 14px;
+  max-height: min(46dvh, 460px);
+  overflow: auto;
+  font-size: 1.05em;
+}
+.notes .n {
+  color: var(--soft);
+}
+.notes .m1 {
+  color: var(--blue);
+  font-weight: 600;
+}
+.notes .m2 {
+  color: var(--red);
+  font-weight: 600;
+}
+.notes .empty {
+  grid-column: 1 / -1;
+  color: var(--soft);
+}
+.sticky {
+  margin-top: 22px;
+  max-width: 320px;
+  padding: 14px 16px 18px;
+  background: var(--marker);
+  box-shadow: 2px 4px 8px rgb(42 45 54 / 0.18);
+  transform: rotate(-2.2deg);
+  font-size: 0.88em;
+  line-height: 1.35;
+}
+
+/* Laptop widths: keep three columns, but let the side notes get slimmer. */
+@media (max-width: 1280px) {
+  .desk {
+    grid-template-columns: minmax(210px, 1fr) auto minmax(190px, 0.8fr);
+  }
+  .sheet {
+    width: clamp(300px, min(100dvh - 210px, 100vw - 580px), 920px);
+  }
+}
+@media (max-width: 980px) {
+  .btn {
+    min-height: 44px;
+    padding: 4px 13px;
+  }
+  .top .sig {
+    display: none;
+  }
+  .head {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .desk {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .desk > div {
+    order: -1;
+  }
+  .sheet {
+    width: min(100%, 70dvh);
+    margin: 0 auto;
+  }
+  .sticky {
+    max-width: none;
+  }
+  .gname {
+    display: none;
+  }
+  .find {
+    max-width: none;
+    margin-left: 0;
+  }
+  .entry {
+    grid-template-columns: 68px 1fr;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .title path {
+    animation: none;
+  }
+  .btn,
+  .entry b,
+  .entry .glyph,
+  .who.on .ring path {
+    transition: none;
+  }
+}

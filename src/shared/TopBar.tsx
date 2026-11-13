@@ -1,16 +1,16 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { IconBack, IconHelp, IconHome, IconMenu, IconVolume, IconVolumeOff } from './icons';
+import { applyPaper, loadPaper, PAPERS, savePaper } from './paper';
 import { isMuted, setMuted, sfx, subscribeMuted } from './sound';
-import { applyTable, loadTable, saveTable, TABLE_THEMES } from './tableTheme';
 
-/** Top bar: back button and name on the left, menu (table colour, sound) and rules on the right. */
+/** Top bar: back button and name on the left, menu (paper, sound) and rules on the right. */
 export function TopBar({ back = true, onRules }: { back?: boolean; onRules?: () => void }) {
-  const [table, setTable] = useState(loadTable);
+  const [paper, setPaper] = useState(loadPaper);
   const muted = useSyncExternalStore(subscribeMuted, isMuted, () => false);
   const menu = useRef<HTMLDetailsElement>(null);
   useEffect(() => {
-    applyTable(table);
-  }, [table]);
+    applyPaper(paper);
+  }, [paper]);
   // close the menu on an outside click or Escape
   useEffect(() => {
     const close = (e: Event) => {
@@ -37,7 +37,7 @@ export function TopBar({ back = true, onRules }: { back?: boolean; onRules?: () 
           </a>
         )}
         <a className="logo" href={back ? '../../' : './'}>
-          TurnTable
+          Turn<span>Table</span>
         </a>
       </div>
       <div className="tools">
@@ -46,21 +46,21 @@ export function TopBar({ back = true, onRules }: { back?: boolean; onRules?: () 
             <IconMenu />
           </summary>
           <div className="menu-pop">
-            <p className="menu-label">Table colour</p>
+            <p className="menu-label">Paper</p>
             <fieldset className="swatches">
-              <legend className="sr-only">Table colour</legend>
-              {TABLE_THEMES.map((t) => (
+              <legend className="sr-only">Paper</legend>
+              {PAPERS.map((p) => (
                 <button
-                  key={t.id}
+                  key={p.id}
                   type="button"
                   className="swatch"
-                  title={t.name}
-                  aria-label={t.name}
-                  aria-pressed={t.id === table}
-                  style={{ background: t.hex }}
+                  data-paper={p.id}
+                  title={p.name}
+                  aria-label={p.name}
+                  aria-pressed={p.id === paper}
                   onClick={() => {
-                    saveTable(t.id);
-                    setTable(t.id);
+                    savePaper(p.id);
+                    setPaper(p.id);
                   }}
                 />
               ))}

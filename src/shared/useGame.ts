@@ -27,8 +27,8 @@ export interface UseGame<State, Move, Line> {
 
 export interface UseGameOptions {
   /**
-   * Save the current position under this key in localStorage and resume it on the next visit.
-   * Only the current position is saved (not the undo history).
+   * Save the current position under this key in localStorage and resume it on the next visit,
+   * together with the most recent undo steps.
    */
   persistKey?: string;
 }
@@ -50,21 +50,53 @@ function restore<State, Move, Line>(
   }
 }
 
+/** How many undo steps are kept across a reload. Older ones are dropped so the save stays small. */
+export const SAVED_UNDO_STEPS = 40;
+
+/** The saved undo steps, oldest first. Anything the engine cannot read ends the list there. */
+function restorePast<State, Move, Line>(
+  engine: GameEngine<State, Move, Line>,
+  key: string | undefined,
+): State[] {
+  if (!key) return [];
+  const saved = loadJson<State[]>(`${key}:past`);
+  if (!Array.isArray(saved)) return [];
+  const ok: State[] = [];
+  for (const st of saved.slice(-SAVED_UNDO_STEPS).reverse()) {
+    try {
+      if (st === null || typeof st !== 'object') break;
+      const player = engine.currentPlayer(st);
+      engine.getStatus(st);
+      if (player !== 1 && player !== 2) break;
+      ok.unshift(st);
+    } catch {
+      break;
+    }
+  }
+  return ok;
+}
+
 /** Binds a GameEngine to React state, with undo/redo history and optional save/resume. */
 export function useGame<State, Move, Line = unknown>(
   engine: GameEngine<State, Move, Line>,
   { persistKey }: UseGameOptions = {},
 ): UseGame<State, Move, Line> {
-  const [history, setHistory] = useState<History<State>>(() => ({
-    past: [],
-    present: restore(engine, persistKey) ?? engine.initialState(),
-    future: [],
-  }));
+  const [history, setHistory] = useState<History<State>>(() => {
+    const present = restore(engine, persistKey);
+    return {
+      past: present ? restorePast(engine, persistKey) : [],
+      present: present ?? engine.initialState(),
+      future: [],
+    };
+  });
   const { past, present, future } = history;
 
   useEffect(() => {
     if (persistKey) saveJson(`${persistKey}:state`, present);
   }, [persistKey, present]);
+  useEffect(() => {
+    if (persistKey) saveJson(`${persistKey}:past`, past.slice(-SAVED_UNDO_STEPS));
+  }, [persistKey, past]);
 
   // Sound: a win or draw chime when a game ends during this visit (not when a finished game is resumed).
   const endState = engine.getStatus(present).state;

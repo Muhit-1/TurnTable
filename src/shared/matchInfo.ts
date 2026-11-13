@@ -6,6 +6,8 @@ export interface MatchInfo {
   names: Record<PlayerId, string>;
   player: PlayerId;
   over: boolean;
+  /** true when two people are playing, so each may put their own name on their seat */
+  editable?: boolean;
 }
 
 let info: MatchInfo | null = null;
@@ -18,6 +20,7 @@ export function publishMatch(next: MatchInfo | null): void {
       info !== null &&
       next.player === info.player &&
       next.over === info.over &&
+      next.editable === info.editable &&
       next.names[1] === info.names[1] &&
       next.names[2] === info.names[2]);
   if (same) return;

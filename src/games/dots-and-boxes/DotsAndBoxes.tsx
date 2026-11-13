@@ -9,18 +9,34 @@ import {
   TurnBanner,
 } from '../../shared/components';
 import { useLevel } from '../../shared/level';
+import { usePersistentState } from '../../shared/storage';
 import { useMatch } from '../../shared/useMatch';
 import { chooseMove } from './ai';
-import { type DotsState, dotsEngine, hLine, vLine } from './engine';
+import { createDots, type DotsState, hLine, vLine } from './engine';
 
 const CELL = 64; // px between dots
 const PAD = 16;
 const DOT = 10;
 
+const SIZES = [3, 4, 5, 6] as const;
+type Size = (typeof SIZES)[number];
+const isSize = (v: unknown): v is Size => (SIZES as readonly unknown[]).includes(v);
+
 export default function DotsAndBoxes() {
+  const [size, setSize] = usePersistentState<Size>('dots-and-boxes:size', 4, isSize);
+  // A new match for each board size, so its position and scores are kept apart.
+  return <DotsMatch key={size} size={size} onSize={setSize} />;
+}
+
+function DotsMatch({ size, onSize }: { size: Size; onSize: (s: Size) => void }) {
   const [level, levelPicker] = useLevel('dots-and-boxes');
+  const engine = useMemo(() => createDots(size, size), [size]);
   const pickMove = useMemo(() => (s: DotsState) => chooseMove(s, level), [level]);
-  const m = useMatch(dotsEngine, { pickMove, delayMs: 450, persistId: 'dots-and-boxes' });
+  const m = useMatch(engine, {
+    pickMove,
+    delayMs: 450,
+    persistId: size === 4 ? 'dots-and-boxes' : `dots-and-boxes:${size}`,
+  });
   const { game, isCpuTurn } = m;
   const { state, status, player, play } = game;
   const names = m.names('Player 1', 'Player 2');
@@ -36,6 +52,14 @@ export default function DotsAndBoxes() {
     <GameShell id="dots-and-boxes" title="Dots and Boxes">
       <ModeToggle mode={m.mode} onChange={m.changeMode} />
       {m.mode === 'vs-cpu' && levelPicker}
+      <fieldset className="seg">
+        <legend className="sr-only">Board size, in boxes</legend>
+        {SIZES.map((n) => (
+          <button key={n} type="button" aria-pressed={n === size} onClick={() => onSize(n)}>
+            {n}×{n}
+          </button>
+        ))}
+      </fieldset>
       <Scoreboard names={names} scores={m.scores} />
       <div className="text-sm font-medium">
         Boxes —{' '}

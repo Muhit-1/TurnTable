@@ -3,11 +3,12 @@
 26 two-player games in the browser: chess, checkers, Go, Connect Four, Backgammon, Yahtzee, Battleship and more.
 Play hot-seat on one screen, or against the computer (easy / medium / hard) in most games.
 
-- "Baize" look: green felt, chalk lettering, brass fittings and walnut board rails, with ruby and ivory pieces that also differ by shape, 4 table felts to choose from (green, claret, midnight, slate).
+- "Pencil & Paper" look: a maths notebook with a printed grid and red margin, one blue pen and one red pen, boards taped to the page as separate sheets, scores kept in tally marks, and a choice of squared, lined, dotted or plain paper.
 - Large boards on big screens, fully responsive down to a phone.
 - Soft sound effects (a gentle "tong" per move, a chime for a win) with a mute button.
-- Undo / redo, and every game resumes where you left it.
-- Table colours, keyboard play (arrow keys), screen-reader labels, colour-blind-safe pieces.
+- Undo / redo, and every game resumes where you left it (undo steps included).
+- Put your own names on the scoreboard: click a name in a two-player game.
+- Paper styles, keyboard play (arrow keys), screen-reader labels, colour-blind-safe pieces.
 - Installable and works offline (service worker precaches every game).
 - No accounts, no server: everything runs and saves locally in your browser.
 
@@ -30,7 +31,7 @@ npm run build       # typecheck + production build into dist/
 index.html                 homepage entry (src/home)
 allgames/<id>/index.html   one HTML entry per game (loads src/games/<id>/main.tsx)
 src/games/registry.ts      single source of truth: id, title, category, rules text, video, ready flag
-src/games/<id>/            types.ts · logic.ts · engine.ts · ai.ts? · <Game>.tsx · main.tsx · *.test.ts
+src/games/<id>/            engine.ts · ai.ts? · <Game>.tsx · main.tsx · engine.test.ts
 src/shared/                GameEngine interface, useGame hook (undo/redo), shared UI, RulesPanel
 design/                    prototypes and the design mock + guide (open design/mock/design-guide.html)
 ```
@@ -41,26 +42,26 @@ design/                    prototypes and the design mock + guide (open design/m
 
 1. Add/confirm its entry in `src/games/registry.ts` (rules text is already there for all 26).
 2. Create `src/games/<id>/`:
-   - `logic.ts`: pure rules, **no React/DOM imports**, immutable state in → new state out.
-   - `engine.ts`: implement `GameEngine` from `src/shared/engine.ts` (`initialState`, `currentPlayer`,
-     `legalMoves`, `applyMove` returning `null` for illegal moves, `getStatus`).
+   - `engine.ts`: pure rules, **no React/DOM imports**, immutable state in → new state out. Implement
+     `GameEngine` from `src/shared/engine.ts` (`initialState`, `currentPlayer`, `legalMoves`,
+     `applyMove` returning `null` for illegal moves, `getStatus`).
    - `<Game>.tsx`: use `useMatch(engine, { pickMove })` (pvp / vs-computer, scores, undo) and the shared components (`GameShell`, `TurnBanner`, `GameControls`, ...).
    - `engine.test.ts` covering legal/illegal moves, win, draw, no moves after game over.
-3. `scripts/scaffold-entry.sh <id> <ComponentName> "<Title>"` creates `allgames/<id>/index.html` and `src/games/<id>/main.tsx`.
+3. `scripts/scaffold-entry.sh <id> <ComponentName> "<Title>"` creates `allgames/<id>/index.html` and `src/games/<id>/main.tsx`
+   (which mounts the page through `src/shared/mount.tsx`, so a crash shows a recovery screen).
 4. Add the game to `src/games/harness.ts` (engine, optional `choose(state, level)` for the computer, and a complete-game playthrough) — `npm test` fails until every registered game has an entry.
 5. Set `ready: true` in the registry. Run `npm run lint && npm run typecheck && npm test && npm run build`.
 
 Saving and difficulty: pass `persistId: '<id>'` to `useMatch` to save/resume the match (position, mode, scores), and use `useLevel('<id>')` for a remembered easy/medium/hard picker. Variants (board size, rules) belong in the `persistId` so each has its own save.
 
 Games that don't fit the strict two-player alternating-turn engine (dice, hidden info, cards) can extend it
-in Phase 2; keep their rules in `logic.ts` and unit-tested all the same.
+in Phase 2; keep their rules in `engine.ts` and unit-tested all the same.
 
 ## Design
 
-The current look ("Baize") was designed in [`design/mock-v3/`](design/mock-v3/index.html) and is built into the app in `src/styles/baize.css`; the older mock and guide are kept in `design/mock/`.
-The homepage card hover and preview animations are deliberately fixed: `src/home/preserved-hub.css` and `src/styles/preserved-game.css` are
-verbatim copies of the original prototypes, and `node design/mock/check-motion.mjs` fails if they drift. Re-theme through
-`src/styles/tavern.css` (colours, fonts, new components) instead of editing them.
+The current look ("Pencil & Paper") was designed in [`design/mock-v4/`](design/mock-v4/index.html) and is built into the app in one stylesheet, `src/styles/notebook.css`.
+Tailwind utilities sit in a cascade layer, so rules in that file win over them: do not set padding or borders on bare element selectors there, because games style their own buttons and cells with utilities.
+The homepage drawings live in `src/home/glyphs.ts` and their one-line descriptions in `src/home/blurbs.ts`; `npm test` fails if a game has no drawing.
 
 Sounds are generated with the Web Audio API in `src/shared/sound.ts`; no audio files are shipped.
 
@@ -74,8 +75,8 @@ The site URL used for canonical links and the sitemap defaults to `https://muhit
 ## Contributing
 
 1. Branch from `main`, make a change, then run `npm run lint && npm run typecheck && npm test && npm run build`.
-2. Keep game rules in pure `logic.ts` files with unit tests; keep UI in the game's `.tsx`.
+2. Keep game rules in pure `engine.ts` files with unit tests; keep UI in the game's `.tsx`.
 
 ## Licence
 
-Source code: ISC (see `package.json`). Bundled fonts (Fraunces, Karla, JetBrains Mono, Fredoka) are under the SIL Open Font License 1.1.
+Source code: ISC (see [`LICENSE`](LICENSE)). The bundled font (Shantell Sans) are under the SIL Open Font License 1.1.

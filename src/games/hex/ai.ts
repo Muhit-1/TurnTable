@@ -1,6 +1,6 @@
 import type { PlayerId } from '../../shared/engine';
 import { type Level, maybeRandom } from '../../shared/level';
-import { type Cell, type HexState, hexEngine, neighbours, SIZE } from './engine';
+import { type Cell, canSwap, type HexState, hexEngine, neighbours, SIZE, SWAP } from './engine';
 
 /** Fewest empty cells `p` still needs to fill to connect its sides (0-1 BFS; own stones are free, opponent blocks). */
 export function distance(cells: Cell[], p: PlayerId): number {
@@ -40,6 +40,11 @@ export function getBestMove(s: HexState): number {
   const me = s.current;
   const opp: PlayerId = me === 1 ? 2 : 1;
   const mid = (SIZE - 1) / 2;
+  // An opening stone near the middle is too good to leave with the opponent: take it.
+  if (canSwap(s)) {
+    const at = s.cells.indexOf(1);
+    if (Math.abs(Math.floor(at / SIZE) - mid) + Math.abs((at % SIZE) - mid) <= 4) return SWAP;
+  }
   let best = -1;
   let bestScore = Number.NEGATIVE_INFINITY;
   for (let i = 0; i < s.cells.length; i++) {

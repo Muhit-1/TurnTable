@@ -10,7 +10,7 @@ import {
 import { useLevel } from '../../shared/level';
 import { useMatch } from '../../shared/useMatch';
 import { chooseMove } from './ai';
-import { type HexState, hexEngine, SIZE } from './engine';
+import { canSwap, type HexState, hexEngine, SIZE, SWAP } from './engine';
 
 export default function Hex() {
   const [level, levelPicker] = useLevel('hex');
@@ -81,6 +81,11 @@ export default function Hex() {
         </div>
       </BoardFrame>
 
+      {canSwap(state) && !isCpuTurn && (
+        <button type="button" className="act strong" onClick={() => play(SWAP)}>
+          Take the first stone instead (swap)
+        </button>
+      )}
       <GameControls
         canUndo={game.canUndo && !isCpuTurn}
         canRedo={game.canRedo && !isCpuTurn}

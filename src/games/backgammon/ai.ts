@@ -33,7 +33,22 @@ export function getBestMove(s: BgState): BgMove {
   return best;
 }
 
+/** How far ahead `me` is in the race, as a share of the pips `me` still has to move. */
+const raceLead = (s: BgState, me: PlayerId) => {
+  const mine = pipCount(s, me);
+  return (pipCount(s, me === 1 ? 2 : 1) - mine) / Math.max(mine, 1);
+};
+
 export function chooseMove(s: BgState, level: Level, random: () => number = Math.random): BgMove {
+  const options = backgammonEngine.legalMoves(s);
+  // A double is on the table: give up only when clearly behind (the easy level always plays on).
+  if (options.some((m) => m.kind === 'take')) {
+    return level !== 'easy' && raceLead(s, s.current) < -0.25 ? { kind: 'drop' } : { kind: 'take' };
+  }
+  // Before rolling: double when well ahead in the race (the easy level never does).
+  if (level !== 'easy' && options.some((m) => m.kind === 'double') && raceLead(s, s.current) > 0.12) {
+    return { kind: 'double' };
+  }
   const best = getBestMove(s);
   if (best.kind !== 'move') return best;
   return maybeRandom(

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   CATEGORIES,
   createYahtzee,
+  openCategories,
   potentialScore,
   scoreFor,
   totalScore,
@@ -142,13 +143,17 @@ describe('yahtzee totals and bonuses', () => {
 
   it('extra Yahtzee scores +100 and joker scoring in other boxes', () => {
     let s = withDice([6, 6, 6, 6, 6]);
-    s = { ...s, cards: { ...s.cards, 1: { ...s.cards[1], scores: { ...s.cards[1].scores, yahtzee: 50 } } } };
+    // the sixes box is already used, so the joker may go in any lower box
+    s = {
+      ...s,
+      cards: { ...s.cards, 1: { ...s.cards[1], scores: { ...s.cards[1].scores, yahtzee: 50, sixes: 18 } } },
+    };
     expect(potentialScore(s, 'fullHouse')).toBe(25);
     expect(potentialScore(s, 'largeStraight')).toBe(40);
     const after = e.applyMove(s, { kind: 'score', category: 'largeStraight' });
     expect(after?.cards[1].scores.largeStraight).toBe(40);
     expect(after?.cards[1].bonuses).toBe(1);
-    expect(after && totalScore(after.cards[1])).toBe(50 + 40 + 100);
+    expect(after && totalScore(after.cards[1])).toBe(50 + 18 + 40 + 100);
   });
 
   it('no bonus if the Yahtzee box is empty or zeroed', () => {
@@ -159,7 +164,39 @@ describe('yahtzee totals and bonuses', () => {
       cards: { ...s.cards, 1: { ...s.cards[1], scores: { ...s.cards[1].scores, yahtzee: 0 } } },
     };
     expect(e.applyMove(zeroed, { kind: 'score', category: 'sixes' })?.cards[1].bonuses).toBe(0);
-    expect(potentialScore(zeroed, 'fullHouse')).toBe(0);
+    // a zeroed Yahtzee box still makes later Yahtzees jokers (full value in the lower boxes), just without the +100
+    expect(potentialScore(zeroed, 'fullHouse')).toBe(25);
+  });
+
+  it('a joker must go in its own upper box while that box is empty', () => {
+    const base = withDice([4, 4, 4, 4, 4]);
+    const used = (scores: Partial<YahtzeeState['cards'][1]['scores']>): YahtzeeState => ({
+      ...base,
+      cards: { ...base.cards, 1: { ...base.cards[1], scores: { ...base.cards[1].scores, ...scores } } },
+    });
+    // no joker while the Yahtzee box itself is still empty: every box is open
+    expect(openCategories(base)).toHaveLength(CATEGORIES.length);
+    const forced = used({ yahtzee: 50 });
+    expect(openCategories(forced)).toEqual(['fours']);
+    expect(e.applyMove(forced, { kind: 'score', category: 'fullHouse' })).toBeNull();
+    expect(e.applyMove(forced, { kind: 'score', category: 'fours' })?.cards[1].scores.fours).toBe(20);
+    // own upper box used: any empty lower box
+    const lower = openCategories(used({ yahtzee: 50, fours: 12 }));
+    expect(lower).toContain('fullHouse');
+    expect(lower).not.toContain('ones');
+    // lower section full too: any empty upper box, for nothing
+    const last = used({
+      yahtzee: 0,
+      fours: 12,
+      threeKind: 0,
+      fourKind: 0,
+      fullHouse: 0,
+      smallStraight: 0,
+      largeStraight: 0,
+      chance: 0,
+    });
+    expect(openCategories(last)).toEqual(['ones', 'twos', 'threes', 'fives', 'sixes']);
+    expect(potentialScore(last, 'ones')).toBe(0);
   });
 });
 
@@ -169,8 +206,7 @@ describe('yahtzee full game', () => {
     let turns = 0;
     while (e.getStatus(s).state === 'playing') {
       s = e.applyMove(s, roll) as YahtzeeState;
-      const cat = CATEGORIES.find((k) => s.cards[s.current].scores[k] === null);
-      s = e.applyMove(s, { kind: 'score', category: cat as (typeof CATEGORIES)[number] }) as YahtzeeState;
+      s = e.applyMove(s, { kind: 'score', category: openCategories(s)[0] }) as YahtzeeState;
       turns++;
       expect(turns).toBeLessThanOrEqual(26);
     }

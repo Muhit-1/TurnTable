@@ -24,3 +24,17 @@ describe('registry', () => {
     },
   );
 });
+
+describe('homepage entries', () => {
+  it('every game has a short name, a one-line description and a drawing, and nothing else is listed', async () => {
+    const { BLURBS } = await import('../home/blurbs');
+    const { hasGlyph, glyphSvg } = await import('../home/glyphs');
+    expect(Object.keys(BLURBS).sort()).toEqual(games.map((g) => g.id).sort());
+    for (const g of games) {
+      expect(BLURBS[g.id].name.length, g.id).toBeGreaterThan(1);
+      expect(BLURBS[g.id].line.length, g.id).toBeGreaterThan(10);
+      expect(hasGlyph(g.id), `no drawing for ${g.id}`).toBe(true);
+      expect(glyphSvg(g.id)).toContain('<svg');
+    }
+  });
+});

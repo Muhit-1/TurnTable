@@ -14,8 +14,8 @@ Legend: `[x]` done · `[ ]` to do
 
 Goal: decide the shape once, so the 26 games are copy-paste-consistent instead of 26 one-offs.
 
-- [x] Fix per-game folder convention: `src/games/<id>/{types.ts, logic.ts, ai.ts?, <Game>.tsx, main.tsx}`
-- [x] Pure-logic rule: `logic.ts` has no React/DOM imports (immutable state in, new state out) → testable and reusable
+- [x] Fix per-game folder convention: `src/games/<id>/{engine.ts, ai.ts?, <Game>.tsx, main.tsx}`
+- [x] Pure-logic rule: `engine.ts` has no React/DOM imports (immutable state in, new state out) → testable and reusable
 - [x] Shared `GameEngine` interface: `initialState()`, `legalMoves(state)`, `applyMove(state, move)`, `getStatus(state)` → playing / won / draw
 - [x] Shared `src/shared/` kit: `useGame` hook (state + undo/redo + reset), turn banner, scoreboard, mode toggle, controls, rules panel (game-over dialog and player-name inputs deferred to Phase 3 UI)
 - [x] Registry file `src/games/registry.ts` (id, title, category, ready flag, rules text, video link) — drives homepage, routing, and vite inputs
@@ -40,20 +40,20 @@ rules implemented per `game-rules.txt` · win/draw/end detection · invalid move
 - [x] Chess (full rules verified with perft on 5 reference positions; SAN move list; alpha-beta AI with 3 difficulty levels running in a Web Worker; draws applied automatically: stalemate, insufficient material, threefold repetition, 50-move)
 - [x] Checkers / Draughts (forced captures, multi-jump, kings, 40-move draw, alpha-beta AI)
 - [x] Reversi / Othello (flips, forced pass, end detection, alpha-beta AI)
-- [x] Gomoku (freestyle 5+, heuristic AI)
+- [x] Gomoku (freestyle 5+ or exactly-five rule, heuristic AI)
 - [x] Go (9/13/19 boards, captures, no-suicide, positional superko, area scoring with 7.5 komi, Monte Carlo tree search AI with 3 levels in a Web Worker)
-- [x] Dots and Boxes (4x4, extra turns, chain-aware AI)
+- [x] Dots and Boxes (3x3 to 6x6 boards, extra turns, chain-aware AI)
 - [x] Nim (normal + misère toggle, nim-sum AI)
 - [x] Nine Men's Morris (placing / moving / flying phases, mills, 100-ply quiet draw, AI)
 - [x] Quarto (give/place turns, 10 lines, AI avoids handing over winning pieces)
-- [x] Hex (11x11, shortest-path AI)
+- [x] Hex (11x11, swap rule, shortest-path AI)
 - [x] Mancala / Kalah (captures, extra turns, alpha-beta AI)
 
 ### 2B — Dice & movement
-- [x] Backgammon (full rules incl. bar, hitting, bearing off, must-use-both-dice and larger-die rules, doubles; no doubling cube or gammon scoring; heuristic AI)
+- [x] Backgammon (full rules incl. bar, hitting, bearing off, must-use-both-dice and larger-die rules, doubles, doubling cube, gammon and backgammon scoring; heuristic AI)
 - [x] Ludo (52-square loop, sixes give extra rolls, 3-six forfeit, captures, exact home roll, AI)
 - [x] Snakes and Ladders (classic 100-square board, exact finish, seeded dice)
-- [x] Yahtzee (seeded dice, holds, upper bonus, extra-Yahtzee bonus + joker, computer opponent; simplified: no forced-category joker rule)
+- [x] Yahtzee (seeded dice, holds, upper bonus, extra-Yahtzee bonus + forced joker rule, computer opponent)
 
 ### 2C — Hidden-info / pass-and-look-away
 - [x] Battleship (placement + random fleet, pass-the-device gate, hunt/target AI)
@@ -77,7 +77,7 @@ rules implemented per `game-rules.txt` · win/draw/end detection · invalid move
 - [x] AI opponents where reasonable (vs-computer mode in every game that has choices; hidden-information games use pass-the-device)
 - [x] Difficulty levels easy/medium/hard for every game with a computer opponent that makes real choices (search depth, memory span, shots strategy, roll count, or random-move rate; remembered per game; Rock Paper Scissors, War and Snakes and Ladders have no choices to weaken)
 - [x] Run AI in a Web Worker so Chess/Go search never freezes the UI (`src/shared/workerRpc.ts`, with main-thread fallback)
-- [x] Game-state save/resume in `localStorage` (position, mode, scores and settings such as board size/variant; the undo history is not saved; Hangman and 20 Questions are not saved so a hidden word is never stored)
+- [x] Game-state save/resume in `localStorage` (position, mode, scores and settings such as board size/variant; the last 40 undo steps are saved too; Hangman and 20 Questions are not saved so a hidden word is never stored)
 - [x] Per-game rules panel + embedded "how to play" video link from `game-rules.txt`
 - [x] Integration test per game: `src/games/playthrough.test.ts` plays a complete game for every game in the registry, checks the computer at all 3 levels, and checks states survive JSON; it fails if a registered game has no harness entry
 
@@ -85,15 +85,15 @@ rules implemented per `game-rules.txt` · win/draw/end detection · invalid move
 
 ## Phase 3 — UI/UX Polish & Release  (status: 16/16)
 
-> Design reference: `design/mock-v3/index.html` ("Baize", built into the app in `src/styles/baize.css`). Card hovers/animations are preserved verbatim and guarded by `node design/mock/check-motion.mjs`.
+> Design reference: `design/mock-v4/index.html` ("Pencil & Paper"), built into the app in `src/styles/notebook.css`.
 
 Goal: make it feel like one product. Because Phase 1–2 isolate logic from rendering, this was mostly restyling components.
 
 ### Design system
-- [x] Design tokens (colors, radius, shadows, fonts) as CSS variables in `src/styles/tavern.css`
-- [x] Table colours (4 felts: baize, claret, midnight, slate) re-tint the whole page; the separate light/dark switch was removed as redundant
+- [x] Design tokens (paper, pens, fonts) as CSS variables in `src/styles/notebook.css`, the single stylesheet
+- [x] Paper styles (squared, lined, dotted, plain) chosen from the menu
 - [x] Shared components restyled: buttons, turn banner, scoreboard, mode toggle, controls, board frame, rules dialog (`.gp-modal`), toast and end-of-game popup (`src/shared/notify.ts`)
-- [x] Redesign homepage: category filters, search, "recently played", animated cards, theme toggle
+- [x] Redesign homepage: category filters, search, "recently played", animated cards, table-colour picker
 
 ### Per-game graphics
 - [x] Board/piece art for all 26 games (wooden frames, gems/stones/checkers, felt/paper boards, card faces and backs, pip dice, letter tiles)
@@ -102,7 +102,7 @@ Goal: make it feel like one product. Because Phase 1–2 isolate logic from rend
 
 ### Quality & accessibility
 - [x] Responsive layouts: every game checked at 390px (no sideways scroll; fixed-size boards shrink to fit) and the shell at 1920px; boards scale up on large screens
-- [x] Keyboard navigation + visible focus on every game (arrow keys move between squares, skip link, `?` rules, `m` sound, `t` theme)
+- [x] Keyboard navigation + visible focus on every game (arrow keys move between squares, skip link, `?` rules, `m` sound)
 - [x] Screen-reader labels, live region announcing turn changes and results (`role="status"` turn line), labelled dialog, landmarks
 - [x] Color-blind-safe piece colors (every gem also carries a shape: ring, diamond, cross, square)
 - [x] `prefers-reduced-motion` respected (new animations and the homepage previews; the original single-step card hovers stay)
@@ -114,10 +114,17 @@ Goal: make it feel like one product. Because Phase 1–2 isolate logic from rend
 
 ---
 
+### After release
+- [x] Player names: in a two-player game, click a name on the scoreboard to change it (shared by every game)
+- [x] A crash shows a "start a new game" screen instead of a blank page (`src/shared/mount.tsx`)
+- [x] Every game page has a render test (`src/games/ui.smoke.test.tsx`)
+
 ## Backlog / Maybe later (not scheduled)
+- Games for 3 or 4 players (Ludo, Uno, Go Fish): the engine contract is two-player
+- Browser end-to-end tests (Playwright)
 - Online multiplayer (WebSocket or WebRTC)
 - Stats and win/loss history per player
-- Replay / move-list export (PGN for Chess)
+- Replay viewer (Chess already copies the game as PGN)
 - Localization (i18n)
 - Tutorial mode with guided first game
 

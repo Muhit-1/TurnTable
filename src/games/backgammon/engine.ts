@@ -5,15 +5,23 @@ import { nextInt, randomSeed } from '../../shared/rng';
  * Points are indexed 0-23. Positive numbers are player 1's checkers, negative are player 2's.
  * Player 1 moves from high to low indexes (home board 0-5, bearing off past index 0);
  * player 2 moves from low to high (home board 18-23, bearing off past index 23).
- * Not implemented: the doubling cube and gammon/backgammon scoring (a win is a win).
+ * A win is worth the value of the doubling cube: times 2 for a gammon (the loser bore off nothing), times 3 for a
+ * backgammon (and the loser still has a checker on the bar or in the home board of the winner).
  */
 export const POINTS = 24;
 export const CHECKERS = 15;
 export const BAR = 'bar';
 export const OFF = 'off';
 
+export const MAX_CUBE = 64;
+
 export type BgMove =
   | { kind: 'roll' }
+  /** before rolling: offer to double the stakes */
+  | { kind: 'double' }
+  /** answer to a double: play on at twice the stakes, or give up the game at the current stakes */
+  | { kind: 'take' }
+  | { kind: 'drop' }
   | { kind: 'move'; from: number | typeof BAR; to: number | typeof OFF; die: number };
 
 export interface BgState {
@@ -26,6 +34,37 @@ export interface BgState {
   seed: number;
   last: { player: PlayerId; dice: number[]; note: string } | null;
   winner: PlayerId | null;
+  /** The doubling cube: what the game is worth, and who may double next (null = either player). Absent in old saves. */
+  cube?: { value: number; owner: PlayerId | null };
+  /** The player who has offered a double that is not answered yet. */
+  offer?: PlayerId | null;
+  /** Set when the game ends: what the win is worth. */
+  stake?: number;
+}
+
+export const cubeOf = (s: BgState) => s.cube ?? { value: 1, owner: null };
+export const winPoints = (s: BgState) => s.stake ?? 1;
+export const canDouble = (s: BgState) => {
+  const cube = cubeOf(s);
+  return (
+    s.winner === null &&
+    !s.offer &&
+    s.dice.length === 0 &&
+    cube.value < MAX_CUBE &&
+    (cube.owner === null || cube.owner === s.current)
+  );
+};
+
+/** 1 for a plain win, 2 for a gammon, 3 for a backgammon. */
+export function winMultiplier(s: Pick<BgState, 'points' | 'bar' | 'off'>, winner: PlayerId): 1 | 2 | 3 {
+  const loser: PlayerId = winner === 1 ? 2 : 1;
+  if (s.off[loser] > 0) return 1;
+  if (s.bar[loser] > 0) return 3;
+  for (let i = 0; i < POINTS; i++) {
+    const inWinnersHome = winner === 1 ? i <= 5 : i >= 18;
+    if (inWinnersHome && countAt(s.points, loser, i) > 0) return 3;
+  }
+  return 2;
 }
 
 const other = (p: PlayerId): PlayerId => (p === 1 ? 2 : 1);
@@ -150,7 +189,9 @@ export function createBackgammon(fixedSeed?: number): GameEngine<BgState, BgMove
 
   const legal = (s: BgState): BgMove[] => {
     if (s.winner !== null) return [];
-    if (s.dice.length === 0) return [{ kind: 'roll' }];
+    if (s.offer) return [{ kind: 'take' }, { kind: 'drop' }];
+    if (s.dice.length === 0)
+      return canDouble(s) ? [{ kind: 'roll' }, { kind: 'double' }] : [{ kind: 'roll' }];
     const memo = new Map<string, number>();
     const total = maxPlayable(s, s.dice, memo);
     const moves: Extract<BgMove, { kind: 'move' }>[] = [];
@@ -185,6 +226,17 @@ export function createBackgammon(fixedSeed?: number): GameEngine<BgState, BgMove
     legalMoves: legal,
     applyMove(s, move) {
       if (s.winner !== null || !move) return null;
+      if (move.kind === 'double') {
+        return canDouble(s) ? { ...s, offer: s.current, current: other(s.current) } : null;
+      }
+      if (move.kind === 'take' || move.kind === 'drop') {
+        if (!s.offer) return null;
+        const cube = cubeOf(s);
+        if (move.kind === 'drop') return { ...s, offer: null, winner: s.offer, stake: cube.value };
+        // The player who takes owns the cube; the player who doubled goes on to roll.
+        return { ...s, offer: null, cube: { value: cube.value * 2, owner: s.current }, current: s.offer };
+      }
+      if (s.offer) return null;
       if (move.kind === 'roll') {
         if (s.dice.length > 0) return null;
         let seed = s.seed;
@@ -218,7 +270,10 @@ export function createBackgammon(fixedSeed?: number): GameEngine<BgState, BgMove
       rest.splice(rest.indexOf(move.die), 1);
       const moved = applyStep(s, s.current, { from: move.from, to: move.to });
       const next: BgState = { ...moved, dice: rest };
-      if (next.off[s.current] === CHECKERS) return { ...next, dice: [], winner: s.current };
+      if (next.off[s.current] === CHECKERS) {
+        const stake = cubeOf(s).value * winMultiplier(next, s.current);
+        return { ...next, dice: [], winner: s.current, stake };
+      }
       return endTurnIfStuck(next);
     },
     getStatus: (s) => (s.winner === null ? { state: 'playing' } : { state: 'won', winner: s.winner }),

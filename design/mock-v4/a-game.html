@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TurnTable — Direction A, Overprint — chess</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Spline+Sans+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="a.css">
+</head>
+<body>
+<div class="table" id="table" data-turn="1">
+  <header class="bar">
+    <a class="chip" href="a-home.html" aria-label="Back to all games">← All games</a>
+    <span class="gap"></span>
+    <button class="chip" type="button" id="facing" aria-pressed="false" title="Turns the far player's name to face them, for a tablet lying flat between you">Sitting opposite</button>
+    <button class="chip" type="button">How to play</button>
+  </header>
+
+  <section class="seat s2" id="seat2" aria-label="Player 2">
+    <span class="disc" aria-hidden="true"></span>
+    <h2 class="name">Ben</h2>
+    <p class="state"><b id="st2">Waiting</b><br><span>Violet · games won</span></p>
+    <span class="won" aria-label="1 game won">1</span>
+  </section>
+
+  <main class="play">
+    <div class="board-wrap"><div class="board" id="board" role="group" aria-label="Chess board"></div></div>
+    <aside class="side">
+      <h1>Chess</h1>
+      <p class="hint">Mock board: pieces move anywhere so you can see the turn pass. Rules are not checked here.</p>
+      <div class="acts">
+        <button class="chip" type="button" id="undo">Undo</button>
+        <button class="chip" type="button" id="redo">Redo</button>
+        <button class="chip" type="button" id="restart">Restart</button>
+      </div>
+      <section class="moves" aria-label="Moves played">
+        <h2>Moves</h2>
+        <div class="list" id="moves"></div>
+      </section>
+    </aside>
+  </main>
+
+  <section class="seat s1 on" id="seat1" aria-label="Player 1">
+    <span class="disc" aria-hidden="true"></span>
+    <h2 class="name">Ana</h2>
+    <p class="state" role="status"><b id="st1">Your turn</b><br><span>Marigold · games won</span></p>
+    <span class="won" aria-label="2 games won">2</span>
+  </section>
+</div>
+
+<script src="chess-lite.js"></script>
+<script>
+  const table = document.getElementById('table');
+  const moves = document.getElementById('moves');
+  const game = ChessLite.mount(document.getElementById('board'), (s) => {
+    table.dataset.turn = s.turn;
+    document.getElementById('seat1').classList.toggle('on', s.turn === 1);
+    document.getElementById('seat2').classList.toggle('on', s.turn === 2);
+    document.getElementById('st1').textContent = s.turn === 1 ? 'Your turn' : 'Waiting';
+    document.getElementById('st2').textContent = s.turn === 2 ? 'Your turn' : 'Waiting';
+    document.getElementById('undo').disabled = !s.canUndo;
+    document.getElementById('redo').disabled = !s.canRedo;
+    let html = '';
+    for (let i = 0; i < s.moves.length; i += 2) {
+      html += `<span class="n">${i / 2 + 1}.</span><span class="m1">${s.moves[i]}</span><span class="${s.moves[i + 1] ? 'm2' : ''}">${s.moves[i + 1] || ''}</span>`;
+    }
+    moves.innerHTML = html || '<span class="empty">No moves yet. Marigold starts.</span>';
+    moves.scrollTop = moves.scrollHeight;
+  });
+  document.getElementById('undo').onclick = game.undo;
+  document.getElementById('redo').onclick = game.redo;
+  document.getElementById('restart').onclick = game.restart;
+  document.getElementById('facing').onclick = (e) => {
+    const on = table.classList.toggle('facing');
+    e.currentTarget.setAttribute('aria-pressed', on);
+  };
+</script>
+</body>
+</html>

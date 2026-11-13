@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { Mode } from './components';
 import type { GameEngine, PlayerId } from './engine';
 import { publishMatch } from './matchInfo';
+import { usePlayerNames } from './playerNames';
 import { loadJson, saveJson } from './storage';
 import { type UseGame, useGame } from './useGame';
 
@@ -13,6 +14,8 @@ interface Options<State, Move> {
   delayMs?: number;
   /** Save and resume this match (position, mode and scores) under this id. Include any variant in the id. */
   persistId?: string;
+  /** Points a finished game is worth to its winner (default 1), for games with scoring such as Backgammon. */
+  pointsFor?: (state: State) => number;
 }
 
 export interface UseMatch<State, Move, Line> {
@@ -29,7 +32,7 @@ export interface UseMatch<State, Move, Line> {
 /** Wraps useGame with pvp / vs-computer mode, a computer-move effect, and a per-session scoreboard. */
 export function useMatch<State, Move, Line = unknown>(
   engine: GameEngine<State, Move, Line>,
-  { pickMove, cpu = 2, delayMs = 450, persistId }: Options<State, Move> = {},
+  { pickMove, cpu = 2, delayMs = 450, persistId, pointsFor }: Options<State, Move> = {},
 ): UseMatch<State, Move, Line> {
   const game = useGame(engine, { persistKey: persistId });
   const meta = persistId ? loadJson<{ mode?: unknown; scores?: unknown }>(`${persistId}:meta`) : null;
@@ -43,11 +46,17 @@ export function useMatch<State, Move, Line = unknown>(
     if (persistId) saveJson(`${persistId}:meta`, { mode, scores });
   }, [persistId, mode, scores]);
   const { state, status, player, play, reset } = game;
+  const chosen = usePlayerNames();
   const lastNames = useRef<Record<PlayerId, string> | null>(null);
   // Let the page chrome show the player names and whose turn it is.
   useEffect(() => {
     if (lastNames.current)
-      publishMatch({ names: lastNames.current, player, over: status.state !== 'playing' });
+      publishMatch({
+        names: lastNames.current,
+        player,
+        over: status.state !== 'playing',
+        editable: mode === 'pvp',
+      });
   });
   useEffect(() => () => publishMatch(null), []);
 
@@ -73,8 +82,9 @@ export function useMatch<State, Move, Line = unknown>(
   useEffect(() => {
     if (!winner || scored.current === state) return;
     scored.current = state;
-    setScores((s) => ({ ...s, [winner]: s[winner] + 1 }));
-  }, [winner, state]);
+    const points = Math.max(1, Math.round(pointsFor?.(state) ?? 1));
+    setScores((s) => ({ ...s, [winner]: s[winner] + points }));
+  }, [winner, state, pointsFor]);
 
   return {
     game,
@@ -91,7 +101,8 @@ export function useMatch<State, Move, Line = unknown>(
     undo: () =>
       mode === 'vs-cpu' && pickMove ? game.undoWhile((st) => engine.currentPlayer(st) === cpu) : game.undo(1),
     names: (p1, p2) => {
-      const n: Record<PlayerId, string> = mode === 'vs-cpu' ? { 1: 'You', 2: 'Computer' } : { 1: p1, 2: p2 };
+      const n: Record<PlayerId, string> =
+        mode === 'vs-cpu' ? { 1: 'You', 2: 'Computer' } : { 1: chosen[1] || p1, 2: chosen[2] || p2 };
       lastNames.current = n;
       return n;
     },

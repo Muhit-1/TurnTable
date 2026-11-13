@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TurnTable — Direction A, Overprint — home</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Spline+Sans+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="a.css">
+</head>
+<body>
+<header class="bar">
+  <a class="mark" href="a-home.html"><i aria-hidden="true"></i>TurnTable</a>
+  <span class="gap"></span>
+  <button class="chip" type="button" aria-pressed="true">Sound on</button>
+  <a class="chip" href="index.html">Both designs</a>
+</header>
+
+<main>
+  <section class="hero" aria-labelledby="word">
+    <div class="discs" aria-hidden="true"><span class="d1"></span><span class="d2"></span></div>
+    <h1 class="word" id="word"><span>Turn</span><span class="w2">Table</span></h1>
+    <div>
+      <p class="pitch">26 games for two players on one screen. Sit down, pick one, take turns.</p>
+      <div class="seats">
+        <label><small>Player 1</small><input type="text" maxlength="14" placeholder="Your name" autocomplete="off"></label>
+        <span class="vs" aria-hidden="true">VS</span>
+        <label><small>Player 2</small><input type="text" maxlength="14" placeholder="Their name" autocomplete="off"></label>
+      </div>
+      <p class="seats-note">Names show on every scoreboard. Leave them empty to play as Player 1 and Player 2.</p>
+    </div>
+  </section>
+
+  <div class="tools">
+    <div id="cats" role="group" aria-label="Kind of game" style="display:contents"></div>
+    <input class="find" id="find" type="search" placeholder="Find a game" aria-label="Find a game">
+  </div>
+
+  <section class="grid" id="grid" aria-label="Games"></section>
+</main>
+
+<script src="data.js"></script>
+<script src="glyphs.js"></script>
+<script>
+  const grid = document.getElementById('grid');
+  const cats = document.getElementById('cats');
+  const find = document.getElementById('find');
+  let cat = 'all';
+  const catName = Object.fromEntries(CATS.map((c) => [c.id, c.name]));
+
+  function drawCats() {
+    cats.innerHTML = [{ id: 'all', name: 'All' }, ...CATS]
+      .map((c) => {
+        const n = c.id === 'all' ? GAMES.length : GAMES.filter((g) => g.c === c.id).length;
+        return `<button class="chip" type="button" data-c="${c.id}" aria-pressed="${c.id === cat}">${c.name} <span>${n}</span></button>`;
+      })
+      .join('');
+  }
+  function drawGrid() {
+    const q = find.value.trim().toLowerCase();
+    const list = GAMES.filter((g) => (cat === 'all' || g.c === cat) && (!q || g.t.toLowerCase().includes(q)));
+    grid.innerHTML = list.length
+      ? list
+          .map(
+            (g) => `<a class="tile" href="a-game.html">
+              <div class="art">${glyph(g.id)}</div>
+              <div><h3>${g.t}</h3><p>${g.d}</p></div>
+              <footer><span>${catName[g.c]}</span><span>${g.cpu ? '2 players or computer' : '2 players'}</span></footer>
+            </a>`,
+          )
+          .join('')
+      : `<p class="none">No game is called “${find.value.replace(/[<&]/g, '')}”. Clear the search to see all ${GAMES.length}.</p>`;
+  }
+  cats.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-c]');
+    if (!b) return;
+    cat = b.dataset.c;
+    drawCats();
+    drawGrid();
+  });
+  find.addEventListener('input', drawGrid);
+  drawCats();
+  drawGrid();
+</script>
+</body>
+</html>

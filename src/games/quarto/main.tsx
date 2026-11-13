@@ -1,10 +1,5 @@
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
 import '../../styles/index.css';
+import { mount } from '../../shared/mount';
 import Quarto from './Quarto';
 
-createRoot(document.getElementById('root') as HTMLElement).render(
-  <StrictMode>
-    <Quarto />
-  </StrictMode>,
-);
+mount(<Quarto />, 'quarto');

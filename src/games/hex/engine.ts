@@ -1,6 +1,8 @@
 import type { GameEngine, Outcome, PlayerId } from '../../shared/engine';
 
 export const SIZE = 11;
+/** The move that takes over the opening stone (the swap, or "pie", rule). */
+export const SWAP = -1;
 export type Cell = PlayerId | null;
 export type Line = number[]; // winning chain, cell indices
 
@@ -62,6 +64,21 @@ export function findChain(cells: Cell[], p: PlayerId, size = SIZE): Line | null 
   return null;
 }
 
+/**
+ * Swap rule: right after the first stone, the second player may take it instead of placing one.
+ * The stone changes colour and is mirrored across the long diagonal, so it is worth the same to its new owner.
+ * This removes the first player's advantage: an opening that is too strong simply gets taken.
+ */
+export function canSwap(s: HexState): boolean {
+  if (s.status.state !== 'playing' || s.current !== 2) return false;
+  let stones = 0;
+  for (const c of s.cells) {
+    if (c === 2) return false;
+    if (c === 1) stones++;
+  }
+  return stones === 1;
+}
+
 export const hexEngine: GameEngine<HexState, number, Line> = {
   initialState: () => ({
     cells: Array<Cell>(SIZE * SIZE).fill(null),
@@ -69,8 +86,18 @@ export const hexEngine: GameEngine<HexState, number, Line> = {
     status: { state: 'playing' },
   }),
   currentPlayer: (s) => s.current,
-  legalMoves: (s) => (s.status.state === 'playing' ? s.cells.flatMap((c, i) => (c === null ? [i] : [])) : []),
+  legalMoves: (s) =>
+    s.status.state === 'playing'
+      ? [...s.cells.flatMap((c, i) => (c === null ? [i] : [])), ...(canSwap(s) ? [SWAP] : [])]
+      : [],
   applyMove(s, i) {
+    if (i === SWAP) {
+      if (!canSwap(s)) return null;
+      const at = s.cells.indexOf(1);
+      const cells = Array<Cell>(SIZE * SIZE).fill(null);
+      cells[(at % SIZE) * SIZE + Math.floor(at / SIZE)] = 2;
+      return { cells, current: 1, status: { state: 'playing' } };
+    }
     if (
       s.status.state !== 'playing' ||
       !Number.isInteger(i) ||

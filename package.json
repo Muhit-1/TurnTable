@@ -2,7 +2,6 @@
   "name": "turntable",
   "version": "1.0.0",
   "description": "Browser-based collection of two-player games",
-  "main": "index.js",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
@@ -17,8 +16,14 @@
     "type": "git",
     "url": "git+https://github.com/Muhit-1/TurnTable.git"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "games",
+    "board-games",
+    "two-player",
+    "hot-seat",
+    "react"
+  ],
+  "author": "Muhit-1",
   "license": "ISC",
   "type": "module",
   "bugs": {

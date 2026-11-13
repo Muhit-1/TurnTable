@@ -1,10 +1,5 @@
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
 import '../../styles/index.css';
+import { mount } from '../../shared/mount';
 import Uno from './Uno';
 
-createRoot(document.getElementById('root') as HTMLElement).render(
-  <StrictMode>
-    <Uno />
-  </StrictMode>,
-);
+mount(<Uno />, 'uno');

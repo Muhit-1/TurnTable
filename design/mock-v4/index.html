@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TurnTable — design mock v4: two new directions</title>
+<style>
+  :root { --ink: #1c1d22; --soft: #62646e; --line: #d9dbe2; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 16px/1.55 system-ui, "Segoe UI", sans-serif; color: var(--ink); background: #f3f4f7; }
+  main { max-width: 1080px; margin: 0 auto; padding: clamp(24px, 5vw, 56px) 16px 64px; }
+  h1 { margin: 0 0 8px; font-size: clamp(26px, 4vw, 38px); line-height: 1.15; }
+  .intro { max-width: 62ch; margin: 0 0 32px; color: var(--soft); }
+  .pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 20px; }
+  article { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 22px; display: grid; gap: 12px; align-content: start; }
+  h2 { margin: 0; font-size: 22px; }
+  h2 small { display: block; font-size: 13px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--soft); }
+  p { margin: 0; }
+  dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; font-size: 14.5px; }
+  dt { font-weight: 700; }
+  dd { margin: 0; color: #3b3d46; }
+  .sw { display: flex; gap: 6px; }
+  .sw i { width: 34px; height: 34px; border-radius: 8px; border: 1px solid rgb(0 0 0 / .14); }
+  .links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
+  .links a { display: inline-block; padding: 10px 16px; border-radius: 10px; background: var(--ink); color: #fff; font-weight: 650; text-decoration: none; }
+  .links a + a { background: #fff; color: var(--ink); border: 1px solid var(--ink); }
+  .links a:focus-visible { outline: 3px solid #3b6cf6; outline-offset: 3px; }
+  .note { margin-top: 28px; font-size: 14px; color: var(--soft); max-width: 70ch; }
+</style>
+</head>
+<body>
+<main>
+  <h1>TurnTable: two new directions</h1>
+  <p class="intro">Both leave the felt-and-brass table behind. Each has a home page and a chess page you can click through: pieces move freely on the mock board (no rule checks) so you can watch how each design shows whose turn it is.</p>
+
+  <div class="pair">
+    <article>
+      <h2><small>Direction A</small>Overprint</h2>
+      <p>A two-colour print job. Each player is one ink; where they meet, they overprint. Loud, flat and typographic.</p>
+      <div class="sw" aria-label="Colours"><i style="background:#ffb31a"></i><i style="background:#4b2be0"></i><i style="background:#16131f"></i><i style="background:#f4f2fa"></i><i style="background:#fff"></i></div>
+      <dl>
+        <dt>Turn</dt><dd>Your band fills with your ink and your name stretches to full width. The board's shadow slides to your side.</dd>
+        <dt>Type</dt><dd>Archivo at three widths, Spline Sans Mono for scores and moves.</dd>
+        <dt>Home</dt><dd>Two discs swap places once on arrival. Name both players before you pick a game.</dd>
+        <dt>Extra</dt><dd>"Sitting opposite" turns the far player's name to face them, for a tablet lying flat.</dd>
+      </dl>
+      <div class="links"><a href="a-home.html">Home page</a><a href="a-game.html">Chess page</a></div>
+    </article>
+
+    <article>
+      <h2><small>Direction B</small>Pencil &amp; Paper</h2>
+      <p>A maths notebook. Half of these games began on squared paper, so the site is drawn on it: one blue pen, one red pen.</p>
+      <div class="sw" aria-label="Colours"><i style="background:#fdfdfb"></i><i style="background:#cfe0f3"></i><i style="background:#1f47c4"></i><i style="background:#d5332a"></i><i style="background:#ffe75c"></i><i style="background:#2a2d36"></i></div>
+      <dl>
+        <dt>Turn</dt><dd>A ring is drawn round the name of the player to move. The last move is marked in highlighter.</dd>
+        <dt>Type</dt><dd>Shantell Sans, a marker hand that stays readable at small sizes.</dd>
+        <dt>Home</dt><dd>A doodle for each of the 26 games, sorted by binder tabs. Names go on dotted lines.</dd>
+        <dt>Extra</dt><dd>Wins are kept as tally marks. The board is a separate sheet, taped down a little crooked.</dd>
+      </dl>
+      <div class="links"><a href="b-home.html">Home page</a><a href="b-game.html">Chess page</a></div>
+    </article>
+  </div>
+
+  <p class="note">Nothing here is wired into the app. Fonts load from Google Fonts, so the mocks need a connection; the app itself would bundle them. Files: <code>design/mock-v4/</code>.</p>
+</main>
+</body>
+</html>

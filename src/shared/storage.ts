@@ -39,6 +39,19 @@ export function removeJson(key: string): void {
   }
 }
 
+/** Forgets everything saved for one game (every variant: position, undo steps, mode and scores). */
+export function clearSaved(gameId: string): void {
+  try {
+    const mine = (k: string) => k.startsWith(`${PREFIX}${gameId}:`);
+    const keys = Array.from({ length: localStorage.length }, (_, i) => localStorage.key(i) ?? '').filter(
+      mine,
+    );
+    for (const k of keys) localStorage.removeItem(k);
+  } catch {
+    /* storage unavailable */
+  }
+}
+
 /** Like useState, but remembers the value in localStorage (for settings such as difficulty or board size). */
 export function usePersistentState<T>(
   key: string,

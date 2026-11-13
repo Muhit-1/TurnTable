@@ -1,2 +1,3 @@
-Alfa Slab One, Figtree and JetBrains Mono are licensed under the SIL Open Font License 1.1
-(https://openfontlicense.org). The files here come from the @fontsource packages on npm.
+Shantell Sans is licensed under the SIL Open Font License 1.1
+(https://openfontlicense.org). The file here is the Latin subset of the variable font (all four axes:
+weight, bounce, informality and spacing) from the @fontsource-variable/shantell-sans package on npm.

@@ -49,7 +49,7 @@ describe('useGame resume', () => {
   };
   const renderGame = (key?: string) => renderHook(() => useGame(tttEngine, { persistKey: key }));
 
-  it('resumes the saved position after a reload, but not the undo history', () => {
+  it('resumes the saved position after a reload, with its undo steps', () => {
     const a = renderGame('ttt');
     play(a, 4, 0);
     a.unmount();
@@ -57,9 +57,22 @@ describe('useGame resume', () => {
     expect(b.result.current.state.cells[4]).toBe(1);
     expect(b.result.current.state.cells[0]).toBe(2);
     expect(b.result.current.player).toBe(1);
-    expect(b.result.current.canUndo).toBe(false);
+    expect(b.result.current.canUndo).toBe(true);
+    act(() => b.result.current.undo());
+    expect(b.result.current.state.cells[0]).toBeNull();
+    expect(b.result.current.state.cells[4]).toBe(1);
     play(b, 8);
-    expect(b.result.current.state.cells[8]).toBe(1);
+    expect(b.result.current.state.cells[8]).toBe(2);
+  });
+
+  it('ignores saved undo steps the engine cannot read', () => {
+    const a = renderGame('ttt');
+    play(a, 4, 0);
+    a.unmount();
+    saveJson('ttt:past', [{ nonsense: true }, 7]);
+    const b = renderGame('ttt');
+    expect(b.result.current.state.cells[4]).toBe(1);
+    expect(b.result.current.canUndo).toBe(false);
   });
 
   it('does not save without a key, and separate keys do not interfere', () => {

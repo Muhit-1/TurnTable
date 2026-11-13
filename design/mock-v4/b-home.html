@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TurnTable — Direction B, Pencil &amp; Paper — home</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shantell+Sans:ital,wght,BNCE,INFM,SPAC@0,300..800,-100..100,0..100,-100..100&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="b.css">
+</head>
+<body>
+<div class="page">
+  <div class="holes" aria-hidden="true"><i></i><i></i><i></i></div>
+
+  <header class="top">
+    <a class="sig" href="b-home.html"><b>Turn</b><i>Table</i></a>
+    <span class="gap"></span>
+    <button class="btn" type="button" aria-pressed="true">Sound on</button>
+    <a class="btn" href="index.html">Both designs</a>
+  </header>
+
+  <main>
+    <section class="head" aria-labelledby="title">
+      <h1 class="title" id="title"><b>Turn</b><i>Table</i>
+        <svg viewBox="0 0 400 30" preserveAspectRatio="none" aria-hidden="true"><path pathLength="100" d="M4 14 C70 4 130 24 200 12 S330 6 396 16 C340 22 300 20 262 25"/></svg>
+      </h1>
+      <div>
+        <p class="lede">26 games for two people and one screen. <mark>Pick one, then take turns.</mark></p>
+        <div class="names">
+          <label class="n1">Player 1 <input type="text" maxlength="14" placeholder="write your name" autocomplete="off"></label>
+          <label class="n2">Player 2 <input type="text" maxlength="14" placeholder="and theirs" autocomplete="off"></label>
+        </div>
+      </div>
+    </section>
+
+    <div class="tabs">
+      <div id="cats" role="group" aria-label="Kind of game" style="display:contents"></div>
+      <input class="find" id="find" type="search" placeholder="Find a game…" aria-label="Find a game">
+    </div>
+
+    <section class="list" id="list" aria-label="Games"></section>
+  </main>
+</div>
+
+<script src="data.js"></script>
+<script src="glyphs.js"></script>
+<script src="b-defs.js"></script>
+<script>
+  const list = document.getElementById('list');
+  const cats = document.getElementById('cats');
+  const find = document.getElementById('find');
+  let cat = 'all';
+
+  function drawCats() {
+    cats.innerHTML = [{ id: 'all', name: 'All' }, ...CATS]
+      .map((c) => {
+        const n = c.id === 'all' ? GAMES.length : GAMES.filter((g) => g.c === c.id).length;
+        return `<button class="tab" type="button" data-c="${c.id}" aria-pressed="${c.id === cat}">${c.name} <small>${n}</small></button>`;
+      })
+      .join('');
+  }
+  function drawList() {
+    const q = find.value.trim().toLowerCase();
+    const shown = GAMES.filter((g) => (cat === 'all' || g.c === cat) && (!q || g.t.toLowerCase().includes(q)));
+    list.innerHTML = shown.length
+      ? shown
+          .map(
+            (g) => `<a class="entry" href="b-game.html">
+              ${glyph(g.id)}
+              <div><b>${g.t}</b><span>${g.d}${g.cpu ? ' <em>Or play the computer.</em>' : ''}</span></div>
+            </a>`,
+          )
+          .join('')
+      : `<p class="none">Nothing here is called “${find.value.replace(/[<&]/g, '')}”. Rub it out to see all ${GAMES.length} games.</p>`;
+  }
+  cats.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-c]');
+    if (!b) return;
+    cat = b.dataset.c;
+    drawCats();
+    drawList();
+  });
+  find.addEventListener('input', drawList);
+  drawCats();
+  drawList();
+</script>
+</body>
+</html>

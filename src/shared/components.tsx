@@ -11,16 +11,18 @@ import {
   useRef,
   useState,
 } from 'react';
-import '../styles/theme-game.css';
 import type { PlayerId } from './engine';
 import { IconEqual, IconRedo, IconRestart, IconTrophy, IconUndo } from './icons';
 import { useMatchInfo } from './matchInfo';
 import { notify } from './notify';
+import { PenDefs } from './PenDefs';
+import { applyPaper, loadPaper } from './paper';
+import { MAX_NAME_LENGTH, setPlayerName, usePlayerNames } from './playerNames';
 import { RulesDialog } from './RulesPanel';
 import { rememberRecent } from './recent';
 import { isMuted, setMuted, sfx } from './sound';
+import { Tally } from './Tally';
 import { TopBar } from './TopBar';
-import { applyTable, loadTable } from './tableTheme';
 
 export type Mode = 'pvp' | 'vs-cpu';
 
@@ -65,13 +67,58 @@ export function Scoreboard({
 }) {
   const tokens = TOKENS[useContext(GameContext)] ?? ['p1', 'p2'];
   const info = useMatchInfo();
+  const chosen = usePlayerNames();
+  const [editing, setEditing] = useState<PlayerId | null>(null);
   return (
     <div className="players">
       {([1, 2] as const).map((p) => (
-        <div key={p} className={`player${info && !info.over && info.player === p ? ' active' : ''}`}>
+        <div
+          key={p}
+          className={`player${info && !info.over && info.player === p ? ' active' : ''}`}
+          data-tok={tokens[p - 1]}
+        >
           <i className={`tok ${tokens[p - 1]}`} aria-hidden="true" />
-          <span className="pname">{names[p]}</span>
-          <b>{scores[p]}</b>
+          <span className="pn">
+            {editing === p ? (
+              <input
+                className="pname pname-input"
+                aria-label={`Name for player ${p}`}
+                defaultValue={chosen[p]}
+                placeholder={names[p]}
+                maxLength={MAX_NAME_LENGTH}
+                // biome-ignore lint/a11y/noAutofocus: the field appears because the player asked to type a name
+                autoFocus
+                onBlur={(e) => {
+                  setPlayerName(p, e.target.value);
+                  setEditing(null);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') e.currentTarget.blur();
+                  else if (e.key === 'Escape') setEditing(null);
+                }}
+              />
+            ) : info?.editable ? (
+              <button
+                type="button"
+                className="pname pname-edit"
+                title="Change this name"
+                aria-label={`${names[p]}. Change this name`}
+                onClick={() => setEditing(p)}
+              >
+                {names[p]}
+              </button>
+            ) : (
+              <span className="pname">{names[p]}</span>
+            )}
+            {/* a ring drawn round the name of the player to move */}
+            <svg className="pen-ring" viewBox="0 0 120 50" preserveAspectRatio="none" aria-hidden="true">
+              <path
+                pathLength="100"
+                d="M14 26 C10 8 48 3 74 5 C102 7 116 16 110 30 C104 44 62 48 34 45 C14 43 6 34 16 20"
+              />
+            </svg>
+          </span>
+          <Tally n={scores[p]} />
         </div>
       ))}
     </div>
@@ -86,7 +133,7 @@ export function TurnBanner({ children }: { children: ReactNode }) {
   );
 }
 
-/** The walnut rail with a brass inlay and studs that every board sits in; plaques name the two seats and light up for the player to move. */
+/** The sheet every board is drawn on, taped down a little crooked; tags name the two seats and the one to move is highlighted. */
 export function BoardFrame({
   children,
   className = '',
@@ -100,10 +147,8 @@ export function BoardFrame({
   const info = useMatchInfo();
   return (
     <div className={`board-frame ${className}`} style={style}>
-      <i className="corner tl" aria-hidden="true" />
-      <i className="corner tr" aria-hidden="true" />
-      <i className="corner bl" aria-hidden="true" />
-      <i className="corner br" aria-hidden="true" />
+      <i className="tape t1" aria-hidden="true" />
+      <i className="tape t2" aria-hidden="true" />
       {info && (
         <>
           <span className={`plaque top${!info.over && info.player === 2 ? ' on' : ''}`}>{info.names[2]}</span>
@@ -291,7 +336,7 @@ function useFit(slot: RefObject<HTMLElement | null>, el: RefObject<HTMLElement |
     const target = el.current;
     if (!box || !target) return;
     let raf = 0;
-    const fit = () => {
+    const refit = () => {
       raf = 0;
       target.style.zoom = '1';
       const natural = target.firstElementChild?.getBoundingClientRect();
@@ -301,14 +346,14 @@ function useFit(slot: RefObject<HTMLElement | null>, el: RefObject<HTMLElement |
       const w = room.width - Number.parseFloat(cs.paddingLeft) - Number.parseFloat(cs.paddingRight);
       const h = room.height - Number.parseFloat(cs.paddingTop) - Number.parseFloat(cs.paddingBottom);
       // Leave a margin around the board and never let it grow past a comfortable size.
-      const fill = Math.min(w / natural.width, h / natural.height) * 0.92;
-      const cap = 780 / Math.max(natural.width, natural.height);
+      const fill = Math.min(w / natural.width, h / natural.height) * 0.97;
+      const cap = 1100 / Math.max(natural.width, natural.height);
       target.style.zoom = String(Math.max(0.3, Math.min(fill, cap)));
     };
     const schedule = () => {
-      if (!raf) raf = requestAnimationFrame(fit);
+      if (!raf) raf = requestAnimationFrame(refit);
     };
-    fit();
+    refit();
     const ro = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(schedule);
     ro?.observe(box);
     const mo = new MutationObserver(schedule);
@@ -343,12 +388,10 @@ export function GameShell({ id, title, children }: { id: string; title: string; 
     document.body.dataset.turn = info && !info.over ? String(info.player) : '';
   }, [info]);
   useEffect(() => {
-    applyTable(loadTable());
+    applyPaper(loadPaper());
   }, []);
   useEffect(() => {
-    document.body.classList.add('theme-tavern');
     rememberRecent(id);
-    return () => document.body.classList.remove('theme-tavern');
   }, [id]);
   // Keyboard: arrows move around the board, ? opens the rules, m mutes.
   useEffect(() => {
@@ -364,7 +407,8 @@ export function GameShell({ id, title, children }: { id: string; title: string; 
   }, []);
   return (
     <GameContext.Provider value={id}>
-      <div className="gp-page">
+      <div className="gp-page" data-game={id}>
+        <PenDefs />
         <a className="skip-link" href="#board">
           Skip to the board
         </a>
@@ -415,7 +459,7 @@ function FitTitle({ children }: { children: string }) {
   useLayoutEffect(() => {
     const h = el.current;
     if (!h) return;
-    const fit = () => {
+    const refit = () => {
       h.style.fontSize = '';
       let size = Number.parseFloat(getComputedStyle(h).fontSize);
       while (h.scrollWidth > h.clientWidth + 1 && size > 12) {
@@ -423,9 +467,9 @@ function FitTitle({ children }: { children: string }) {
         h.style.fontSize = `${size}px`;
       }
     };
-    fit();
-    document.fonts?.ready.then(fit);
-    const ro = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(fit);
+    refit();
+    document.fonts?.ready.then(refit);
+    const ro = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(refit);
     ro?.observe(h);
     return () => ro?.disconnect();
   }, [children]);

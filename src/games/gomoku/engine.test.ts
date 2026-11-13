@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { getBestMove } from './ai';
-import { gomokuEngine as e, SIZE } from './engine';
+import { createGomoku, gomokuEngine as e, SIZE, winningRun } from './engine';
 
 const at = (r: number, c: number) => r * SIZE + c;
 const play = (moves: number[]) => {
@@ -135,5 +135,35 @@ describe('gomoku AI', () => {
     const s = play([at(10, 0), at(0, 0), at(10, 2), at(0, 1), at(10, 4), at(0, 2), at(12, 6), at(0, 3)]);
     // white (player 2) has 4 in row 0; black to move must block at (0,4)
     expect(getBestMove(s)).toBe(at(0, 4));
+  });
+});
+
+describe('exactly-five rule', () => {
+  const row = (n: number) => {
+    const cells = Array<1 | 2 | null>(SIZE * SIZE).fill(null);
+    for (let c = 0; c < n; c++) cells[7 * SIZE + c] = 1;
+    return cells;
+  };
+
+  it('five in a row wins under both rules', () => {
+    expect(winningRun(row(5), 7 * SIZE, 'freestyle')).toHaveLength(5);
+    expect(winningRun(row(5), 7 * SIZE, 'standard')).toHaveLength(5);
+  });
+
+  it('six in a row wins only in freestyle', () => {
+    expect(winningRun(row(6), 7 * SIZE, 'freestyle')).toHaveLength(6);
+    expect(winningRun(row(6), 7 * SIZE, 'standard')).toBeNull();
+  });
+
+  it('the standard engine plays on after an overline', () => {
+    const std = createGomoku('standard');
+    let s = std.initialState();
+    // player 1 fills columns 0-3 and 5 of row 7, then closes the gap at column 4 to make six
+    const mine = [0, 1, 2, 3, 5, 4];
+    for (let k = 0; k < mine.length; k++) {
+      s = std.applyMove(s, 7 * SIZE + mine[k]) as typeof s;
+      if (k < mine.length - 1) s = std.applyMove(s, 12 * SIZE + k * 2) as typeof s;
+    }
+    expect(std.getStatus(s).state).toBe('playing');
   });
 });

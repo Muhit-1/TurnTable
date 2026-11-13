@@ -1,10 +1,5 @@
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
-import TicTacToe from './TicTacToe';
 import '../../styles/index.css';
+import { mount } from '../../shared/mount';
+import TicTacToe from './TicTacToe';
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <TicTacToe />
-  </StrictMode>,
-);
+mount(<TicTacToe />, 'tic-tac-toe');

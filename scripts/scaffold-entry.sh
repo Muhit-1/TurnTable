@@ -19,14 +19,9 @@ cat > "allgames/$id/index.html" <<EOF
 </html>
 EOF
 cat > "src/games/$id/main.tsx" <<EOF
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
 import '../../styles/index.css';
+import { mount } from '../../shared/mount';
 import $comp from './$comp';
 
-createRoot(document.getElementById('root') as HTMLElement).render(
-  <StrictMode>
-    <$comp />
-  </StrictMode>,
-);
+mount(<$comp />, '$id');
 EOF

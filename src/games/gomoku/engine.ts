@@ -18,8 +18,12 @@ const DIRS: [number, number][] = [
   [1, -1],
 ];
 
-/** Winning run (5 or more, "freestyle" rule) through `index`, or null. */
-export function winningRun(cells: Cell[], index: number): Line | null {
+/** Freestyle: five or more in a row wins. Standard: exactly five wins, a longer row ("overline") does not. */
+export type Variant = 'freestyle' | 'standard';
+export const isVariant = (v: unknown): v is Variant => v === 'freestyle' || v === 'standard';
+
+/** Winning run through `index` under the given rule, or null. */
+export function winningRun(cells: Cell[], index: number, variant: Variant = 'freestyle'): Line | null {
   const p = cells[index];
   if (!p) return null;
   const r0 = Math.floor(index / SIZE);
@@ -35,12 +39,12 @@ export function winningRun(cells: Cell[], index: number): Line | null {
         c += dc * sign;
       }
     }
-    if (run.length >= 5) return run;
+    if (variant === 'standard' ? run.length === 5 : run.length >= 5) return run;
   }
   return null;
 }
 
-export const gomokuEngine: GameEngine<GomokuState, number, Line> = {
+export const createGomoku = (variant: Variant = 'freestyle'): GameEngine<GomokuState, number, Line> => ({
   initialState: () => ({
     cells: Array<Cell>(SIZE * SIZE).fill(null),
     current: 1,
@@ -61,7 +65,7 @@ export const gomokuEngine: GameEngine<GomokuState, number, Line> = {
     }
     const cells = s.cells.slice();
     cells[i] = s.current;
-    const line = winningRun(cells, i);
+    const line = winningRun(cells, i, variant);
     const status: Outcome<Line> = line
       ? { state: 'won', winner: s.current, line }
       : cells.every((c) => c !== null)
@@ -70,4 +74,6 @@ export const gomokuEngine: GameEngine<GomokuState, number, Line> = {
     return { cells, current: s.current === 1 ? 2 : 1, last: i, status };
   },
   getStatus: (s) => s.status,
-};
+});
+
+export const gomokuEngine = createGomoku();
